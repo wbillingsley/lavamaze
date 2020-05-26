@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lava Maze</title>
+
+    <link rel="icon" type="image/png" href="images/snoboticon.png" />
+
+    <link href="https://fonts.googleapis.com/css?family=Fira+Mono|Fira+Sans|Michroma" rel="stylesheet">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="veautiful-docs.css" />
+    <link rel="stylesheet" href="scatter.css" />
+    <link rel="stylesheet" href="wren.css" />
+</head>
+<body>
+
+<div id="render-here">
+    <p>Loading. Built with Veautiful.</p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<!-- Location when site generated locally -->
+<script type="text/javascript" src="./target/scala-2.13/lava-maze-opt.js"></script>
+<!-- Location deployed to by CI -->
+<script type="text/javascript" src="./deployscripts/compiled.js"></script>
+<script>
+    LavaMazeSite.main([])
+</script>
+
+</body>
+</html>
