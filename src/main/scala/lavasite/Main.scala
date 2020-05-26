@@ -8,10 +8,6 @@ import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 @JSExportTopLevel("LavaMazeSite")
 object Main {
 
-  val scaleChallengesToWindow:Boolean = {
-    !dom.window.location.search.contains("scale=off")
-  }
-
   @JSExport
   def load(): Unit = {
     val n = dom.document.getElementById("render-here")
