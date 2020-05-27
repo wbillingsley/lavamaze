@@ -77,6 +77,8 @@ case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Boolean]{
 
   def cancel():Unit = if (!action.done) action.fail(new InterruptedException("Aborted"))
 
+  def boundingBox:((Int, Int), (Int, Int)) = (px, py) -> (px + oneTile, py + oneTile)
+
   /** An Action that Snobot can perform */
   sealed trait Action {
     def drawX = 0.0
@@ -119,6 +121,17 @@ case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Boolean]{
     }
 
     def tick(): Unit = { t = t + 1 }
+  }
+
+  /** The do nothing action */
+  case class AtGoal() extends Action {
+    promise.success()
+
+    def paintLayer(layer: Int, x1: Int, y1: Int, x2:Int, y2:Int, ctx: CanvasRenderingContext2D): Unit = {
+      // Snobot has left the building
+    }
+
+    def tick(): Unit = { }
   }
 
   case class Move(d:Direction, dist:Int) extends Action {
@@ -174,7 +187,8 @@ case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Boolean]{
   }
 
   var action:Action = Move(EAST, 1)
-  var alive = true
+
+  def alive:Boolean = action != Die()
 
   /**
    * Kills the Ninja if it is not on a passable square
@@ -182,7 +196,6 @@ case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Boolean]{
   def checkLocationValid():Unit = {
     if (alive && !maze.getTile(tx, ty).isPassableTo(this)) {
       action = Die()
-      alive = false;
     }
   }
 
@@ -193,7 +206,6 @@ case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Boolean]{
     px = 0
     py = 0
     action = Idle()
-    alive = true
   }
 
   def tick() = {
@@ -202,6 +214,7 @@ case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Boolean]{
       action = action match {
         case Idle() => action
         case Die() => action
+        case AtGoal() => action
         case _ => Idle()
       }
       checkLocationValid()
@@ -222,7 +235,6 @@ case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Boolean]{
   })
 
   def setAction(a:Action): Future[Unit] = {
-    println(alive)
     if (alive && action.done) {
       action = a
       a.future

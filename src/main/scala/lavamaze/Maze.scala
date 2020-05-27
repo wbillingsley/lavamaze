@@ -9,13 +9,15 @@ import scala.collection.mutable
 
 case class Maze(name:String = "maze")(
   viewSize:(Int, Int),
-  mazeSize:(Int, Int)
+  mazeSize:(Int, Int),
 )(setup: Maze => _) extends VHtmlNode {
 
   val (mWidth, mHeight) = mazeSize
   val (vWidth, vHeight) = viewSize
   val drawWidth = vWidth * oneTile
   val drawHeight = vHeight * oneTile
+
+  val environment = LavaEnvironment(mWidth, mHeight)
 
   val canvas = <.canvas(^.attr("width") := drawWidth, ^.attr("height") := drawHeight)
 
@@ -46,9 +48,8 @@ case class Maze(name:String = "maze")(
     }
   }
 
-  val environment = LavaEnvironment(mWidth, mHeight)
 
-  private val cells:Seq[Array[Tile]] = for { y <- 0 until mHeight} yield Array.fill[Tile](mWidth)(LavaTile)
+  private val cells:Seq[Array[Tile]] = for { y <- 0 until mHeight} yield Array.fill[Tile](mWidth)(environment.defaultTile)
 
   private val fixtures:mutable.Map[(Int, Int), Fixture] = mutable.Map.empty
 
@@ -66,6 +67,18 @@ case class Maze(name:String = "maze")(
 
   val snobot = Snobot(this)
   setup(this)
+
+  def reset(): Unit = {
+    for {
+      row <- cells
+      x <- row.indices
+    } row(x) = environment.defaultTile
+
+    snobot.px = 0
+    snobot.py = 0
+    snobot.action = snobot.Idle()
+    setup(this)
+  }
 
   def repaint():Unit = for (c <- domNode) {
     val ctx = c.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
@@ -90,7 +103,7 @@ case class Maze(name:String = "maze")(
   def step() = {
     environment.tick()
 
-    fixtures.values.foreach(_.tick())
+    fixtures.values.foreach(_.tick(this))
 
     snobot.tick()
   }

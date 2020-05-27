@@ -9,6 +9,8 @@ case class LavaEnvironment(dimensions:(Int, Int)) extends Environment {
   val lavaBlobStyle = "rgb(115,0,0)"
   val lavaBlobStroke = "rgb(110,0,0)"
 
+  def defaultTile = LavaTile
+
   case class LavaBlob(w:Double, h:Double, var x:Double = 0, var y:Double = 0, var r:Double = 0) {
     def reset(): Unit = {
       x = Math.random() * w

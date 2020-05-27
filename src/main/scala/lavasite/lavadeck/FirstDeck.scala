@@ -18,14 +18,12 @@ object FirstDeck {
   import scala.scalajs.js.JSConverters._
 
   val m = Maze()((10, 10), (10, 10)) { maze =>
-    println("SETUP2")
-
+    dom.console.log("Setting up maze")
     for {
       x <- 0 until maze.mHeight
     } maze.setTile(x, 0, FloorTile)
 
     maze.addFixture(Goal(3, 0))
-
   }
 
   val rpcs = Map[String, js.Function](
@@ -105,6 +103,7 @@ object FirstDeck {
             m.snobot.cancel()
             icr.reset()
             cr.reset()
+            m.reset()
           }, "Cancel"))
         ),
       )
