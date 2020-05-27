@@ -3,11 +3,12 @@ package lavasite.lavadeck
 import coderunner.{CodeRunner, IFrameCodeRunner, WorkerCodeRunner}
 import com.wbillingsley.veautiful.{DiffNode, MutableArrayComponent}
 import com.wbillingsley.veautiful.html.{<, SVG, VHtmlComponent, ^}
-import com.wbillingsley.veautiful.templates.DeckBuilder
+import com.wbillingsley.veautiful.templates.{Challenge, DeckBuilder}
 import lavamaze.{Maze, Snobot}
 import org.scalajs.dom
 import org.scalajs.dom.{Element, Node, html, svg}
 import lavasite.Common
+import lavasite.templates.AceEditor
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
@@ -16,10 +17,7 @@ object FirstDeck {
 
   import scala.scalajs.js.JSConverters._
 
-
-
   val m = Maze()((10, 10), (10, 10))
-  var text:String = ""
 
   val rpcs = Map[String, js.Function](
     "ping" -> (() => println("ping")),
@@ -32,20 +30,29 @@ object FirstDeck {
 
   val cr = new WorkerCodeRunner(rpcs, Map.empty, true)
 
-  val t = <.textarea(^.on("input") ==> { e =>
-    text = e.target.asInstanceOf[html.TextArea].value
-  })
+  val ace = AceEditor("mycode") { editor =>
+    editor.setTheme("ace/theme/monokai")
+    editor.setFontSize("24px")
+    editor.session.setMode("ace/mode/javascript")
+  }
+
   val b = <.button(^.onClick --> {
-    //m.snobot.ask(Snobot.MoveMessage(lavamaze.EAST, 1), { _ => })
-    println("code: " + text)
-    CodeRunner.asyncBind(
-      args = rpcs.toSeq,
-      await=Seq("goRight", "goLeft", "goUp", "goDown"),
-      code=text)()
+    for {
+      e <- ace.editor
+      text = e.getValue().asInstanceOf[String]
+    } {
+      CodeRunner.asyncBind(
+        args = rpcs.toSeq,
+        await = Seq("goRight", "goLeft", "goUp", "goDown"),
+        code = text)()
+    }
   }, "Run locally")
 
   val test = <.button(^.onClick --> {
-    cr.remoteExecute(text)
+    for {
+      e <- ace.editor
+      text = e.getValue().asInstanceOf[String]
+    } cr.remoteExecute(text)
   }, "Run in worker")
 
   val icr = new IFrameCodeRunner(
@@ -55,7 +62,12 @@ object FirstDeck {
   )
 
   val ifVersion = <.span(
-    <.button(^.onClick --> icr.remoteExecute(text), "Run in iframe"), icr
+    <.button(^.onClick --> {
+      for {
+        e <- ace.editor
+        text = e.getValue().asInstanceOf[String]
+      } icr.remoteExecute(text)
+    }, "Run in iframe"), icr
   )
 
 
@@ -72,11 +84,20 @@ object FirstDeck {
     .veautifulSlide(
       <.div(
         <.h1("Maze"),
-        Seq(m, t, b, test, ifVersion, <.button(^.onClick --> {
-          m.snobot.cancel()
-          icr.reset()
-          cr.reset()
-        }, "Cancel"))
+        Challenge.split(
+          <.div(
+            m,
+          )
+        )(
+          <.div(^.attr("style") := "position: relative; width: 600px; height: 300px;",
+            ace,
+          ),
+          Seq(b, test, ifVersion, <.button(^.onClick --> {
+            m.snobot.cancel()
+            icr.reset()
+            cr.reset()
+          }, "Cancel"))
+        ),
       )
     )
     .markdownSlide(

@@ -397,3 +397,13 @@ h1, h2, h3, h4 {
     background-position: center;
     background-repeat: no-repeat;
 }
+
+
+/*
+   Ace
+ */
+.ace-editor {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
