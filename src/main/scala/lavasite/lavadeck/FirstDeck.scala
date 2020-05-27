@@ -4,7 +4,7 @@ import coderunner.{CodeRunner, IFrameCodeRunner, WorkerCodeRunner}
 import com.wbillingsley.veautiful.{DiffNode, MutableArrayComponent}
 import com.wbillingsley.veautiful.html.{<, SVG, VHtmlComponent, ^}
 import com.wbillingsley.veautiful.templates.{Challenge, DeckBuilder}
-import lavamaze.{Maze, Snobot}
+import lavamaze.{FloorTile, Goal, Maze, Snobot}
 import org.scalajs.dom
 import org.scalajs.dom.{Element, Node, html, svg}
 import lavasite.Common
@@ -17,7 +17,16 @@ object FirstDeck {
 
   import scala.scalajs.js.JSConverters._
 
-  val m = Maze()((10, 10), (10, 10))
+  val m = Maze()((10, 10), (10, 10)) { maze =>
+    println("SETUP2")
+
+    for {
+      x <- 0 until maze.mHeight
+    } maze.setTile(x, 0, FloorTile)
+
+    maze.addFixture(Goal(3, 0))
+
+  }
 
   val rpcs = Map[String, js.Function](
     "ping" -> (() => println("ping")),

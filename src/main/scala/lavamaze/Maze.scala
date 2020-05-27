@@ -5,10 +5,12 @@ import com.wbillingsley.veautiful.html.{<, VHtmlNode, ^}
 import org.scalajs.dom
 import org.scalajs.dom.{Element, Node}
 
+import scala.collection.mutable
+
 case class Maze(name:String = "maze")(
   viewSize:(Int, Int),
   mazeSize:(Int, Int)
-) extends VHtmlNode {
+)(setup: Maze => _) extends VHtmlNode {
 
   val (mWidth, mHeight) = mazeSize
   val (vWidth, vHeight) = viewSize
@@ -48,15 +50,22 @@ case class Maze(name:String = "maze")(
 
   private val cells:Seq[Array[Tile]] = for { y <- 0 until mHeight} yield Array.fill[Tile](mWidth)(LavaTile)
 
+  private val fixtures:mutable.Map[(Int, Int), Fixture] = mutable.Map.empty
+
   def getTile(tx:Int, ty:Int):Tile = {
     if (tx >= mWidth || tx < 0 || ty < 0 || ty >= mHeight) Tile.OutOfBounds else cells(ty)(tx)
   }
 
-  for {
-    x <- 0 until mHeight
-  } cells(0)(x) = FloorTile
+  def setTile(tx:Int, ty:Int, tile: Tile):Unit = {
+    if (tx < mWidth && tx >= 0 && ty >= 0 && ty < mHeight) cells(ty)(tx) = tile
+  }
+
+  def addFixture(f:Fixture):Unit = {
+    if (f.tx < mWidth && f.tx >= 0 && f.ty >= 0 && f.ty < mHeight) fixtures.addOne((f.tx, f.ty) -> f)
+  }
 
   val snobot = Snobot(this)
+  setup(this)
 
   def repaint():Unit = for (c <- domNode) {
     val ctx = c.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
@@ -69,6 +78,10 @@ case class Maze(name:String = "maze")(
         (cell, x) <- row.iterator.zipWithIndex
       } cell.paint(layer, x * oneTile, y * oneTile, ctx)
 
+      for {
+        fixture <- fixtures.values
+      } fixture.paintLayer(layer, 0, 0, vWidth * oneTile, vHeight * oneTile, ctx)
+
       snobot.paintLayer(layer, 0, 0, vWidth, vHeight, ctx)
     }
   }
@@ -76,6 +89,9 @@ case class Maze(name:String = "maze")(
 
   def step() = {
     environment.tick()
+
+    fixtures.values.foreach(_.tick())
+
     snobot.tick()
   }
 
