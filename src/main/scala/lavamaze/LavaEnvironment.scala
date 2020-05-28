@@ -5,9 +5,11 @@ import org.scalajs.dom.CanvasRenderingContext2D
 
 case class LavaEnvironment(dimensions:(Int, Int)) extends Environment {
 
-  val fillStyle = "rgb(100,0,0)"
-  val lavaBlobStyle = "rgb(115,0,0)"
-  val lavaBlobStroke = "rgb(110,0,0)"
+  val fillStyle = "rgba(100,0,0,1)"
+  //val lavaBlobStyle = "rgba(115,0,0, 0.3)"
+  //val lavaBlobStroke = "rgba(110,0,0, 0.3)"
+  val lavaBlobStyle = "rgba(255,180,0, 0.15)"
+  val lavaBlobStroke = "rgba(240,150,0, 0.15)"
 
   def defaultTile = LavaTile
 
@@ -34,6 +36,7 @@ case class LavaEnvironment(dimensions:(Int, Int)) extends Environment {
       val yy = y + offsetY
 
       ctx.strokeStyle = lavaBlobStroke
+      ctx.lineWidth = 10;
       ctx.fillStyle = lavaBlobStyle
       ctx.beginPath()
       ctx.moveTo(xx, yy)
@@ -52,10 +55,10 @@ case class LavaEnvironment(dimensions:(Int, Int)) extends Environment {
   private val lavaBlobs = Array.fill(width * height / 2)(LavaBlob(width * oneTile, height * oneTile))
 
   override def paintLayer(layer: Int, x1:Int, y1:Int, x2:Int, y2:Int, ctx: CanvasRenderingContext2D): Unit = {
-    if (layer == 1) {
+    if (layer == 0) {
       ctx.fillStyle = fillStyle
       ctx.fillRect(0, 0, x2 - x1, y2 - y1)
-
+    } else if (layer == 2) {
       for {
         b <- lavaBlobs if b.visibleIn(x1, y1, x2, y2)
       } b.draw(x1, y1, ctx)

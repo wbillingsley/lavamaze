@@ -21,44 +21,50 @@ object Snobot {
 
   val image = <("img")(^.src := "images/snobot.png").create()
 
+  val dimension = 56
+
+  private val _dx:Int = (oneTile - dimension) / 2
+  private val _dy:Int = _dx
+
+
   def drawRight1(offsetX:Int, offsetY:Int, ctx:dom.CanvasRenderingContext2D):Unit = {
-    ctx.drawImage(Snobot.image, 0, 0, 64, 64, offsetX, offsetY, 64, 64)
+    ctx.drawImage(Snobot.image, 0, 0, 64, 64, offsetX + _dx, offsetY + _dy, dimension, dimension)
   }
 
   def drawRight2(offsetX:Int, offsetY:Int, ctx:dom.CanvasRenderingContext2D):Unit = {
-    ctx.drawImage(Snobot.image, 64, 0, 64, 64, offsetX, offsetY, 64, 64)
+    ctx.drawImage(Snobot.image, 64, 0, 64, 64, offsetX + _dx, offsetY + _dy, dimension, dimension)
   }
 
   def drawLeft1(offsetX:Int, offsetY:Int, ctx:dom.CanvasRenderingContext2D):Unit = {
-    ctx.drawImage(Snobot.image, 128, 0, 64, 64, offsetX, offsetY, 64, 64)
+    ctx.drawImage(Snobot.image, 128, 0, 64, 64, offsetX + _dx, offsetY + _dy, dimension, dimension)
   }
 
   def drawLeft2(offsetX:Int, offsetY:Int, ctx:dom.CanvasRenderingContext2D):Unit = {
-    ctx.drawImage(Snobot.image, 192, 0, 64, 64, offsetX, offsetY, 64, 64)
+    ctx.drawImage(Snobot.image, 192, 0, 64, 64, offsetX + _dx, offsetY + _dy, dimension, dimension)
   }
 
   def drawUp1(offsetX:Int, offsetY:Int, ctx:dom.CanvasRenderingContext2D):Unit = {
-    ctx.drawImage(Snobot.image, 256, 0, 64, 64, offsetX, offsetY, 64, 64)
+    ctx.drawImage(Snobot.image, 256, 0, 64, 64, offsetX + _dx, offsetY + _dy, dimension, dimension)
   }
 
   def drawUp2(offsetX:Int, offsetY:Int, ctx:dom.CanvasRenderingContext2D):Unit = {
-    ctx.drawImage(Snobot.image, 0, 64, 64, 64, offsetX, offsetY, 64, 64)
+    ctx.drawImage(Snobot.image, 0, 64, 64, 64, offsetX + _dx, offsetY + _dy, dimension, dimension)
   }
 
   def drawIdleL(offsetX:Int, offsetY:Int, ctx:dom.CanvasRenderingContext2D):Unit = {
-    ctx.drawImage(Snobot.image, 64, 64, 64, 64, offsetX, offsetY, 64, 64)
+    ctx.drawImage(Snobot.image, 64, 64, 64, 64, offsetX + _dx, offsetY + _dy, dimension, dimension)
   }
 
   def drawIdleR(offsetX:Int, offsetY:Int, ctx:dom.CanvasRenderingContext2D):Unit = {
-    ctx.drawImage(Snobot.image, 128, 64, 64, 64, offsetX, offsetY, 64, 64)
+    ctx.drawImage(Snobot.image, 128, 64, 64, 64, offsetX + _dx, offsetY + _dy, dimension, dimension)
   }
 
   def drawSmoke1(offsetX:Int, offsetY:Int, ctx:dom.CanvasRenderingContext2D):Unit = {
-    ctx.drawImage(Snobot.image, 196, 64, 64, 64, offsetX, offsetY, 64, 64)
+    ctx.drawImage(Snobot.image, 196, 64, 64, 64, offsetX + _dx, offsetY + _dy, dimension, dimension)
   }
 
   def drawSmoke2(offsetX:Int, offsetY:Int, ctx:dom.CanvasRenderingContext2D):Unit = {
-    ctx.drawImage(Snobot.image, 256, 64, 64, 64, offsetX, offsetY, 64, 64)
+    ctx.drawImage(Snobot.image, 256, 64, 64, 64, offsetX + _dx, offsetY + _dy, dimension, dimension)
   }
 
 }

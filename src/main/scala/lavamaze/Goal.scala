@@ -35,9 +35,6 @@ case class Goal(tx:Int, ty:Int) extends Fixture {
 
   private var snobotExited = false
 
-  def inside(x:Int, y:Int)(x1:Int, y1:Int, x2:Int, y2:Int):Boolean = {
-    (x1 <= x && x <= x2 && y1 <= y && y <= y2)
-  }
 
   def intersects(x1:Int, y1:Int, x2:Int, y2:Int):Boolean = {
     inside(x, y)(x1, y1, x2, y2) ||
