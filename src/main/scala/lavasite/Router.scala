@@ -22,7 +22,7 @@ case object IntroRoute extends Route {
 }
 case class DeckRoute(name:String, page:Int) extends Route {
   val path = Route.deckPath.mkString((page.toString, (name, start)))
-  def render = Common.showDeck(name)
+  def render = Common.showDeck(name, page)
 }
 
 object Router extends HistoryRouter[Route] {

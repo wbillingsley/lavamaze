@@ -4,7 +4,7 @@ import coderunner.{CodeRunner, IFrameCodeRunner, WorkerCodeRunner}
 import com.wbillingsley.veautiful.{DiffNode, MutableArrayComponent}
 import com.wbillingsley.veautiful.html.{<, SVG, VHtmlComponent, ^}
 import com.wbillingsley.veautiful.templates.{Challenge, DeckBuilder}
-import lavamaze.{Diamond, FloorTile, Goal, Maze, Snobot}
+import lavamaze.{BlobGuard, Boulder, Diamond, FloorTile, Goal, Maze, Snobot}
 import org.scalajs.dom
 import org.scalajs.dom.{Element, Node, html, svg}
 import lavasite.Common
@@ -19,16 +19,20 @@ object FirstDeck {
 
   val m = Maze()((10, 10), (10, 10)) { maze =>
     dom.console.log("Setting up maze")
-    for {
-      x <- 0 until maze.mHeight
-    } maze.setTile(x, 0, FloorTile)
 
-    maze.addFixture(Goal(3, 0))
-    maze.addFixture(Diamond(5, 0))
+    maze.loadFromString(
+      """
+        |  S.....
+        |       *
+        |  ......
+        |  .  O
+        |  .....G
+        |""".stripMargin)
   }
 
   val rpcs = Map[String, js.Function](
     "ping" -> (() => println("ping")),
+    "canGoRight" -> (() => m.snobot.canMove(lavamaze.EAST)),
     "goRight" -> ((i: Int) => m.snobot.askF(Snobot.MoveMessage(lavamaze.EAST, i)).toJSPromise),
     "goLeft" -> ((i: Int) => m.snobot.askF(Snobot.MoveMessage(lavamaze.WEST, i)).toJSPromise),
     "goUp" -> ((i: Int) => m.snobot.askF(Snobot.MoveMessage(lavamaze.NORTH, i)).toJSPromise),
@@ -89,6 +93,37 @@ object FirstDeck {
         |A quick slide deck including some lava maze environments
         |
         |""".stripMargin).withClass("center middle")
+    .veautifulSlide(<.div(
+      <.h1("Welcome to the Lava Maze"),
+      <.p(
+        Maze()((1,1), (1,1)) { m => m.loadFromString("S") },
+        Common.markdown("*Snobot*: our hero")
+      ),
+      <.p(
+        Maze()((1,1), (1,1)) { m => m.loadFromString(" S") },
+        Common.markdown("*Lava*: deadly to snobots, passable to blob guards")
+      ),
+      <.p(
+        Maze()((1,1), (1,1)) { m => m.loadFromString(".S") },
+        Common.markdown("*Floor*: passable to snobots and blob guards")
+      ),
+      <.p(
+        Maze()((1,1), (1,1)) { m => m.loadFromString("GS") },
+        Common.markdown("*Goal*: where Snobot has to get to")
+      ),
+      <.p(
+        Maze()((1,1), (1,1)) { m => m.loadFromString("*S") },
+        Common.markdown("*Diamond*: collectable but slippery")
+      ),
+      <.p(
+        Maze()((1,1), (1,1)) { m => m.loadFromString("OS") },
+        Common.markdown("*Boulder*: you can push them around")
+      ),
+      <.p(
+        Maze()((1,1), (1,1)) { m => m.loadFromString("BS") },
+        Common.markdown("*Blob Guard*: our villain")
+      )
+    ))
     .veautifulSlide(
       <.div(
         <.h1("Maze"),

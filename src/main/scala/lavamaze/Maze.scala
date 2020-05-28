@@ -50,8 +50,8 @@ case class Maze(name:String = "maze")(
 
 
   private val cells:Seq[Array[Tile]] = for { y <- 0 until mHeight} yield Array.fill[Tile](mWidth)(environment.defaultTile)
-
   private val fixtures:mutable.Map[(Int, Int), Fixture] = mutable.Map.empty
+  private val mobs:mutable.Set[Mob] = mutable.Set.empty
 
   def getTile(tx:Int, ty:Int):Tile = {
     if (tx >= mWidth || tx < 0 || ty < 0 || ty >= mHeight) Tile.OutOfBounds else cells(ty)(tx)
@@ -65,8 +65,12 @@ case class Maze(name:String = "maze")(
     if (f.tx < mWidth && f.tx >= 0 && f.ty >= 0 && f.ty < mHeight) fixtures.addOne((f.tx, f.ty) -> f)
   }
 
-  val snobot = Snobot(this)
-  setup(this)
+  def addMob(m:Mob):Unit = {
+    mobs.add(m)
+  }
+
+  val snobot:Snobot = Snobot(this)
+  var snobotStart:(Int, Int) = (0, 0)
 
   def reset(): Unit = {
     for {
@@ -74,11 +78,15 @@ case class Maze(name:String = "maze")(
       x <- row.indices
     } row(x) = environment.defaultTile
 
-    snobot.px = 0
-    snobot.py = 0
-    snobot.action = snobot.Idle()
     setup(this)
+
+    snobot.putAtTile(snobotStart)
+    snobot.action = snobot.Idle()
   }
+
+  reset()
+
+  def loadFromString(s:String) = QuickMaze.process(this, s)
 
   def repaint():Unit = for (c <- domNode) {
     val ctx = c.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
@@ -95,6 +103,12 @@ case class Maze(name:String = "maze")(
         fixture <- fixtures.values
       } fixture.paintLayer(layer, 0, 0, vWidth * oneTile, vHeight * oneTile, ctx)
 
+      for {
+        mob <- mobs
+      } {
+        mob.paintLayer(layer, 0, 0, vWidth * oneTile, vHeight * oneTile, ctx)
+      }
+
       snobot.paintLayer(layer, 0, 0, vWidth, vHeight, ctx)
     }
   }
@@ -104,8 +118,8 @@ case class Maze(name:String = "maze")(
     environment.tick()
 
     fixtures.values.foreach(_.tick(this))
-
-    snobot.tick()
+    mobs.foreach(_.tick(this))
+    snobot.tick(this)
   }
 
 

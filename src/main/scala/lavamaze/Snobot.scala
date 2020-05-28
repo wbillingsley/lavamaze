@@ -26,7 +26,6 @@ object Snobot {
   private val _dx:Int = (oneTile - dimension) / 2
   private val _dy:Int = _dx
 
-
   def drawRight1(offsetX:Int, offsetY:Int, ctx:dom.CanvasRenderingContext2D):Unit = {
     ctx.drawImage(Snobot.image, 0, 0, 64, 64, offsetX + _dx, offsetY + _dy, dimension, dimension)
   }
@@ -81,32 +80,19 @@ case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Boolean]{
   def tx = px / oneTile
   def ty = py / oneTile
 
+  /** Updates snobot's location */
+  def putAtTile(t:(Int, Int)):Unit = {
+    val (xx, yy) = t
+    px = xx * oneTile
+    py = yy * oneTile
+  }
+
   def cancel():Unit = if (!action.done) action.fail(new InterruptedException("Aborted"))
 
   def boundingBox:((Int, Int), (Int, Int)) = (px, py) -> (px + oneTile, py + oneTile)
 
   /** An Action that Snobot can perform */
-  sealed trait Action {
-    def drawX = 0.0
-    def drawY = 0.0
-
-    def dx = 0
-    def dy = 0
-
-    def done:Boolean = promise.isCompleted
-
-    def paintLayer(layer: Int, x1: Int, y1: Int, x2:Int, y2:Int, ctx: CanvasRenderingContext2D): Unit
-
-    def tick():Unit
-
-    protected val promise:Promise[Unit] = Promise()
-
-    def fail(x:Throwable): Unit = {
-      promise.failure(x)
-    }
-
-    def future:Future[Unit] = promise.future
-  }
+  sealed trait Action extends Mob.Action
 
   /** The do nothing action */
   case class Idle() extends Action {
@@ -126,7 +112,7 @@ case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Boolean]{
       }
     }
 
-    def tick(): Unit = { t = t + 1 }
+    def tick(m:Maze): Unit = { t = t + 1 }
   }
 
   /** The do nothing action */
@@ -137,7 +123,7 @@ case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Boolean]{
       // Snobot has left the building
     }
 
-    def tick(): Unit = { }
+    def tick(m:Maze): Unit = { }
   }
 
   case class Move(d:Direction, dist:Int) extends Action {
@@ -160,7 +146,7 @@ case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Boolean]{
       }
     }
 
-    override def tick(): Unit = {
+    override def tick(m:Maze): Unit = {
       t = t + 1
       d match {
         case EAST => px += moveDistance
@@ -189,7 +175,7 @@ case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Boolean]{
       }
     }
 
-    def tick(): Unit = { t = t + 1 }
+    def tick(m:Maze): Unit = { t = t + 1 }
   }
 
   var action:Action = Move(EAST, 1)
@@ -214,8 +200,8 @@ case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Boolean]{
     action = Idle()
   }
 
-  def tick() = {
-    action.tick()
+  def tick(maze:Maze) = {
+    action.tick(maze)
     if (action.done) {
       action = action match {
         case Idle() => action

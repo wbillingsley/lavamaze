@@ -8,6 +8,16 @@ package object lavamaze {
   val EAST:Direction = 0
   val WEST:Direction = 2
 
+  type Layer = Int
+  val ENVIRONMENT:Layer = 1
+  val ENV_EFFECT:Layer = 2
+  val FLOOR:Layer = 3
+  val FLOOR_EFFECT:Layer = 4
+  val MOB_LOW:Layer = 5
+  val MOB_HIGH:Layer = 6
+  val SKY_LOW:Layer = 7
+  val SKY_HIGH:Layer = 8
+
   val oneTile = 64
   val halfTile: Int = oneTile / 2
   val quarterTile: Int = oneTile / 4
