@@ -6,6 +6,7 @@ import org.scalajs.dom.CanvasRenderingContext2D
 
 import scala.concurrent.{Future, Promise}
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.scalajs.js
 
 object Snobot {
 
@@ -72,7 +73,7 @@ object Snobot {
 /**
  * Our programmable hero
  */
-case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Boolean]{
+case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Unit]{
 
   var px = 0
   var py = 0
@@ -185,6 +186,8 @@ case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Boolean]{
 
   var action:Action = Move(EAST)
 
+  def snobotException(msg:String) = new js.JavaScriptException(msg)
+
   def alive:Boolean = action != Die()
 
   def die():Unit = action = Die()
@@ -233,6 +236,15 @@ case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Boolean]{
     case _ => false
   })
 
+  /** Whether Snobot can move in a given direction */
+  def isBlocked(d:Int):Boolean = alive && action.done && (d match {
+    case EAST => maze.getTile(tx + 1, ty).isBlockingTo(this)
+    case WEST => maze.getTile(tx - 1, ty).isBlockingTo(this)
+    case SOUTH => maze.getTile(tx, ty + 1).isBlockingTo(this)
+    case NORTH => maze.getTile(tx, ty - 1).isBlockingTo(this)
+    case _ => false
+  })
+
   def setAction(a:Action): Future[Unit] = {
     if (alive && action.done) {
       action = a
@@ -242,16 +254,10 @@ case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Boolean]{
     }
   }
 
-  /** Send a message, with a callback for the reply */
-  override def ask(message: Snobot.Message, receive: Boolean => Any): Unit = message match {
-    case Snobot.MoveMessage(dir) =>
-      setAction(Move(dir)).onComplete { _ => receive(alive) }
-  }
-
 
   /** Send a message, with a callback for the reply */
-  def askF(message: Snobot.Message): Future[Unit] = message match {
+  def ask(message: Snobot.Message): Future[Unit] = message match {
     case Snobot.MoveMessage(dir) =>
-      setAction(Move(dir))
+      if (!isBlocked(dir)) setAction(Move(dir)) else Future.failed(snobotException("Snobot is blocked in that direction"))
   }
 }

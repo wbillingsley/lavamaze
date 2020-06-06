@@ -93,6 +93,7 @@ object WorkerCodeRunner{
        |                payload: r
        |            })
        |          }, (err) => {
+       |            console.log("Run failed. Sending error to main", err)
        |            target.postMessage({
        |                key: message.key,
        |                kind: "error",
@@ -100,7 +101,8 @@ object WorkerCodeRunner{
        |            })
        |          })
        |        } catch (err) {
-       |          target.postMessage({
+       |            console.log("Caught exception. Sending to main", err)
+       |            target.postMessage({
        |                key: message.key,
        |                kind: "error",
        |                payload: err

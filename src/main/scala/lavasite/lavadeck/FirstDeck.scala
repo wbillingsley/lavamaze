@@ -11,7 +11,7 @@ import lavamaze.{BlobGuard, Boulder, Diamond, FloorTile, Goal, Maze, Snobot}
 import org.scalajs.dom
 import org.scalajs.dom.{Element, Node, html, svg}
 import lavasite.Common
-import lavasite.templates.{AceEditor, DescaledAceEditor}
+import lavasite.templates.{AceEditor, CodePlayControls, DescaledAceEditor}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
@@ -37,57 +37,15 @@ object FirstDeck {
   val rpcs = Map[String, js.Function](
     "ping" -> (() => println("ping")),
     "canGoRight" -> (() => m.snobot.canMove(lavamaze.EAST)),
-    "right" -> (() => m.snobot.askF(Snobot.MoveMessage(lavamaze.EAST)).toJSPromise),
-    "left" -> (() => m.snobot.askF(Snobot.MoveMessage(lavamaze.WEST)).toJSPromise),
-    "up" -> (() => m.snobot.askF(Snobot.MoveMessage(lavamaze.NORTH)).toJSPromise),
-    "down" -> (() => m.snobot.askF(Snobot.MoveMessage(lavamaze.SOUTH)).toJSPromise),
+    "right" -> (() => m.snobot.ask(Snobot.MoveMessage(lavamaze.EAST)).toJSPromise),
+    "left" -> (() => m.snobot.ask(Snobot.MoveMessage(lavamaze.WEST)).toJSPromise),
+    "up" -> (() => m.snobot.ask(Snobot.MoveMessage(lavamaze.NORTH)).toJSPromise),
+    "down" -> (() => m.snobot.ask(Snobot.MoveMessage(lavamaze.SOUTH)).toJSPromise),
     "zing" -> { (i:Int, j:Int, k:Int) => println(s"Zinged with i=$i j=$j k=$j"); "Done" }
   )
 
   val cr = new WorkerCodeRunner(rpcs, Map.empty, true)
 
-  case class CodePlayControls(codeRunner:CodeRunner)(code: => String, reset: => Unit) extends VHtmlComponent {
-
-    private val emptyMessage = <.span()
-    private def error(s:String) = <.span(^.cls := "code-message text-danger", s)
-
-    private val playBtn = <.button(^.key := "play", ^.cls := "btn btn-primary", ^.onClick --> play, <("i")(^.cls := "material-icons", "play_arrow"))
-    private val stopBtn = <.button(^.key := "stop", ^.cls := "btn btn-primary", ^.onClick --> stop, <("i")(^.cls := "material-icons", "stop"))
-
-    private var button:VHtmlNode = playBtn
-    private var status:VHtmlNode = emptyMessage
-
-    private def play():Unit = {
-      reset
-      status = emptyMessage
-      button = stopBtn
-      rerender()
-      println("Run ")
-      codeRunner.remoteExecute(code).andThen({
-        case Success(x) =>
-          println("Done " + x)
-          button = playBtn
-          rerender()
-        case Failure(exception) =>
-          println("Failed " + exception)
-          status = error(exception.getMessage)
-          button = playBtn
-          rerender()
-      })
-    }
-
-    private def stop():Unit = {
-      codeRunner.reset()
-      reset
-      status = emptyMessage
-      button = playBtn
-      rerender()
-    }
-
-    override protected def render: DiffNode[Element, Node] = <.div(
-      button, status
-    )
-  }
 
   val ace = AceEditor("mycode") { editor =>
     editor.setTheme("ace/theme/monokai")
@@ -97,7 +55,6 @@ object FirstDeck {
   }
 
   val cpc = CodePlayControls(cr)(ace.editor.map(_.getValue().asInstanceOf[String]).getOrElse(""), m.reset())
-
 
   val scatterCanvas = new TileSpace(Some("example"), JSLang)((512, 640))
   val pt = new ProgramTile(scatterCanvas, <.button(^.cls := "btn btn-sm btn-primary", "Run"))
