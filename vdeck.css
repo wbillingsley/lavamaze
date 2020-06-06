@@ -52,7 +52,6 @@
 
 .v-sequencer-slide.inactive {
     visibility: hidden;
-    display: none;
 }
 
 .v-sequencer-slide {

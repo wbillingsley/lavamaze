@@ -7,6 +7,7 @@ object QuickMaze {
   private val actions:mutable.Map[Char, (Maze, Int, Int) => Unit] = mutable.Map(
     ' ' -> { case (m, x, y) => m.setTile(x, y, m.environment.defaultTile) },
     '.' -> { case (m, x, y) => m.setTile(x, y, FloorTile) },
+    '#' -> { case (m, x, y) => m.setTile(x, y, WallTile) },
     'S' -> { case (m, x, y) =>
       m.setTile(x, y, FloorTile)
       m.snobotStart = (x, y)
@@ -25,7 +26,7 @@ object QuickMaze {
     },
     'B' -> { case (m, x, y) =>
       m.setTile(x, y, FloorTile)
-      m.addMob(new BlobGuard(x, y))
+      m.addMob(new BlobGuard(m, x, y)(BlobGuard.patrolAI))
     },
   )
 

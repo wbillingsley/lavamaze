@@ -1,7 +1,9 @@
 package lavasite.templates
 
 import com.wbillingsley.veautiful.html.{<, VHtmlNode, ^}
-import org.scalajs.dom.Node
+import org.scalajs.dom
+import org.scalajs.dom.raw.HTMLElement
+import org.scalajs.dom.{Event, Node, html}
 
 import scala.scalajs.js
 import scala.util.Random
@@ -15,7 +17,7 @@ case class AceEditor(name:String)(onStart: js.Dynamic => Unit) extends VHtmlNode
 
   val id = Random.nextString(10)
 
-  private var _domNode:Option[Node] = None
+  private var _domNode:Option[html.Div] = None
   private var _editor:Option[js.Dynamic] = None
 
   override def domNode: Option[Node] = _domNode

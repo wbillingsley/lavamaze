@@ -34,7 +34,10 @@ object CodeRunner {
    * Takes a block of code and inserts "await " before calls to specified functions.
    */
   def awaitify(code:String, await:Iterable[String]):String = {
-    await.fold(code) { (s, term) => s.replaceAll(term, "await " + term)}
+    val awaited = await.fold(code) { (s, term) => s.replaceAll(term, "await " + term)}
+
+    // We also need to turn any function definitions asymc
+    awaited.replaceAll("function", "async function")
   }
 
   /**

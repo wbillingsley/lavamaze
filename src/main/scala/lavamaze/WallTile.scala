@@ -3,17 +3,16 @@ package lavamaze
 import com.wbillingsley.veautiful.html.{<, ^}
 import org.scalajs.dom.CanvasRenderingContext2D
 
-object FloorTile extends Tile {
+object WallTile extends Tile {
 
-  val image = <("img")(^.src := "images/floor.png").create()
-
+  val image = <("img")(^.src := "images/wall.png").create()
 
   val floorFill = "rgb(20,20,20)"
   val floorStroke = "rgb(120,120,120)"
   val floorLayer = 3
 
-  override def isPassableTo(m: Mob): Boolean = true
-  override def isBlockingTo(m: Mob): Boolean = false
+  override def isPassableTo(m: Mob): Boolean = false
+  override def isBlockingTo(m: Mob): Boolean = true
 
   override def paint(layer: Int, x: Int, y: Int, ctx: CanvasRenderingContext2D): Unit = {
     if (layer == floorLayer) {
@@ -26,5 +25,6 @@ object FloorTile extends Tile {
       ctx.drawImage(image, 0, 0, 64, 64, x, y, 64, 64)
     }
   }
+
 
 }

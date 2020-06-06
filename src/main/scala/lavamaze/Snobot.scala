@@ -10,7 +10,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 object Snobot {
 
   sealed trait Message
-  case class MoveMessage(dir:Direction, dist:Int) extends Message
+  case class MoveMessage(dir:Direction) extends Message
 
   val maskFill = "#7D5177"
   val maskStroke = "rgb(70,70,100)"
@@ -80,6 +80,11 @@ case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Boolean]{
   def tx = px / oneTile
   def ty = py / oneTile
 
+  private val hitBoxSize = 16
+  private val dhb = (oneTile - hitBoxSize) / 2
+
+  def hitBox:((Int, Int), (Int, Int)) = (px + dhb, py + dhb) -> (px + oneTile - dhb, py + oneTile - dhb)
+
   /** Updates snobot's location */
   def putAtTile(t:(Int, Int)):Unit = {
     val (xx, yy) = t
@@ -100,7 +105,7 @@ case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Boolean]{
     promise.success()
 
     def paintLayer(layer: Int, x1: Int, y1: Int, x2:Int, y2:Int, ctx: CanvasRenderingContext2D): Unit = {
-      if (layer == 4) {
+      if (layer == MOB_LOW) {
         val state = (t / tickRate) % 4
         if (state == 1) {
           Snobot.drawIdleL(px + x1, py + y1, ctx)
@@ -126,14 +131,14 @@ case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Boolean]{
     def tick(m:Maze): Unit = { }
   }
 
-  case class Move(d:Direction, dist:Int) extends Action {
+  case class Move(d:Direction) extends Action {
     private val moveDuration = tickRate
     private val moveDistance = oneTile / moveDuration  // TODO: deal with floating point
 
     var t = 0
 
     override def paintLayer(layer: Int, x1: Int, y1: Int, x2:Int, y2:Int, ctx: CanvasRenderingContext2D): Unit = {
-      if (layer == 4) {
+      if (layer == MOB_LOW) {
         val state = (t / 2) % 2
         d match {
           case EAST =>
@@ -155,7 +160,7 @@ case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Boolean]{
         case SOUTH => py += moveDistance
       }
 
-      if (t >= (dist * moveDuration)) promise.success()
+      if (t >= moveDuration) promise.success()
 
     }
   }
@@ -166,7 +171,7 @@ case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Boolean]{
     promise.success()
 
     def paintLayer(layer: Int, x1: Int, y1: Int, x2:Int, y2:Int, ctx: CanvasRenderingContext2D): Unit = {
-      if (layer == 4) {
+      if (layer == MOB_LOW) {
         if (t <= 4) {
           Snobot.drawSmoke1(px + x1, py + y1, ctx)
         } else if (t <= 8) {
@@ -178,16 +183,18 @@ case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Boolean]{
     def tick(m:Maze): Unit = { t = t + 1 }
   }
 
-  var action:Action = Move(EAST, 1)
+  var action:Action = Move(EAST)
 
   def alive:Boolean = action != Die()
+
+  def die():Unit = action = Die()
 
   /**
    * Kills the Ninja if it is not on a passable square
    */
-  def checkLocationValid():Unit = {
-    if (alive && !maze.getTile(tx, ty).isPassableTo(this)) {
-      action = Die()
+  def interactWithTiles():Unit = {
+    if (alive) {
+      maze.cellsIntersecting(hitBox).foreach(_.actUpon(this))
     }
   }
 
@@ -202,6 +209,7 @@ case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Boolean]{
 
   def tick(maze:Maze) = {
     action.tick(maze)
+    interactWithTiles()
     if (action.done) {
       action = action match {
         case Idle() => action
@@ -209,11 +217,10 @@ case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Boolean]{
         case AtGoal() => action
         case _ => Idle()
       }
-      checkLocationValid()
     }
   }
 
-  def paintLayer(layer: Int, x1: Int, y1: Int, x2:Int, y2:Int, ctx: CanvasRenderingContext2D): Unit = if (layer == 4) {
+  def paintLayer(layer: Int, x1: Int, y1: Int, x2:Int, y2:Int, ctx: CanvasRenderingContext2D): Unit = {
     action.paintLayer(layer, x1, y1, x2, y2, ctx)
   }
 
@@ -237,16 +244,14 @@ case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Boolean]{
 
   /** Send a message, with a callback for the reply */
   override def ask(message: Snobot.Message, receive: Boolean => Any): Unit = message match {
-    case Snobot.MoveMessage(dir, dist) =>
-      println("asked " + message)
-      setAction(Move(dir, dist)).onComplete { _ => receive(alive) }
+    case Snobot.MoveMessage(dir) =>
+      setAction(Move(dir)).onComplete { _ => receive(alive) }
   }
 
 
   /** Send a message, with a callback for the reply */
   def askF(message: Snobot.Message): Future[Unit] = message match {
-    case Snobot.MoveMessage(dir, dist) =>
-      println("asked " + message)
-      setAction(Move(dir, dist))
+    case Snobot.MoveMessage(dir) =>
+      setAction(Move(dir))
   }
 }

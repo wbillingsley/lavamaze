@@ -9,7 +9,11 @@ object LavaTile extends Tile {
 
   val image = <("img")(^.src := "images/lava.png").create()
 
-  override def isPassableTo(m: Mob): Boolean = false
+  override def isPassableTo(m: Mob): Boolean = m match {
+    case _:Snobot => false
+    case _ => true
+  }
+  override def isBlockingTo(m: Mob): Boolean = false
 
   override def paint(layer: Direction, x: Direction, y: Direction, ctx: CanvasRenderingContext2D): Unit = {
     if (layer == 1) {
@@ -20,6 +24,13 @@ object LavaTile extends Tile {
       ctx.strokeRect(x, y, oneTile, oneTile)
       */
       ctx.drawImage(image, 0, 0, 64, 64, x, y, 64, 64)
+    }
+  }
+
+  override def actUpon(mob: Mob): Unit = {
+    super.actUpon(mob)
+    mob match {
+      case s:Snobot => s.die()
     }
   }
 

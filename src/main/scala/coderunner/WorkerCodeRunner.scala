@@ -81,23 +81,32 @@ object WorkerCodeRunner{
        |        // Automatically create rpc functions for the rpc calls
        |        let rpcVals = rpcNames.map(remotify)
        |
-       |        let f = AsyncFunction(...rpcNames, ...localArgNames, message.payload.code)
-       |        let bound = f.bind(null, ...rpcVals, ...localArgVals)
-       |        let run = bound()
+       |        try {
+       |          let f = AsyncFunction(...rpcNames, ...localArgNames, message.payload.code)
+       |          let bound = f.bind(null, ...rpcVals, ...localArgVals)
+       |          let run = bound()
        |
-       |        run.then((r) => {
+       |          run.then((r) => {
        |            target.postMessage({
        |                key: message.key,
        |                kind: "return",
        |                payload: r
        |            })
-       |        }, (err) => {
+       |          }, (err) => {
        |            target.postMessage({
        |                key: message.key,
        |                kind: "error",
        |                payload: err
        |            })
-       |        })
+       |          })
+       |        } catch (err) {
+       |          target.postMessage({
+       |                key: message.key,
+       |                kind: "error",
+       |                payload: err
+       |          })
+       |        }
+       |
        |    } else if (message.kind == "return") {
        |        let promise = pending[message.key]
        |        delete pending[message.key]

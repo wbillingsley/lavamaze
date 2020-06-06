@@ -402,8 +402,16 @@ h1, h2, h3, h4 {
 /*
    Ace
  */
-.ace-editor {
+.ace-editor-wrapper {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+.ace-editor,.ace-editor-unscaler {
     position: relative;
     height: 100%;
     width: 100%;
 }
+

@@ -57,6 +57,14 @@ case class Maze(name:String = "maze")(
     if (tx >= mWidth || tx < 0 || ty < 0 || ty >= mHeight) Tile.OutOfBounds else cells(ty)(tx)
   }
 
+  def cellsIntersecting(box:((Int, Int), (Int, Int))):Seq[Tile] = {
+    val ((x1, y1), (x2, y2)) = box
+    for {
+      x <- (x1 / oneTile) to (x2 / oneTile)
+      y <- (y1 / oneTile) to (y2 / oneTile)
+    } yield getTile(x, y)
+  }
+
   def setTile(tx:Int, ty:Int, tile: Tile):Unit = {
     if (tx < mWidth && tx >= 0 && ty >= 0 && ty < mHeight) cells(ty)(tx) = tile
   }
@@ -77,6 +85,9 @@ case class Maze(name:String = "maze")(
       row <- cells
       x <- row.indices
     } row(x) = environment.defaultTile
+
+    mobs.clear()
+    fixtures.clear()
 
     setup(this)
 
@@ -103,13 +114,13 @@ case class Maze(name:String = "maze")(
         fixture <- fixtures.values
       } fixture.paintLayer(layer, 0, 0, vWidth * oneTile, vHeight * oneTile, ctx)
 
+      snobot.paintLayer(layer, 0, 0, vWidth, vHeight, ctx)
+
       for {
         mob <- mobs
       } {
         mob.paintLayer(layer, 0, 0, vWidth * oneTile, vHeight * oneTile, ctx)
       }
-
-      snobot.paintLayer(layer, 0, 0, vWidth, vHeight, ctx)
     }
   }
 
