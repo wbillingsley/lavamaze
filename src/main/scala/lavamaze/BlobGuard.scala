@@ -58,6 +58,8 @@ class BlobGuard(maze:Maze, initTx:Int, initTy:Int)(ai: (Maze, BlobGuard) => _) e
   var px = initTx * oneTile
   var py = initTy * oneTile
 
+  def hitBox = ((px + 4, py + 4), (px + oneTile - 4, py + oneTile - 4))
+
   def tx = px / oneTile
   def ty = py / oneTile
 
@@ -170,6 +172,13 @@ class BlobGuard(maze:Maze, initTx:Int, initTy:Int)(ai: (Maze, BlobGuard) => _) e
   }
 
   override def tick(m:Maze) = {
+    for { mob <- maze.mobsIntersecting(hitBox) } if (mob != this) {
+      mob match {
+        case s:Snobot => s.die()
+        case _ => //
+      }
+    }
+
     action.tick(m)
     if (action.done) {
       action match {

@@ -28,7 +28,7 @@ object FirstDeck {
       """
         | #S.....
         | #O####*#
-        | #...B..#
+        | #B..B..#
         | #.##O###
         | #.....G
         |""".stripMargin)

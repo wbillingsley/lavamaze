@@ -161,7 +161,10 @@ case class Snobot(maze:Maze) extends GridMob with Askable[Snobot.Message, Unit]{
 
   def alive:Boolean = action != Die()
 
-  def die():Unit = action = Die()
+  def die():Unit = action match {
+    case Die() => // do nothing
+    case _ => action = Die()
+  }
 
   /**
    * Kills the Ninja if it is not on a passable square

@@ -23,6 +23,8 @@ trait Mob {
 
   def py:Int
 
+  def hitBox:((Int, Int), (Int, Int))
+
 }
 
 object Mob {

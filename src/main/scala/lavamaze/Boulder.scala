@@ -21,6 +21,8 @@ class Boulder(maze:Maze, initTx:Int, initTy:Int) extends GridMob {
   var px = initTx * oneTile
   var py = initTy * oneTile
 
+  def hitBox = ((px + 4, py + 4), (px + oneTile - 4, py + oneTile - 4))
+
   var gravity:Option[Direction] = None
 
   def tx = px / oneTile
@@ -47,6 +49,17 @@ class Boulder(maze:Maze, initTx:Int, initTy:Int) extends GridMob {
     override def paintLayer(layer: Int, x1: Int, y1: Int, x2:Int, y2:Int, ctx: CanvasRenderingContext2D): Unit = {
       paintLayer(layer, x1, y1, x2, y2, ctx)
     }
+
+    override def tick(m:Maze):Unit = {
+      super.tick(m)
+      for { mob <- m.mobsIntersecting(hitBox) } mob match {
+        case s:Snobot => s.action = s.Die()
+        case b:BlobGuard => b.action = b.Die()
+        case _ => //
+
+      }
+
+    }
   }
 
 
@@ -66,8 +79,14 @@ class Boulder(maze:Maze, initTx:Int, initTy:Int) extends GridMob {
 
   override def tick(m:Maze) = {
     if (action.done) {
+      action = nextAction()
 
     } else action.tick(m)
+  }
+
+  def nextAction():Action = action match {
+    case Idle() => action
+    case _ => action
   }
 
   def push(d:Direction):Boolean = {

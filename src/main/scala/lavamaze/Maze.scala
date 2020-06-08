@@ -49,9 +49,12 @@ case class Maze(name:String = "maze")(
   }
 
 
+  val snobot:Snobot = Snobot(this)
+  var snobotStart:(Int, Int) = (0, 0)
+
   private val cells:Seq[Array[Tile]] = for { y <- 0 until mHeight} yield Array.fill[Tile](mWidth)(environment.defaultTile)
   private val fixtures:mutable.Map[(Int, Int), Fixture] = mutable.Map.empty
-  private val mobs:mutable.Set[Mob] = mutable.Set.empty
+  private val mobs:mutable.Set[Mob] = mutable.Set(snobot)
 
   def getTile(tx:Int, ty:Int):Tile = {
     if (tx >= mWidth || tx < 0 || ty < 0 || ty >= mHeight) Tile.OutOfBounds else cells(ty)(tx)
@@ -68,7 +71,7 @@ case class Maze(name:String = "maze")(
   }
 
   def mobsIntersecting(box:((Int, Int), (Int, Int))):Set[Mob] = {
-    mobs.filter(m => inside((m.px, m.py), box)).toSet
+    mobs.filter(m => intersects(m.hitBox, box)).toSet
   }
 
   def mobsInTile(t:(Int, Int)):Set[Mob] = mobsIntersecting(t * oneTile, t * oneTile + (oneTile, oneTile))
@@ -92,8 +95,6 @@ case class Maze(name:String = "maze")(
     mobs.add(m)
   }
 
-  val snobot:Snobot = Snobot(this)
-  var snobotStart:(Int, Int) = (0, 0)
 
   def reset(): Unit = {
     for {
@@ -105,6 +106,7 @@ case class Maze(name:String = "maze")(
     fixtures.clear()
 
     setup(this)
+    mobs.add(snobot)
 
     snobot.putAtTile(snobotStart)
     snobot.action = snobot.Idle()
