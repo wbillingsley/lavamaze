@@ -19,6 +19,10 @@ trait Mob {
   /** Whether this mob will block another mob's movement into a space */
   def blockMovement(from:(Int, Int), to:(Int, Int), by:Mob):Boolean
 
+  def px:Int
+
+  def py:Int
+
 }
 
 object Mob {
@@ -26,9 +30,6 @@ object Mob {
   /** An Action that Snobot can perform */
   trait Action {
     def done:Boolean = promise.isCompleted
-
-    /** The mob's expected tile coordinate when the action is complete */
-    def destination:(Int, Int)
 
     def paintLayer(layer: Int, x1: Int, y1: Int, x2:Int, y2:Int, ctx: CanvasRenderingContext2D): Unit
 

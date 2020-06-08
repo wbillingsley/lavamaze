@@ -68,7 +68,7 @@ class BlobGuard(maze:Maze, initTx:Int, initTy:Int)(ai: (Maze, BlobGuard) => _) e
     var t = 0
     promise.success()
 
-    override def destination: (Direction, Direction) = (tx, ty)
+    def destination: (Direction, Direction) = (tx, ty)
 
     def paintLayer(layer: Int, x1: Int, y1: Int, x2:Int, y2:Int, ctx: CanvasRenderingContext2D): Unit = {
       if (layer == MOB_LOW) {
@@ -88,7 +88,7 @@ class BlobGuard(maze:Maze, initTx:Int, initTy:Int)(ai: (Maze, BlobGuard) => _) e
     val origX = tx
     val origY = ty
 
-    override def destination: (Int, Int) = d match {
+    def destination: (Int, Int) = d match {
       case EAST => (origX+1, origY)
       case WEST => (origX-1, origY)
       case SOUTH => (origX, origY+1)
@@ -129,7 +129,7 @@ class BlobGuard(maze:Maze, initTx:Int, initTy:Int)(ai: (Maze, BlobGuard) => _) e
       if (layer == MOB_LOW) BlobGuard.drawDie(t / 4, px - x1, py - y1, ctx)
     }
 
-    override def destination: (Direction, Direction) = (tx, ty)
+    def destination: (Direction, Direction) = (tx, ty)
 
     def tick(m:Maze): Unit = { t = t + 1 }
   }

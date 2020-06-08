@@ -73,7 +73,7 @@ object Snobot {
 /**
  * Our programmable hero
  */
-case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Unit]{
+case class Snobot(maze:Maze) extends GridMob with Askable[Snobot.Message, Unit]{
 
   var px = 0
   var py = 0
@@ -98,13 +98,10 @@ case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Unit]{
   def boundingBox:((Int, Int), (Int, Int)) = (px, py) -> (px + oneTile, py + oneTile)
 
   /** An Action that Snobot can perform */
-  sealed trait Action extends Mob.Action
+  sealed trait Action extends GridAction
 
   /** The do nothing action */
-  case class Idle() extends Action {
-    var t = 0
-    promise.success()
-
+  case class Idle() extends GridIdle() with Action {
     def paintLayer(layer: Int, x1: Int, y1: Int, x2:Int, y2:Int, ctx: CanvasRenderingContext2D): Unit = {
       if (layer == MOB_LOW) {
         val state = (t / tickRate) % 4
@@ -117,42 +114,16 @@ case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Unit]{
         }
       }
     }
-
-    override def destination: (Direction, Direction) = (tx, ty)
-
-    def tick(m:Maze): Unit = { t = t + 1 }
   }
 
   /** The do nothing action */
-  case class AtGoal() extends Action {
-    promise.success()
-
-    override def destination: (Direction, Direction) = (tx, ty)
-
+  case class AtGoal() extends GridIdle() with Action  {
     def paintLayer(layer: Int, x1: Int, y1: Int, x2:Int, y2:Int, ctx: CanvasRenderingContext2D): Unit = {
       // Snobot has left the building
     }
-
-    def tick(m:Maze): Unit = { }
   }
 
-  case class Move(d:Direction) extends Action {
-    private val moveDuration = tickRate
-    private val moveDistance = oneTile / moveDuration  // TODO: deal with floating point
-
-    var t = 0
-    val origX = tx
-    val origY = ty
-
-    override def destination: (Direction, Direction) = {
-      d match {
-        case EAST => (origX + 1, origY)
-        case WEST => (origX - 1, origY)
-        case SOUTH => (origX, origY + 1)
-        case NORTH => (origX, origY - 1)
-      }
-    }
-
+  case class Move(d:Direction) extends GridMove(d, tickRate) with Action {
     override def paintLayer(layer: Int, x1: Int, y1: Int, x2:Int, y2:Int, ctx: CanvasRenderingContext2D): Unit = {
       if (layer == MOB_LOW) {
         val state = (t / 2) % 2
@@ -166,25 +137,10 @@ case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Unit]{
         }
       }
     }
-
-    override def tick(m:Maze): Unit = {
-      t = t + 1
-      d match {
-        case EAST => px += moveDistance
-        case WEST => px -= moveDistance
-        case NORTH => py -= moveDistance
-        case SOUTH => py += moveDistance
-      }
-
-      if (t >= moveDuration) promise.success()
-
-    }
   }
 
   /** The do nothing action */
-  case class Die() extends Action {
-    var t = 0
-    promise.success()
+  case class Die() extends GridIdle() with Action  {
 
     def paintLayer(layer: Int, x1: Int, y1: Int, x2:Int, y2:Int, ctx: CanvasRenderingContext2D): Unit = {
       if (layer == MOB_LOW) {
@@ -197,8 +153,6 @@ case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Unit]{
     }
 
     override def destination: (Direction, Direction) = (tx, ty)
-
-    def tick(m:Maze): Unit = { t = t + 1 }
   }
 
   var action:Action = Move(EAST)
@@ -279,6 +233,11 @@ case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Unit]{
   /** Send a message, with a callback for the reply */
   def ask(message: Snobot.Message): Future[Unit] = message match {
     case Snobot.MoveMessage(dir) =>
-      if (!isBlocked(dir)) setAction(Move(dir)) else Future.failed(snobotException("Snobot is blocked in that direction"))
+      val a = Move(dir)
+      for { m <- maze.mobsInTile(a.destination) } m match {
+        case b:Boulder => b.push(dir)
+        case _ => // do nothing
+      }
+      if (!isBlocked(dir)) setAction(a) else Future.failed(snobotException("Snobot is blocked in that direction"))
   }
 }

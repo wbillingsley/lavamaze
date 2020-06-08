@@ -16,17 +16,41 @@ object Boulder {
   }
 }
 
-class Boulder(initTx:Int, initTy:Int) extends Mob {
+class Boulder(maze:Maze, initTx:Int, initTy:Int) extends GridMob {
 
   var px = initTx * oneTile
   var py = initTy * oneTile
+
+  var gravity:Option[Direction] = None
 
   def tx = px / oneTile
   def ty = py / oneTile
 
   override def blockMovement(from: (Direction, Direction), to: (Direction, Direction), by: Mob): Boolean = {
-    (tx, ty) == to
+    action match {
+      case m:Move =>
+        m.destination == to || (m.destination == from && m.origin == to)
+      case a =>
+      a.destination == to
+    }
   }
+
+  sealed trait Action extends GridAction
+
+  case class Idle() extends GridIdle() with Action   {
+    def paintLayer(layer: Int, x1: Int, y1: Int, x2:Int, y2:Int, ctx: CanvasRenderingContext2D): Unit = {
+      paintLayer(layer, x1, y1, x2, y2, ctx)
+    }
+  }
+
+  case class Move(d:Direction) extends GridMove(d, 8) with Action  {
+    override def paintLayer(layer: Int, x1: Int, y1: Int, x2:Int, y2:Int, ctx: CanvasRenderingContext2D): Unit = {
+      paintLayer(layer, x1, y1, x2, y2, ctx)
+    }
+  }
+
+
+  var action:Action = Idle()
 
   /**
    * Paint this mob on the canvas
@@ -41,6 +65,18 @@ class Boulder(initTx:Int, initTy:Int) extends Mob {
   }
 
   override def tick(m:Maze) = {
-    //
+    if (action.done) {
+
+    } else action.tick(m)
+  }
+
+  def push(d:Direction):Boolean = {
+    val a = Move(d)
+    if (maze.blockMovement((tx, ty), a.destination, this)) {
+      false
+    } else {
+      action = a
+      true
+    }
   }
 }

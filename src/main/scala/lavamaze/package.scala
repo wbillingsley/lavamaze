@@ -43,5 +43,12 @@ package object lavamaze {
     inside(r1._1, r2) || inside(r1._2, r2) || inside(r2._1, r1) || inside(r2._2, r1)
   }
 
+  implicit class VectorOps(val v:(Int, Int)) extends AnyVal {
+    def *(i:Int):(Int, Int) = (v._1 * i, v._2 * i)
+
+    def +(v2:(Int, Int)):(Int, Int) = (v._1 + v2._1, v._2 + v2._2)
+
+  }
+
 
 }

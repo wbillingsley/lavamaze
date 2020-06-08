@@ -67,6 +67,12 @@ case class Maze(name:String = "maze")(
     } yield getTile(x, y)
   }
 
+  def mobsIntersecting(box:((Int, Int), (Int, Int))):Set[Mob] = {
+    mobs.filter(m => inside((m.px, m.py), box)).toSet
+  }
+
+  def mobsInTile(t:(Int, Int)):Set[Mob] = mobsIntersecting(t * oneTile, t * oneTile + (oneTile, oneTile))
+
   /**
    * Whether potential movement by a mob from one location to another should be stopped.
    */

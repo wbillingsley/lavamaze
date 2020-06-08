@@ -14,7 +14,7 @@ object QuickMaze {
     },
     'O' -> { case (m, x, y) =>
       m.setTile(x, y, FloorTile)
-      m.addMob(new Boulder(x, y))
+      m.addMob(new Boulder(m, x, y))
     },
     '*' -> { case (m, x, y) =>
       m.setTile(x, y, FloorTile)
