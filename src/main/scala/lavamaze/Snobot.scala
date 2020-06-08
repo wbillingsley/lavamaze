@@ -118,12 +118,16 @@ case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Unit]{
       }
     }
 
+    override def destination: (Direction, Direction) = (tx, ty)
+
     def tick(m:Maze): Unit = { t = t + 1 }
   }
 
   /** The do nothing action */
   case class AtGoal() extends Action {
     promise.success()
+
+    override def destination: (Direction, Direction) = (tx, ty)
 
     def paintLayer(layer: Int, x1: Int, y1: Int, x2:Int, y2:Int, ctx: CanvasRenderingContext2D): Unit = {
       // Snobot has left the building
@@ -137,6 +141,17 @@ case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Unit]{
     private val moveDistance = oneTile / moveDuration  // TODO: deal with floating point
 
     var t = 0
+    val origX = tx
+    val origY = ty
+
+    override def destination: (Direction, Direction) = {
+      d match {
+        case EAST => (origX + 1, origY)
+        case WEST => (origX - 1, origY)
+        case SOUTH => (origX, origY + 1)
+        case NORTH => (origX, origY - 1)
+      }
+    }
 
     override def paintLayer(layer: Int, x1: Int, y1: Int, x2:Int, y2:Int, ctx: CanvasRenderingContext2D): Unit = {
       if (layer == MOB_LOW) {
@@ -180,6 +195,8 @@ case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Unit]{
         }
       }
     }
+
+    override def destination: (Direction, Direction) = (tx, ty)
 
     def tick(m:Maze): Unit = { t = t + 1 }
   }
@@ -238,12 +255,16 @@ case class Snobot(maze:Maze) extends Mob with Askable[Snobot.Message, Unit]{
 
   /** Whether Snobot can move in a given direction */
   def isBlocked(d:Int):Boolean = alive && action.done && (d match {
-    case EAST => maze.getTile(tx + 1, ty).isBlockingTo(this)
-    case WEST => maze.getTile(tx - 1, ty).isBlockingTo(this)
-    case SOUTH => maze.getTile(tx, ty + 1).isBlockingTo(this)
-    case NORTH => maze.getTile(tx, ty - 1).isBlockingTo(this)
+    case EAST => maze.blockMovement((tx, ty), (tx + 1, ty), this)
+    case WEST => maze.blockMovement((tx, ty), (tx - 1, ty), this)
+    case SOUTH => maze.blockMovement((tx, ty), (tx, ty + 1), this)
+    case NORTH => maze.blockMovement((tx, ty), (tx, ty - 1), this)
     case _ => false
   })
+
+  override def blockMovement(from: (Direction, Direction), to: (Direction, Direction), by: Mob): Boolean = {
+    (tx, ty) == to || action.destination == to
+  }
 
   def setAction(a:Action): Future[Unit] = {
     if (alive && action.done) {

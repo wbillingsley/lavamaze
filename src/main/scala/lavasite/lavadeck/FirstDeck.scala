@@ -27,7 +27,7 @@ object FirstDeck {
     maze.loadFromString(
       """
         | #S.....
-        | ######*#
+        | #O####*#
         | #...B..#
         | #.##O###
         | #.....G

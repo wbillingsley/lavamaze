@@ -21,6 +21,13 @@ class Boulder(initTx:Int, initTy:Int) extends Mob {
   var px = initTx * oneTile
   var py = initTy * oneTile
 
+  def tx = px / oneTile
+  def ty = py / oneTile
+
+  override def blockMovement(from: (Direction, Direction), to: (Direction, Direction), by: Mob): Boolean = {
+    (tx, ty) == to
+  }
+
   /**
    * Paint this mob on the canvas
    *

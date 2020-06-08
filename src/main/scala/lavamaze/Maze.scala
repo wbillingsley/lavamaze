@@ -57,12 +57,21 @@ case class Maze(name:String = "maze")(
     if (tx >= mWidth || tx < 0 || ty < 0 || ty >= mHeight) Tile.OutOfBounds else cells(ty)(tx)
   }
 
+  def getTile(t:(Int, Int)):Tile = getTile(t._1, t._2)
+
   def cellsIntersecting(box:((Int, Int), (Int, Int))):Seq[Tile] = {
     val ((x1, y1), (x2, y2)) = box
     for {
       x <- (x1 / oneTile) to (x2 / oneTile)
       y <- (y1 / oneTile) to (y2 / oneTile)
     } yield getTile(x, y)
+  }
+
+  /**
+   * Whether potential movement by a mob from one location to another should be stopped.
+   */
+  def blockMovement(from:(Int, Int), to:(Int, Int), by:Mob):Boolean = {
+    getTile(to).isBlockingTo(by) || mobs.exists { x => x != by && x.blockMovement(from, to, by) }
   }
 
   def setTile(tx:Int, ty:Int, tile: Tile):Unit = {
