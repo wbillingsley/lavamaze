@@ -44,16 +44,24 @@ object BlobGuard {
 
   val patrolAI = (m:Maze, b:BlobGuard) => {
     b.action match {
-      case b.Move(d, _) if b.canMove(d) => b.setAction(b.Move(d, 1))
+      case b.Move(d) if b.canMove(d) => b.setAction(b.Move(d))
       case b.Idle() =>
         val d = Seq(NORTH, SOUTH, EAST, WEST)(Random.nextInt(4))
-        if (b.canMove(d)) b.setAction(b.Move(d, 1))
+        if (b.canMove(d)) b.setAction(b.Move(d))
       case _ => b.setAction(b.Idle())
     }
   }
+
+  val zeroInAI = (m:Maze, b:BlobGuard) => {
+    if (m.snobot.tx < b.tx && b.canMove(WEST)) b.setAction(b.Move(WEST))
+    else if (m.snobot.tx > b.tx && b.canMove(EAST)) b.setAction(b.Move(EAST))
+    else if (m.snobot.ty < b.ty && b.canMove(NORTH)) b.setAction(b.Move(NORTH))
+    else if (m.snobot.ty > b.ty && b.canMove(SOUTH)) b.setAction(b.Move(SOUTH))
+    else if (b.action != b.Idle()) b.setAction(b.Idle())
+  }
 }
 
-class BlobGuard(maze:Maze, initTx:Int, initTy:Int)(ai: (Maze, BlobGuard) => _) extends Mob {
+class BlobGuard(maze:Maze, initTx:Int, initTy:Int)(ai: (Maze, BlobGuard) => _) extends GridMob {
 
   var px = initTx * oneTile
   var py = initTy * oneTile
@@ -63,40 +71,19 @@ class BlobGuard(maze:Maze, initTx:Int, initTy:Int)(ai: (Maze, BlobGuard) => _) e
   def tx = px / oneTile
   def ty = py / oneTile
 
-  sealed trait Action extends Mob.Action
+  sealed trait Action extends GridAction
 
   /** The do nothing action */
-  case class Idle() extends Action {
-    var t = 0
-    promise.success()
-
-    def destination: (Direction, Direction) = (tx, ty)
-
+  case class Idle() extends GridIdle() with Action {
     def paintLayer(layer: Int, x1: Int, y1: Int, x2:Int, y2:Int, ctx: CanvasRenderingContext2D): Unit = {
       if (layer == MOB_LOW) {
         val state = (t / 8) % 4
         BlobGuard.drawIdle(state, px -x1, py - y1, ctx)
       }
     }
-
-    def tick(m:Maze): Unit = { t = t + 1 }
   }
 
-  case class Move(d:Direction, dist:Int) extends Action {
-    private val moveDuration = tickRate
-    private val moveDistance = oneTile / moveDuration  // TODO: deal with floating point
-
-    var t = 0
-    val origX = tx
-    val origY = ty
-
-    def destination: (Int, Int) = d match {
-      case EAST => (origX+1, origY)
-      case WEST => (origX-1, origY)
-      case SOUTH => (origX, origY+1)
-      case NORTH => (origX, origY-1)
-    }
-
+  case class Move(d:Direction) extends GridMove(d, tickRate) with Action {
     override def paintLayer(layer: Int, x1: Int, y1: Int, x2:Int, y2:Int, ctx: CanvasRenderingContext2D): Unit = {
       if (layer == MOB_LOW) {
         val state = (t / 8)
@@ -107,43 +94,17 @@ class BlobGuard(maze:Maze, initTx:Int, initTy:Int)(ai: (Maze, BlobGuard) => _) e
         }
       }
     }
-
-    override def tick(m:Maze): Unit = {
-      t = t + 1
-      d match {
-        case EAST => px += moveDistance
-        case WEST => px -= moveDistance
-        case NORTH => py -= moveDistance
-        case SOUTH => py += moveDistance
-      }
-
-      if (!promise.isCompleted && t >= (dist * moveDuration)) promise.success()
-
-    }
   }
 
   /** The do nothing action */
-  case class Die() extends Action {
-    var t = 0
-    promise.success()
-
+  case class Die() extends GridIdle with Action {
     def paintLayer(layer: Int, x1: Int, y1: Int, x2:Int, y2:Int, ctx: CanvasRenderingContext2D): Unit = {
       if (layer == MOB_LOW) BlobGuard.drawDie(t / 4, px - x1, py - y1, ctx)
     }
-
-    def destination: (Direction, Direction) = (tx, ty)
-
-    def tick(m:Maze): Unit = { t = t + 1 }
   }
 
   /** Whether BlobGuard can move in a given direction */
-  def canMove(d:Int):Boolean = alive && action.done && (d match {
-    case EAST => maze.getTile(tx + 1, ty).isPassableTo(this)
-    case WEST => maze.getTile(tx - 1, ty).isPassableTo(this)
-    case SOUTH => maze.getTile(tx, ty + 1).isPassableTo(this)
-    case NORTH => maze.getTile(tx, ty - 1).isPassableTo(this)
-    case _ => false
-  })
+  def canMove(d:Int):Boolean = alive && action.done && !maze.blockMovement((tx, ty), Move(d).destination, this)
 
   var action:Action = Idle()
 
@@ -161,6 +122,11 @@ class BlobGuard(maze:Maze, initTx:Int, initTy:Int)(ai: (Maze, BlobGuard) => _) e
   /** BlobGuards don't block movement. */
   override def blockMovement(from: (Direction, Direction), to: (Direction, Direction), by: Mob): Boolean = false
 
+  def die():Unit = action match {
+    case Die() => //
+    case _ => action = Die()
+  }
+
   /**
    * Paint this mob on the canvas
    *
@@ -172,10 +138,12 @@ class BlobGuard(maze:Maze, initTx:Int, initTy:Int)(ai: (Maze, BlobGuard) => _) e
   }
 
   override def tick(m:Maze) = {
-    for { mob <- maze.mobsIntersecting(hitBox) } if (mob != this) {
-      mob match {
-        case s:Snobot => s.die()
-        case _ => //
+    if (alive) {
+      for {mob <- maze.mobsIntersecting(hitBox)} if (mob != this) {
+        mob match {
+          case s: Snobot => s.die()
+          case _ => //
+        }
       }
     }
 

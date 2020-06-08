@@ -202,7 +202,7 @@ case class Snobot(maze:Maze) extends GridMob with Askable[Snobot.Message, Unit]{
   }
 
   /** Whether Snobot can move in a given direction */
-  def canMove(d:Int):Boolean = alive && action.done && (d match {
+  def canMove(d:Int):Boolean = !isBlocked(d) && (d match {
     case EAST => maze.getTile(tx + 1, ty).isPassableTo(this)
     case WEST => maze.getTile(tx - 1, ty).isPassableTo(this)
     case SOUTH => maze.getTile(tx, ty + 1).isPassableTo(this)
@@ -220,7 +220,10 @@ case class Snobot(maze:Maze) extends GridMob with Askable[Snobot.Message, Unit]{
   })
 
   override def blockMovement(from: (Direction, Direction), to: (Direction, Direction), by: Mob): Boolean = {
-    (tx, ty) == to || action.destination == to
+    by match {
+      case b:Boulder => (tx, ty) == to || action.destination == to
+      case _ => false
+    }
   }
 
   def setAction(a:Action): Future[Unit] = {

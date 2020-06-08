@@ -147,7 +147,6 @@ case class Maze(name:String = "maze")(
 
     fixtures.values.foreach(_.tick(this))
     mobs.foreach(_.tick(this))
-    snobot.tick(this)
   }
 
 

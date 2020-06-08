@@ -26,10 +26,10 @@ object FirstDeck {
 
     maze.loadFromString(
       """
-        | #S.....
-        | #O####*#
-        | #B..B..#
-        | #.##O###
+        | #...O.Z
+        | #.####*#
+        | #S..B..#
+        | #.##.###
         | #.....G
         |""".stripMargin)
   }
@@ -133,7 +133,7 @@ object FirstDeck {
               | #S.....#
               | ######*#
               | #...B..#
-              | #.##O###
+              | #.##.###
               | #.....G
               |""".stripMargin)
         }

@@ -28,6 +28,10 @@ object QuickMaze {
       m.setTile(x, y, FloorTile)
       m.addMob(new BlobGuard(m, x, y)(BlobGuard.patrolAI))
     },
+    'Z' -> { case (m, x, y) =>
+      m.setTile(x, y, FloorTile)
+      m.addMob(new BlobGuard(m, x, y)(BlobGuard.zeroInAI))
+    },
   )
 
   def process(m:Maze, s:String):Unit = {

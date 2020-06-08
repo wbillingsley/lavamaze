@@ -53,8 +53,8 @@ class Boulder(maze:Maze, initTx:Int, initTy:Int) extends GridMob {
     override def tick(m:Maze):Unit = {
       super.tick(m)
       for { mob <- m.mobsIntersecting(hitBox) } mob match {
-        case s:Snobot => s.action = s.Die()
-        case b:BlobGuard => b.action = b.Die()
+        case s:Snobot => s.die()
+        case b:BlobGuard => b.die()
         case _ => //
 
       }
@@ -86,7 +86,7 @@ class Boulder(maze:Maze, initTx:Int, initTy:Int) extends GridMob {
 
   def nextAction():Action = action match {
     case Idle() => action
-    case _ => action
+    case _ => Idle()
   }
 
   def push(d:Direction):Boolean = {
