@@ -1,5 +1,6 @@
 package lavamaze
 
+import coderunner.Codable
 import com.wbillingsley.veautiful.DiffNode
 import com.wbillingsley.veautiful.html.{<, VHtmlNode, ^}
 import org.scalajs.dom
@@ -7,10 +8,31 @@ import org.scalajs.dom.{Element, Node}
 
 import scala.collection.mutable
 
+case class CodableMaze(name:String = "maze")(
+  viewSize:(Int, Int),
+  mazeSize:(Int, Int),
+
+  mazeSetup: Maze => _
+) {
+
+  val maze = Maze(name)(viewSize, mazeSize)(mazeSetup)
+
+  val dpad = NinePad(name)(
+    tm = Some("⬆" -> (() => {})),
+    ml = Some("⬅" -> (() => {})),
+    mr = Some("➡" -> (() => {})),
+    bm = Some("⬇" -> (() => {})),
+  )
+
+
+
+}
+
+
 case class Maze(name:String = "maze")(
   viewSize:(Int, Int),
   mazeSize:(Int, Int),
-)(setup: Maze => _) extends VHtmlNode {
+)(setup: Maze => _) extends VHtmlNode with Codable {
 
   val (mWidth, mHeight) = mazeSize
   val (vWidth, vHeight) = viewSize
@@ -149,6 +171,21 @@ case class Maze(name:String = "maze")(
     mobs.foreach(_.tick(this))
   }
 
+  def functions():Seq[Codable.Triple] = {
+    import scala.scalajs.js.JSConverters._
+    import scala.concurrent.ExecutionContext.Implicits.global
+
+    Seq(
+      ("left", Seq.empty, () => snobot.ask(Snobot.MoveMessage(lavamaze.WEST)).toJSPromise),
+      ("right", Seq.empty, () => snobot.ask(Snobot.MoveMessage(lavamaze.EAST)).toJSPromise),
+      ("up", Seq.empty, () => snobot.ask(Snobot.MoveMessage(lavamaze.NORTH)).toJSPromise),
+      ("down", Seq.empty, () => snobot.ask(Snobot.MoveMessage(lavamaze.SOUTH)).toJSPromise),
+      ("canGoRight", Seq.empty, () => snobot.canMove(lavamaze.EAST)),
+      ("canGoUp", Seq.empty, () => snobot.canMove(lavamaze.NORTH)),
+      ("canGoDown", Seq.empty, () => snobot.canMove(lavamaze.SOUTH)),
+      ("canGoLeft", Seq.empty, () => snobot.canMove(lavamaze.WEST)),
+    )
+  }
 
 }
 

@@ -24,6 +24,14 @@ case class AceEditor(name:String)(onStart: js.Dynamic => Unit) extends VHtmlNode
 
   def editor = _editor
 
+  def value:String = editor.map(_.getValue().asInstanceOf[String]).getOrElse("")
+
+  def insertAtCursor(s:String):Unit = {
+    for { e <- editor } {
+      e.session.insert(e.getCursorPosition(), s)
+    }
+  }
+
   override def attach(): Node = {
     val n = <.div(^.attr("id") := id, ^.cls := "ace-editor").create()
     _domNode = Some(n)
@@ -40,6 +48,7 @@ case class AceEditor(name:String)(onStart: js.Dynamic => Unit) extends VHtmlNode
   }
 
   override def detach(): Unit = {
+
 
 
   }

@@ -1,6 +1,6 @@
 package lavasite.lavadeck
 
-import coderunner.{CodeRunner, IFrameCodeRunner, WorkerCodeRunner}
+import coderunner.{ButtonDrawer, CodePlayControls, CodeRunner, IFrameCodeRunner, JSCodable, WorkerCodeRunner}
 import com.wbillingsley.scatter.TileSpace
 import com.wbillingsley.scatter.jstiles.{JSLang, ProgramTile}
 import com.wbillingsley.veautiful.{DiffNode, MutableArrayComponent}
@@ -11,7 +11,7 @@ import lavamaze.{BlobGuard, Boulder, Diamond, FloorTile, Goal, Maze, Snobot}
 import org.scalajs.dom
 import org.scalajs.dom.{Element, Node, html, svg}
 import lavasite.Common
-import lavasite.templates.{AceEditor, CodePlayControls, DescaledAceEditor}
+import lavasite.templates.{AceEditor, DescaledAceEditor}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
@@ -30,7 +30,7 @@ object FirstDeck {
         | #.####*#
         | #S..B..#
         | #.##.###
-        | #.....G
+        | #..d..G
         |""".stripMargin)
   }
 
@@ -55,6 +55,8 @@ object FirstDeck {
   }
 
   val cpc = CodePlayControls(cr)(ace.editor.map(_.getValue().asInstanceOf[String]).getOrElse(""), m.reset())
+
+  val jsc = JSCodable()(m)()
 
   val scatterCanvas = new TileSpace(Some("example"), JSLang)((512, 640))
   val pt = new ProgramTile(scatterCanvas, <.button(^.cls := "btn btn-sm btn-primary", "Run"))
@@ -110,7 +112,8 @@ object FirstDeck {
     .veautifulSlide(
       <.div(
         <.h1("Maze"),
-        Challenge.split(
+        jsc
+       /* Challenge.split(
           <.div(
             m,
           )
@@ -119,7 +122,7 @@ object FirstDeck {
             ace,
           ),
           cpc
-        ),
+        ), */
       )
     )
     .veautifulSlide(<.div(

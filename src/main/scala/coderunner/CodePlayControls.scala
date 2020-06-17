@@ -1,15 +1,13 @@
-package lavasite.templates
+package coderunner
 
-import coderunner.CodeRunner
 import com.wbillingsley.veautiful.DiffNode
 import com.wbillingsley.veautiful.html.{<, VHtmlComponent, VHtmlNode, ^}
 import org.scalajs.dom.{Element, Node}
 
+import scala.util.{Failure, Success}
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import scala.util.{Failure, Success}
-
-case class CodePlayControls(codeRunner:CodeRunner)(code: => String, reset: => Unit) extends VHtmlComponent {
+case class CodePlayControls(codeRunner:CodeRunner)(code: => String, reset: => Unit, prependButtons: => Seq[VHtmlNode] = Seq.empty) extends VHtmlComponent {
 
   private val emptyMessage = <.span()
   private def error(s:String) = <.span(^.cls := "code-message text-danger", s)
@@ -48,6 +46,6 @@ case class CodePlayControls(codeRunner:CodeRunner)(code: => String, reset: => Un
   }
 
   override protected def render: DiffNode[Element, Node] = <.div(
-    button, status
+    <.div(^.cls := "btn-group", ^.attr("role") := "group", prependButtons, button), status
   )
 }

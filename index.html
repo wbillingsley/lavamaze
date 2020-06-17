@@ -20,16 +20,19 @@
     <p>Loading. Built with Veautiful.</p>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.11/ace.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.11/ace.js"></script>
 
-<!-- Location when site generated locally -->
-<script type="text/javascript" src="./target/scala-2.13/lava-maze-opt.js"></script>
-<!-- Location deployed to by CI -->
-<script type="text/javascript" src="./deployscripts/compiled.js"></script>
-<script>
-    LavaMazeSite.load()
-</script>
+    <!-- Asyncify, for turning student synchronous code Async -->
+    <script src="https://www.wbillingsley.com/asyncify/dist/main.js"></script>
+    
+    <!-- Location when site generated locally -->
+    <script type="text/javascript" src="./target/scala-2.13/lava-maze-opt.js"></script>
+    <!-- Location deployed to by CI -->
+    <script type="text/javascript" src="./deployscripts/compiled.js"></script>
+    <script>
+        LavaMazeSite.load()
+    </script>
 
 </body>
 </html>
