@@ -12,6 +12,9 @@ trait Codable extends VHtmlNode {
   // Puts the Codable back in its start state
   def reset():Unit
 
+  // Starts the Codable ticking
+  def start():Unit
+
   def functions():Seq[Codable.Triple]
 
 }

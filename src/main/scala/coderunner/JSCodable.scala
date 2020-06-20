@@ -51,8 +51,9 @@ case class JSCodable()(codable: Codable, underCodable: Option[JSCodable => VHtml
 
   val codePlayControls = CodePlayControls(codeRunner)(
     if (tilesMode) pt.toLanguage.toJS(2) else aceCanvas.value,
-    codable.reset(),
-    if (tilesMode) Seq(textView) else Seq(tileView),
+    start = codable.start _,
+    reset = codable.reset _,
+    prependButtons = (if (tilesMode) Seq(textView, clear) else Seq(tileView, clear))
   )
 
   private def addTileToCanvas(t:Tile[JSExpr]) = {
@@ -91,8 +92,15 @@ case class JSCodable()(codable: Codable, underCodable: Option[JSCodable => VHtml
   )
 
 
-  private val tileView = <.button(^.cls := "btn btn-primary", ^.key := "tileView", "Tiles", ^.onClick --> { tilesMode = true; rerender() })
-  private val textView = <.button(^.cls := "btn btn-primary", ^.key := "textView", "Text", ^.onClick --> { tilesMode = false; rerender() })
+  private val tileView = <.button(^.cls := "btn btn-primary", ^.key := "tileView", "Tiles",
+    ^.attr("title") := "Tiles mode", ^.onClick --> { tilesMode = true; rerender() }
+  )
+  private val textView = <.button(^.cls := "btn btn-primary", ^.key := "textView", "Text",
+    ^.attr("title") := "Text mode", ^.onClick --> { tilesMode = false; rerender() }
+  )
+  private val clear = <.button(^.cls := "btn btn-primary", ^.key := "clear",
+    ^.attr("title") := "Clear console", <("i")(^.cls := "material-icons", "clear"), ^.onClick --> { console.clear() }
+  )
 
   private def leftWidth = codeCanvasWidth + buttonDrawerWidth
 

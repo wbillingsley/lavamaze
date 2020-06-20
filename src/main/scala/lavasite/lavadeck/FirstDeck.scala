@@ -56,7 +56,7 @@ object FirstDeck {
     editor.session.setMode("ace/mode/javascript")
   }
 
-  val cpc = CodePlayControls(cr)(ace.editor.map(_.getValue().asInstanceOf[String]).getOrElse(""), m.reset())
+  val cpc = CodePlayControls(cr)(ace.editor.map(_.getValue().asInstanceOf[String]).getOrElse(""), start = m.start _, reset = m.reset _)
 
   val jsc = JSCodable()(m)()
 

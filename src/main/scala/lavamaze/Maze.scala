@@ -36,17 +36,22 @@ case class Maze(name:String = "maze")(
 
   val (mWidth, mHeight) = mazeSize
   val (vWidth, vHeight) = viewSize
-  val drawWidth = vWidth * oneTile
-  val drawHeight = vHeight * oneTile
+  private val drawWidth = vWidth * oneTile
+  private val drawHeight = vHeight * oneTile
 
   val environment = LavaEnvironment(mWidth, mHeight)
 
-  val canvas = <.canvas(^.attr("width") := drawWidth, ^.attr("height") := drawHeight)
+  private val canvas = <.canvas(^.attr("width") := drawWidth, ^.attr("height") := drawHeight)
 
   def domNode = canvas.domNode
   def attach() = canvas.attach()
   override def detach(): Unit = canvas.detach()
 
+  private var started = false
+
+  def start(): Unit = {
+    started = true
+  }
 
   var lastFrame:Double = 0
   override def afterAttach(): Unit = {
@@ -55,7 +60,7 @@ case class Maze(name:String = "maze")(
 
   def animationFrameHandler(d:Double):Unit = {
     val ticks = ((d - lastFrame) / tickPeriod).toInt
-    for { tick <- 0 until ticks } step()
+    for { tick <- 0 until ticks } if (started) step()
     if (ticks > 0) {
       lastFrame = d
       try {
@@ -135,6 +140,8 @@ case class Maze(name:String = "maze")(
 
     snobot.putAtTile(snobotStart)
     snobot.action = snobot.Idle()
+
+    started = false
   }
 
   reset()
@@ -169,7 +176,6 @@ case class Maze(name:String = "maze")(
 
   def step() = {
     environment.tick()
-
     fixtures.values.foreach(_.tick(this))
     mobs.foreach(_.tick(this))
   }
