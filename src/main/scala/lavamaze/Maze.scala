@@ -102,7 +102,10 @@ case class Maze(name:String = "maze")(
    * Whether potential movement by a mob from one location to another should be stopped.
    */
   def blockMovement(from:(Int, Int), to:(Int, Int), by:Mob):Boolean = {
-    getTile(to).isBlockingTo(by) || mobs.exists { x => x != by && x.blockMovement(from, to, by) }
+    getTile(to).isBlockingTo(by) ||
+      Seq(from, to, from._1 -> to._2, to._1 -> from._2).exists(p => getTile(p).blockMovement(p)(from, to, by)) ||
+      mobs.exists { x => x != by && x.blockMovement(from, to, by) } ||
+      fixtures.values.exists(_.blockMovement(from, to, by))
   }
 
   def setTile(tx:Int, ty:Int, tile: Tile):Unit = {

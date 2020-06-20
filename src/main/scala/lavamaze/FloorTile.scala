@@ -26,4 +26,5 @@ object FloorTile extends Tile {
     }
   }
 
+  override def blockMovement(p:(Int, Int))(from: (Int, Int), to: (Int, Int), by: Mob): Boolean = false
 }

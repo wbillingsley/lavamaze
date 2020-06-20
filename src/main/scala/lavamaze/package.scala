@@ -52,6 +52,13 @@ package object lavamaze {
 
     def +(v2:(Int, Int)):(Int, Int) = (v._1 + v2._1, v._2 + v2._2)
 
+    /**
+     * Whether a single-step tile move crosses this (x, y)
+     */
+    def crossedBy(from:(Int, Int), to:(Int, Int)):Boolean = {
+      v == from || v == to || (v._1 == from._1 && v._2 == to._1) || (v._1 == to._1 && v._2 == from._2)
+    }
+
   }
 
   val settings:js.Dictionary[Any] = {

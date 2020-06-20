@@ -16,6 +16,22 @@ object QuickMaze {
       m.setTile(x, y, FloorTile)
       m.addMob(new Boulder(m, x, y))
     },
+    '<' -> { case (m, x, y) =>
+      m.setTile(x, y, FloorTile)
+      m.addMob(new Boulder(m, x, y, Some(WEST)))
+    },
+    '>' -> { case (m, x, y) =>
+      m.setTile(x, y, FloorTile)
+      m.addMob(new Boulder(m, x, y, Some(EAST)))
+    },
+    '^' -> { case (m, x, y) =>
+      m.setTile(x, y, FloorTile)
+      m.addMob(new Boulder(m, x, y, Some(NORTH)))
+    },
+    'v' -> { case (m, x, y) =>
+      m.setTile(x, y, FloorTile)
+      m.addMob(new Boulder(m, x, y, Some(SOUTH)))
+    },
     '*' -> { case (m, x, y) =>
       m.setTile(x, y, FloorTile)
       m.addFixture(new Diamond(x, y))

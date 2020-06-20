@@ -39,4 +39,10 @@ case class Diamond(tx:Int, ty:Int) extends Fixture {
   override def tick(maze: Maze): Unit = {
     t += 1
   }
+
+  /** Whether this mob will block another mob's movement into a space */
+  override def blockMovement(from: (Int, Int), to: (Int, Int), by: Mob): Boolean = by match {
+    case _:Snobot => false
+    case _ => (tx, ty) == to
+  }
 }

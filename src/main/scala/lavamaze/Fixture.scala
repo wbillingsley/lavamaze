@@ -17,4 +17,7 @@ trait Fixture {
 
   def ty:Int
 
+  /** Whether this mob will block another mob's movement into a space */
+  def blockMovement(from:(Int, Int), to:(Int, Int), by:Mob):Boolean
+
 }

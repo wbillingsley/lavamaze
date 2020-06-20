@@ -68,4 +68,10 @@ case class Goal(tx:Int, ty:Int) extends Fixture {
       maze.snobot.setAction(maze.snobot.AtGoal())
     }
   }
+
+  /** Whether this mob will block another mob's movement into a space */
+  override def blockMovement(from: (Int, Int), to: (Int, Int), by: Mob): Boolean = by match {
+    case _:Snobot => false
+    case _ => (tx, ty) == to
+  }
 }

@@ -11,12 +11,23 @@ object Boulder {
   val dimension = 56
   val offset = (oneTile - dimension) / 2
 
-  def drawStatic(offsetX:Int, offsetY:Int, ctx:dom.CanvasRenderingContext2D):Unit = {
-    ctx.drawImage(image, 0, 0, 64, 64, offsetX + offset, offsetY + offset, dimension, dimension)
+  def drawImage(ix:Int, iy:Int)(offsetX:Int, offsetY:Int, ctx:dom.CanvasRenderingContext2D):Unit = {
+    ctx.drawImage(image, ix * 64, iy * 64, 64, 64, offsetX + offset, offsetY + offset, dimension, dimension)
+  }
+
+  def draw(b:Boulder, offsetX:Int, offsetY:Int, ctx:dom.CanvasRenderingContext2D):Unit = {
+    b.direction match {
+      case Some(EAST) => drawImage(4, 0)(offsetX, offsetY, ctx)
+      case Some(WEST) => drawImage(2, 0)(offsetX, offsetY, ctx)
+      case Some(SOUTH) => drawImage(3, 0)(offsetX, offsetY, ctx)
+      case Some(NORTH) => drawImage(5, 0)(offsetX, offsetY, ctx)
+      case _ => drawImage(0, 0)(offsetX, offsetY, ctx)
+
+    }
   }
 }
 
-class Boulder(maze:Maze, initTx:Int, initTy:Int) extends GridMob {
+class Boulder(maze:Maze, initTx:Int, initTy:Int, var direction:Option[Direction] = None) extends GridMob {
 
   var px = initTx * oneTile
   var py = initTy * oneTile
@@ -31,7 +42,8 @@ class Boulder(maze:Maze, initTx:Int, initTy:Int) extends GridMob {
   override def blockMovement(from: (Direction, Direction), to: (Direction, Direction), by: Mob): Boolean = {
     action match {
       case m:Move =>
-        m.destination == to || (m.destination == from && m.origin == to)
+        m.destination.crossedBy(from, to)
+        //m.destination == to || (m.destination == from && m.origin == to)
       case a =>
       a.destination == to
     }
@@ -73,7 +85,7 @@ class Boulder(maze:Maze, initTx:Int, initTy:Int) extends GridMob {
    */
   override def paintLayer(layer: Direction, x1: Direction, y1: Direction, x2: Direction, y2: Direction, ctx: CanvasRenderingContext2D): Unit = {
     if (layer == MOB_LOW) {
-      Boulder.drawStatic(px - x1, py - y1, ctx)
+      Boulder.draw(this, px - x1, py - y1, ctx)
     }
   }
 
@@ -84,7 +96,34 @@ class Boulder(maze:Maze, initTx:Int, initTy:Int) extends GridMob {
     } else action.tick(m)
   }
 
-  def nextAction():Action = action match {
+  def nextAction():Action = {
+    direction match {
+      case Some(WEST) =>
+        if (!maze.blockMovement((tx, ty), (tx - 1, ty), this)) Move(WEST)
+        else if (!maze.blockMovement((tx, ty), (tx - 1, ty + 1), this)) Move(SOUTH)
+        else if (!maze.blockMovement((tx, ty), (tx - 1, ty - 1), this)) Move(NORTH)
+        else idle
+      case Some(EAST) =>
+        if (!maze.blockMovement((tx, ty), (tx + 1, ty), this)) Move(EAST)
+        else if (!maze.blockMovement((tx, ty), (tx + 1, ty + 1), this)) Move(SOUTH)
+        else if (!maze.blockMovement((tx, ty), (tx + 1, ty - 1), this)) Move(NORTH)
+        else idle
+      case Some(NORTH) =>
+        if (!maze.blockMovement((tx, ty), (tx, ty - 1), this)) Move(NORTH)
+        else if (!maze.blockMovement((tx, ty), (tx + 1, ty - 1), this)) Move(EAST)
+        else if (!maze.blockMovement((tx, ty), (tx - 1, ty - 1), this)) Move(WEST)
+        else idle
+      case Some(SOUTH) =>
+        if (!maze.blockMovement((tx, ty), (tx, ty + 1), this)) Move(SOUTH)
+        else if (!maze.blockMovement((tx, ty), (tx + 1, ty + 1), this)) Move(EAST)
+        else if (!maze.blockMovement((tx, ty), (tx - 1, ty + 1), this)) Move(WEST)
+        else idle
+      case _ => idle
+    }
+
+  }
+
+  def idle = action match {
     case Idle() => action
     case _ => Idle()
   }
