@@ -5,7 +5,7 @@ import org.scalajs.dom
 import org.scalajs.dom.CanvasRenderingContext2D
 
 object Diamond {
-  val image = <("img")(^.src := "images/diamond.png").create()
+  private val image = loadImage("diamond.png")
 
   val dimension = 56
   val offset = (oneTile - dimension) / 2

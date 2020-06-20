@@ -6,7 +6,7 @@ import org.scalajs.dom.CanvasRenderingContext2D
 
 
 object Boulder {
-  val image = <("img")(^.src := "images/boulder.png").create()
+  private val image = loadImage("boulder.png")
 
   val dimension = 56
   val offset = (oneTile - dimension) / 2

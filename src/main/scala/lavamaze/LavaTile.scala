@@ -7,7 +7,7 @@ import org.scalajs.dom.CanvasRenderingContext2D
 
 object LavaTile extends Tile {
 
-  val image = <("img")(^.src := "images/lava.png").create()
+  private val image = loadImage("lava.png")
 
   override def isPassableTo(m: Mob): Boolean = m match {
     case _:Snobot => false

@@ -5,8 +5,7 @@ import org.scalajs.dom.CanvasRenderingContext2D
 
 object FloorTile extends Tile {
 
-  val image = <("img")(^.src := "images/floor.png").create()
-
+  private val image = loadImage("floor.png")
 
   val floorFill = "rgb(20,20,20)"
   val floorStroke = "rgb(120,120,120)"

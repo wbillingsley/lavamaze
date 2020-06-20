@@ -8,7 +8,7 @@ import scala.concurrent.Future
 import scala.util.Random
 
 object BlobGuard {
-  val image = <("img")(^.src := "images/blobguard.png").create()
+  private val image = loadImage("blobguard.png")
 
   val dimension = 56
   val offset = (oneTile - dimension) / 2

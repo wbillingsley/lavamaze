@@ -20,7 +20,7 @@ object Snobot {
 
   val ninjaHighlight = "rgba(0, 0, 255, 0.5)"
 
-  val image = <("img")(^.src := "images/snobot.png").create()
+  private val image = loadImage("snobot.png")
 
   val dimension = 56
 

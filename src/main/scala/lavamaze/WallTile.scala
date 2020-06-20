@@ -1,11 +1,10 @@
 package lavamaze
 
-import com.wbillingsley.veautiful.html.{<, ^}
 import org.scalajs.dom.CanvasRenderingContext2D
 
 object WallTile extends Tile {
 
-  val image = <("img")(^.src := "images/wall.png").create()
+  private val image = loadImage("wall.png")
 
   val floorFill = "rgb(20,20,20)"
   val floorStroke = "rgb(120,120,120)"

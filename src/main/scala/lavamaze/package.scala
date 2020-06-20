@@ -1,3 +1,7 @@
+import com.wbillingsley.veautiful.html.{<, ^}
+
+import scala.scalajs.js
+
 package object lavamaze {
 
   type Coordinate = (Double, Double)
@@ -48,6 +52,18 @@ package object lavamaze {
 
     def +(v2:(Int, Int)):(Int, Int) = (v._1 + v2._1, v._2 + v2._2)
 
+  }
+
+  val settings:js.Dictionary[Any] = {
+    if (js.typeOf(js.Dynamic.global.lavaSettings) == "undefined") js.Dictionary.empty else js.Dynamic.global.lavaSettings.asInstanceOf[js.Dictionary[Any]]
+  }
+
+  def imageBase:String = {
+     settings.getOrElse("imageBase", "").asInstanceOf[String]
+  }
+
+  def loadImage(s:String) = {
+    <("img")(^.src := s"${imageBase}images/$s").create()
   }
 
 

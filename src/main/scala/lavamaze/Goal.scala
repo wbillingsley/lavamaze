@@ -5,7 +5,7 @@ import org.scalajs.dom
 import org.scalajs.dom.CanvasRenderingContext2D
 
 object Goal {
-  val image = <("img")(^.src := "images/goal.png").create()
+  private val image = loadImage("goal.png")
 
   def drawStatic(i:Int)(offsetX:Int, offsetY:Int, ctx:dom.CanvasRenderingContext2D):Unit = {
     ctx.drawImage(image, 64 * (i % 4), 0, 64, 64, offsetX, offsetY, 64, 64)

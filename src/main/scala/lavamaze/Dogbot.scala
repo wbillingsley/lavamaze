@@ -14,7 +14,7 @@ object Dogbot {
   sealed trait Message
   case class MoveMessage(dir:Direction) extends Message
 
-  val image = <("img")(^.src := "images/dogbot.png").create()
+  private val image = loadImage("dogbot.png")
 
   val dimension = 56
 
