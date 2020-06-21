@@ -22,8 +22,6 @@ object FirstDeck {
   import scala.scalajs.js.JSConverters._
 
   val m = Maze()((10, 10), (10, 10)) { maze =>
-    dom.console.log("Setting up maze")
-
     maze.loadFromString(
       """
         | #...O.Z
@@ -36,40 +34,9 @@ object FirstDeck {
         |""".stripMargin)
   }
 
-  val rpcs = Map[String, js.Function](
-    "ping" -> (() => println("ping")),
-    "canGoRight" -> (() => m.snobot.canMove(lavamaze.EAST)),
-    "right" -> (() => m.snobot.ask(Snobot.MoveMessage(lavamaze.EAST)).toJSPromise),
-    "left" -> (() => m.snobot.ask(Snobot.MoveMessage(lavamaze.WEST)).toJSPromise),
-    "up" -> (() => m.snobot.ask(Snobot.MoveMessage(lavamaze.NORTH)).toJSPromise),
-    "down" -> (() => m.snobot.ask(Snobot.MoveMessage(lavamaze.SOUTH)).toJSPromise),
-    "zing" -> { (i:Int, j:Int, k:Int) => println(s"Zinged with i=$i j=$j k=$j"); "Done" }
-  )
-
-  val cr = new WorkerCodeRunner(rpcs, Map.empty, true)
 
 
-  val ace = AceEditor("mycode") { editor =>
-    editor.setTheme("ace/theme/monokai")
-    editor.setFontSize("24px")
-    editor.setOption("hasCssTransforms", true)
-    editor.session.setMode("ace/mode/javascript")
-  }
-
-  val cpc = CodePlayControls(cr)(ace.editor.map(_.getValue().asInstanceOf[String]).getOrElse(""), start = m.start _, reset = m.reset _)
-
-  val jsc = JSCodable()(m)()
-
-  val scatterCanvas = new TileSpace(Some("example"), JSLang)((512, 640))
-  val pt = new ProgramTile(scatterCanvas, <.button(^.cls := "btn btn-sm btn-primary", "Run"))
-  pt.x = 2
-  pt.y = 2
-
-  val dt = new DeleteTile(scatterCanvas)
-  dt.x = 420
-  dt.y = 2
-
-  scatterCanvas.tiles.appendAll(Seq(pt, dt))
+  val jsc = JSCodable(m)()
 
 
   val builder = new DeckBuilder()
@@ -115,37 +82,25 @@ object FirstDeck {
       <.div(
         <.h1("Maze"),
         jsc
-       /* Challenge.split(
-          <.div(
-            m,
-          )
-        )(
-          <.div(^.attr("style") := "position: relative; width: 600px; height: 300px;",
-            ace,
-          ),
-          cpc
-        ), */
       )
     )
-    .veautifulSlide(<.div(
-      <.h1("Using tiles"),
-      Challenge.split(
-        Maze()((10, 10), (10, 10)) { maze =>
-          dom.console.log("Setting up maze")
-
-          maze.loadFromString(
-            """ ........
-              | #S.....#
-              | ######*#
-              | #...B..#
-              | #.##.###
-              | #.....G
-              |""".stripMargin)
-        }
-      )(
-        scatterCanvas
+    .veautifulSlide(
+      <.div(
+        <.h1("Maze"),
+        JSCodable(
+          Maze("Challenge1")((8, 8), (8, 8)) { maze =>
+            maze.loadFromString(
+              """
+                |
+                |  ...
+                |S..#.ZG
+                |  ...
+                |
+                |""".stripMargin)
+          }
+        )()
       )
-    ))
+    )
     .markdownSlide(
       """
         |## To-do:

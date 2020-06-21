@@ -38,6 +38,13 @@ case class Diamond(tx:Int, ty:Int) extends Fixture {
 
   override def tick(maze: Maze): Unit = {
     t += 1
+
+    for {mob <- maze.mobsIntersecting(bounds)} if (mob != this) {
+      mob match {
+        case _: Snobot => maze.removeFixture(this)
+        case _ => //
+      }
+    }
   }
 
   /** Whether this mob will block another mob's movement into a space */

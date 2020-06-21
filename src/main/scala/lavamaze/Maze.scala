@@ -121,6 +121,10 @@ case class Maze(name:String = "maze")(
     if (f.tx < mWidth && f.tx >= 0 && f.ty >= 0 && f.ty < mHeight) fixtures.addOne((f.tx, f.ty) -> f)
   }
 
+  def removeFixture(f:Fixture):Unit = {
+    fixtures.remove((f.tx, f.ty))
+  }
+
   def addMob(m:Mob):Unit = {
     mobs.add(m)
   }

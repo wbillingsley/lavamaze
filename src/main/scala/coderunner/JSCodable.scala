@@ -4,16 +4,17 @@ import com.wbillingsley.scatter.{Tile, TileSpace}
 import com.wbillingsley.scatter.jstiles.{DoWhileTile, ForTile, FunctionCall2Tile, FunctionCallTile, IfElseTile, JSExpr, JSLang, ProgramTile, WhileTile}
 import com.wbillingsley.veautiful.DiffNode
 import com.wbillingsley.veautiful.html.{<, VHtmlComponent, VHtmlNode, ^}
+import jstiles.{AssignmentTile, FunctionDefinitionTile, LetTile, VariableTile}
 import jstiles.lavamaze.DeleteTile
 import lavasite.templates.AceEditor
 import org.scalajs.dom.{Element, Node}
 
 import scala.util.Random
 
-case class JSCodable()(codable: Codable, underCodable: Option[JSCodable => VHtmlNode] = None)(
+case class JSCodable(codable: Codable, underCodable: Option[JSCodable => VHtmlNode] = None)(
   fontSize:Int = 14,
   codeCanvasWidth:Int = 640, codeCanvasHeight:Int = 480, codeDrawHeight:Int = 400,
-  buttonDrawerWidth:Int = 150,
+  buttonDrawerWidth:Int = 250,
   codableHeight: Option[Int] = None
 ) extends VHtmlComponent {
 
@@ -78,6 +79,87 @@ case class JSCodable()(codable: Codable, underCodable: Option[JSCodable => VHtml
     addTileCode(new FunctionCall2Tile(tileCanvas, name, paramTypes))
   }
 
+  def addDeclareTile(name:String, paramTypes:Seq[String]):Unit = {
+    addTileCode(new FunctionDefinitionTile(tileCanvas, name, paramTypes))
+  }
+
+
+  object FunctionForm extends VHtmlComponent {
+    var name = ""
+    var params = ""
+
+    def declare() = {
+      addDeclareTile(name, params.split(",").map(_.trim).filter(_.nonEmpty))
+    }
+
+    def call() = {
+      addCallTile(name, params.split(",").map(_.trim).filter(_.nonEmpty))
+    }
+
+    override protected def render: DiffNode[Element, Node] = {
+      import com.wbillingsley.veautiful.html.EventMethods
+
+      <.div(
+        <.div(^.cls := "input-group",
+          <.div(^.cls := "input-group-prepend",
+            <.span(^.cls := "input-group-text", "Name")
+          ),
+          <.input(^.cls := "form-control", ^.attr("type") := "text", ^.prop("value") := name, ^.prop("placeholder") := "myFunction",
+            ^.on("input") ==> { e => name = e.inputValue.getOrElse(""); rerender() }
+          )
+        ),
+        <.div(^.cls := "input-group",
+          <.div(^.cls := "input-group-prepend",
+            <.span(^.cls := "input-group-text", "Params")
+          ),
+          <.input(^.cls := "form-control", ^.attr("type") := "text", ^.prop("value") := params, ^.prop("placeholder") := "a, b, c",
+            ^.on("input") ==> { e => params = e.inputValue.getOrElse(""); rerender() }
+          )
+        ),
+        <.div(^.cls := "btn-group",
+          <.button(^.cls := "btn btn-outline-primary", "Declare", ^.onClick --> declare(), ^.attr("disabled") ?= (if (name.trim.isEmpty) Some("disabled") else None)),
+          <.button(^.cls := "btn btn-outline-primary", "Call", ^.onClick --> call(), ^.attr("disabled") ?= (if (name.trim.isEmpty) Some("disabled") else None)),
+        )
+      )
+    }
+  }
+
+  object VariableForm extends VHtmlComponent {
+    var name = ""
+
+    def assign() = {
+      addTileCode(new AssignmentTile(tileCanvas, name))
+    }
+
+    def let() = {
+      addTileCode(new LetTile(tileCanvas, name))
+    }
+
+    def use() = {
+      addTileCode(new VariableTile(tileCanvas, name))
+    }
+
+    override protected def render: DiffNode[Element, Node] = {
+      import com.wbillingsley.veautiful.html.EventMethods
+
+      <.div(
+        <.div(^.cls := "input-group",
+          <.div(^.cls := "input-group-prepend",
+            <.span(^.cls := "input-group-text", "Name")
+          ),
+          <.input(^.cls := "form-control", ^.attr("type") := "text", ^.prop("value") := name, ^.prop("placeholder") := "myVar",
+            ^.on("input") ==> { e => name = e.inputValue.getOrElse(""); rerender() }
+          )
+        ),
+        <.div(^.cls := "btn-group",
+          <.button(^.cls := "btn btn-outline-primary", "Declare", ^.onClick --> let(), ^.attr("disabled") ?= (if (name.trim.isEmpty) Some("disabled") else None)),
+          <.button(^.cls := "btn btn-outline-primary", "Update", ^.onClick --> assign(), ^.attr("disabled") ?= (if (name.trim.isEmpty) Some("disabled") else None)),
+          <.button(^.cls := "btn btn-outline-primary", "Use", ^.onClick --> use(), ^.attr("disabled") ?= (if (name.trim.isEmpty) Some("disabled") else None)),
+        )
+      )
+    }
+  }
+
   private val buttonDrawer = ButtonDrawer(
     "Control",
     Seq(
@@ -87,7 +169,8 @@ case class JSCodable()(codable: Codable, underCodable: Option[JSCodable => VHtml
       <.button(^.cls := "btn btn-outline-secondary", "for ...", ^.onClick --> addTileCode(new ForTile(tileCanvas))),
     ),
     "Game",
-    (for ((label, params, f) <- functions) yield <.button(^.cls := "btn btn-outline-secondary", label, ^.onClick --> addCallTile(label, params)))
+    (for ((label, params, f) <- functions) yield <.button(^.cls := "btn btn-outline-secondary", label, ^.onClick --> addCallTile(label, params))),
+    "Variables", VariableForm, "Functions", FunctionForm
 
   )
 
