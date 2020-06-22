@@ -1,11 +1,9 @@
 package coderunner
 
 import com.wbillingsley.scatter.{Tile, TileSpace}
-import com.wbillingsley.scatter.jstiles.{DoWhileTile, ForTile, FunctionCall2Tile, FunctionCallTile, IfElseTile, JSExpr, JSLang, ProgramTile, WhileTile}
+import com.wbillingsley.scatter.jstiles._
 import com.wbillingsley.veautiful.DiffNode
 import com.wbillingsley.veautiful.html.{<, VHtmlComponent, VHtmlNode, ^}
-import jstiles.{AssignmentTile, FunctionDefinitionTile, LetTile, VariableTile}
-import jstiles.lavamaze.DeleteTile
 import lavasite.templates.AceEditor
 import org.scalajs.dom.{Element, Node}
 
@@ -76,7 +74,7 @@ case class JSCodable(codable: Codable, underCodable: Option[JSCodable => VHtmlNo
   }
 
   def addCallTile(name:String, paramTypes:Seq[String]):Unit = {
-    addTileCode(new FunctionCall2Tile(tileCanvas, name, paramTypes))
+    addTileCode(new FunctionCallTile(tileCanvas, name, paramTypes))
   }
 
   def addDeclareTile(name:String, paramTypes:Seq[String]):Unit = {
@@ -199,7 +197,7 @@ case class JSCodable(codable: Codable, underCodable: Option[JSCodable => VHtmlNo
         ),
         console
       ),
-      codable, underCodable.map(_.apply(this))
+      codable.vnode, underCodable.map(_.apply(this))
     )
   }
 

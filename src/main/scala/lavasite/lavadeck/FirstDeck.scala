@@ -1,25 +1,12 @@
 package lavasite.lavadeck
 
-import coderunner.{ButtonDrawer, CodePlayControls, CodeRunner, IFrameCodeRunner, JSCodable, WorkerCodeRunner}
-import com.wbillingsley.scatter.TileSpace
-import com.wbillingsley.scatter.jstiles.{JSLang, ProgramTile}
-import com.wbillingsley.veautiful.{DiffNode, MutableArrayComponent}
-import com.wbillingsley.veautiful.html.{<, SVG, VHtmlComponent, VHtmlNode, ^}
-import com.wbillingsley.veautiful.templates.{Challenge, DeckBuilder}
-import jstiles.lavamaze.DeleteTile
-import lavamaze.{BlobGuard, Boulder, Diamond, FloorTile, Goal, Maze, Snobot}
-import org.scalajs.dom
-import org.scalajs.dom.{Element, Node, html, svg}
+import coderunner.JSCodable
+import com.wbillingsley.veautiful.html.<
+import com.wbillingsley.veautiful.templates.DeckBuilder
+import lavamaze.Maze
 import lavasite.Common
-import lavasite.templates.{AceEditor, DescaledAceEditor}
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.scalajs.js
-import scala.util.{Failure, Success}
 
 object FirstDeck {
-
-  import scala.scalajs.js.JSConverters._
 
   val m = Maze()((10, 10), (10, 10)) { maze =>
     maze.loadFromString(

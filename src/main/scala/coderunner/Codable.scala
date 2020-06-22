@@ -7,7 +7,7 @@ import scala.scalajs.js
 /**
  * Something that can be included in a JSCodable
  */
-trait Codable extends VHtmlNode {
+trait Codable {
 
   // Puts the Codable back in its start state
   def reset():Unit
@@ -16,6 +16,8 @@ trait Codable extends VHtmlNode {
   def start():Unit
 
   def functions():Seq[Codable.Triple]
+
+  def vnode:VHtmlNode
 
 }
 

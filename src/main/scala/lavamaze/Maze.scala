@@ -34,6 +34,8 @@ case class Maze(name:String = "maze")(
   mazeSize:(Int, Int),
 )(setup: Maze => _) extends VHtmlNode with Codable {
 
+  def vnode = this
+
   val (mWidth, mHeight) = mazeSize
   val (vWidth, vHeight) = viewSize
   private val drawWidth = vWidth * oneTile

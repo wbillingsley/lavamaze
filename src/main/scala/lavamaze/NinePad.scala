@@ -20,7 +20,7 @@ case class NinePad(name:String = "pad")(
 ) extends VHtmlComponent {
 
   def button(o:Option[(String, () => Unit)]) = o match {
-    case Some((label, f)) => <.button(^.cls := "btn", label, ^.onClick --> f)
+    case Some((label, f)) => <.button(^.cls := "btn", label, ^.onClick --> f())
     case _ => <.span()
   }
 

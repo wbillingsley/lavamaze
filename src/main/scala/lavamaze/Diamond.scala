@@ -39,7 +39,7 @@ case class Diamond(tx:Int, ty:Int) extends Fixture {
   override def tick(maze: Maze): Unit = {
     t += 1
 
-    for {mob <- maze.mobsIntersecting(bounds)} if (mob != this) {
+    for {mob <- maze.mobsIntersecting(bounds)} {
       mob match {
         case _: Snobot => maze.removeFixture(this)
         case _ => //
