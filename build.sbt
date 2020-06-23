@@ -1,6 +1,7 @@
 enablePlugins(ScalaJSPlugin)
 
-name := "Lava Maze"
+name := "lavamaze"
+organization := "com.wbillingsley"
 scalaVersion := "2.13.1"
 
 // Don't automatically call main
