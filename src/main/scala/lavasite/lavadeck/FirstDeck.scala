@@ -1,5 +1,7 @@
 package lavasite.lavadeck
 
+import canvasland.willtap.imperativeTopic.Vec2
+import canvasland.{CanvasLand, Turtle}
 import coderunner.JSCodable
 import com.wbillingsley.veautiful.html.<
 import com.wbillingsley.veautiful.templates.DeckBuilder
@@ -8,7 +10,7 @@ import lavasite.Common
 
 object FirstDeck {
 
-  val m = Maze()((10, 10), (10, 10)) { maze =>
+  val jsc = JSCodable(Maze()((10, 10), (10, 10)) { maze =>
     maze.loadFromString(
       """
         | #...O.Z
@@ -19,12 +21,14 @@ object FirstDeck {
         | #..v.v..
         | #.**.**.
         |""".stripMargin)
-  }
+  })()
 
-
-
-  val jsc = JSCodable(m)()
-
+  val logo = JSCodable(CanvasLand()(
+    r = Turtle(320, 320),
+    setup = (c) => {
+      c.drawGrid("lightgray", 25)
+    }
+  ))()
 
   val builder = new DeckBuilder()
     .markdownSlide(
@@ -88,6 +92,10 @@ object FirstDeck {
         )()
       )
     )
+    .veautifulSlide(<.div(
+      <.h2("Turtle graphics"),
+      logo
+    ))
     .markdownSlide(
       """
         |## To-do:
