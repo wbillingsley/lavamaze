@@ -138,16 +138,13 @@ case class Maze(name:String = "maze")(
       x <- row.indices
     } row(x) = environment.defaultTile
 
-    mobs.clear()
-    fixtures.clear()
-
-    setup(this)
-    mobs.add(snobot)
-
-    snobot.putAtTile(snobotStart)
-    snobot.action = snobot.Idle()
-
     started = false
+    fixtures.clear()
+    mobs.clear()
+    mobs.add(snobot)
+    snobot.action = snobot.Idle()
+    setup(this)
+    snobot.putAtTile(snobotStart)
   }
 
   reset()

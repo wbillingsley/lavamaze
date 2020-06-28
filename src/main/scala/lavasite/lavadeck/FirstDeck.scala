@@ -21,7 +21,7 @@ object FirstDeck {
         | #..v.v..
         | #.**.**.
         |""".stripMargin)
-  })()
+  })(tilesMode = false)
 
   val logo = JSCodable(CanvasLand()(
     r = Turtle(320, 320),
@@ -41,7 +41,7 @@ object FirstDeck {
     .veautifulSlide(<.div(
       <.h1("Welcome to the Lava Maze"),
       <.p(
-        Maze()((1,1), (1,1)) { m => m.loadFromString("S") },
+        Maze()((1,1), (1,1)) { m => m.loadFromString("S"); m.start() },
         Common.markdown("*Snobot*: our hero")
       ),
       <.p(

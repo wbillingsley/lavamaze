@@ -13,6 +13,29 @@
     margin: 2px;
 }
 
+.jscodable .onscreen-html-console {
+    overflow-y: scroll;
+    background: whitesmoke;
+}
+
+.jscodable .onscreen-html-console .comment {
+    font-style: italic;
+    color: #999;
+}
+
+.jscodable .onscreen-html-console .success {
+    font-style: italic;
+    color: #999;
+}
+
+.jscodable .onscreen-html-console .error {
+    font-style: italic;
+    color: maroon;
+}
+
+.jscodable .onscreen-html-console pre {
+    margin-bottom: 2px;
+}
 
 
 .scatter-area {
@@ -74,9 +97,16 @@
     fill: whitesmoke;
 }
 
+.scatter-area .socket.thin {
+    stroke: #eee;
+}
+
 .scatter-area .socket.active {
     stroke: darkorange;
-    fill: whitesmoke;
+}
+
+.scatter-area .socket.thin.active {
+    stroke: darkorange;
 }
 
 .scatter-number-input {

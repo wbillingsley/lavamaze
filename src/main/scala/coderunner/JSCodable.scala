@@ -4,19 +4,21 @@ import com.wbillingsley.scatter.{Tile, TileSpace}
 import com.wbillingsley.scatter.jstiles._
 import com.wbillingsley.veautiful.DiffNode
 import com.wbillingsley.veautiful.html.{<, VHtmlComponent, VHtmlNode, ^}
+import jstiles.{InfixOperatorTile, PostfixOperatorTile, StringInputTile}
 import lavasite.templates.AceEditor
 import org.scalajs.dom.{Element, Node}
 
-import scala.util.Random
+import scala.util.{Failure, Random, Success}
 
 case class JSCodable(codable: Codable, underCodable: Option[JSCodable => VHtmlNode] = None)(
   fontSize:Int = 14,
   codeCanvasWidth:Int = 640, codeCanvasHeight:Int = 480, codeDrawHeight:Int = 400,
   buttonDrawerWidth:Int = 250,
-  codableHeight: Option[Int] = None
+  codeControlsHeight:Int = 50,
+  consoleHeight:Int = 200,
+  codableHeight: Option[Int] = None,
+  var tilesMode: Boolean = true
 ) extends VHtmlComponent {
-
-  var tilesMode = true
 
   private val tileCanvas = new TileSpace(Some("example"), JSLang)((codeCanvasWidth, codeCanvasHeight))
   private val pt = new ProgramTile(tileCanvas, <.div(""))
@@ -29,7 +31,7 @@ case class JSCodable(codable: Codable, underCodable: Option[JSCodable => VHtmlNo
 
   private val canvasContainer = <.div(^.cls := "canvas-container", ^.attr("style") := "max-height: 100%; overflow: scroll;", tileCanvas)
 
-  val console = new OnScreenConsole()
+  val console = new OnScreenHtmlConsole(consoleHeight)
 
   private val functions:Seq[Codable.Triple] =
     codable.functions() ++
@@ -52,7 +54,11 @@ case class JSCodable(codable: Codable, underCodable: Option[JSCodable => VHtmlNo
     if (tilesMode) pt.toLanguage.toJS(2) else aceCanvas.value,
     start = codable.start _,
     reset = codable.reset _,
-    prependButtons = (if (tilesMode) Seq(textView, clear) else Seq(tileView, clear))
+    prependButtons = (if (tilesMode) Seq(textView, clear) else Seq(tileView, clear)),
+    onComplete = {
+      case Success(x) => console.printlnStyled("Completed with: " + x.toString, "success")
+      case Failure(x) => console.printlnStyled(x.getMessage, "error")
+    }
   )
 
   private def addTileToCanvas(t:Tile[JSExpr]) = {
@@ -158,20 +164,50 @@ case class JSCodable(codable: Codable, underCodable: Option[JSCodable => VHtmlNo
     }
   }
 
-  private val buttonDrawer = ButtonDrawer(
-    "Control",
-    Seq(
-      <.button(^.cls := "btn btn-outline-secondary", "if ... else ...", ^.onClick --> addTileCode(new IfElseTile(tileCanvas))),
-      <.button(^.cls := "btn btn-outline-secondary", "do ... while ...", ^.onClick --> addTileCode(new DoWhileTile(tileCanvas))),
-      <.button(^.cls := "btn btn-outline-secondary", "while ...", ^.onClick --> addTileCode(new WhileTile(tileCanvas))),
-      <.button(^.cls := "btn btn-outline-secondary", "for ...", ^.onClick --> addTileCode(new ForTile(tileCanvas))),
-    ),
-    "Game",
-    (for ((label, params, f) <- functions) yield <.button(^.cls := "btn btn-outline-secondary", label, ^.onClick --> addCallTile(label, params))),
-    "Variables", VariableForm, "Functions", FunctionForm
-
+  /** Tile buttons for if and loops */
+  private val controlButtons = Seq(
+    <.button(^.cls := "btn btn-outline-secondary", "if ... else ...", ^.onClick --> addTileCode(new IfElseTile(tileCanvas))),
+    <.button(^.cls := "btn btn-outline-secondary", "do ... while ...", ^.onClick --> addTileCode(new DoWhileTile(tileCanvas))),
+    <.button(^.cls := "btn btn-outline-secondary", "while ...", ^.onClick --> addTileCode(new WhileTile(tileCanvas))),
+    <.button(^.cls := "btn btn-outline-secondary", "for ...", ^.onClick --> addTileCode(new ForTile(tileCanvas))),
   )
 
+  /** Tile buttons for if and loops */
+  private val mathButtons = Seq(
+    <.button(^.cls := "btn btn-outline-secondary", "_++", ^.attr("title") := "increment", ^.onClick --> addTileCode(new PostfixOperatorTile(tileCanvas, "++", Some("number"), "number"))),
+    <.button(^.cls := "btn btn-outline-secondary", "_ + _", ^.onClick --> addTileCode(new InfixOperatorTile(tileCanvas, "+"))),
+    <.button(^.cls := "btn btn-outline-secondary", "_ - _", ^.onClick --> addTileCode(new InfixOperatorTile(tileCanvas, "-"))),
+    <.button(^.cls := "btn btn-outline-secondary", "_ * _", ^.onClick --> addTileCode(new InfixOperatorTile(tileCanvas, "*"))),
+    <.button(^.cls := "btn btn-outline-secondary", "_ / _", ^.onClick --> addTileCode(new InfixOperatorTile(tileCanvas, "/"))),
+    <.button(^.cls := "btn btn-outline-secondary", "_ % _", ^.attr("title") := "modulo", ^.onClick --> addTileCode(new InfixOperatorTile(tileCanvas, "%"))),
+  )
+
+  /** Tile buttons for if and loops */
+  private val comparisonButtons = Seq(
+    <.button(^.cls := "btn btn-outline-secondary", "_ == _", ^.onClick --> addTileCode(new InfixOperatorTile(tileCanvas, "=="))),
+    <.button(^.cls := "btn btn-outline-secondary", "_ === _", ^.onClick --> addTileCode(new InfixOperatorTile(tileCanvas, "==="))),
+    <.button(^.cls := "btn btn-outline-secondary", "_ < _", ^.onClick --> addTileCode(new InfixOperatorTile(tileCanvas, "<"))),
+    <.button(^.cls := "btn btn-outline-secondary", "_ <= _", ^.onClick --> addTileCode(new InfixOperatorTile(tileCanvas, "<="))),
+    <.button(^.cls := "btn btn-outline-secondary", "_ > _", ^.onClick --> addTileCode(new InfixOperatorTile(tileCanvas, ">"))),
+    <.button(^.cls := "btn btn-outline-secondary", "_ >= _", ^.onClick --> addTileCode(new InfixOperatorTile(tileCanvas, ">="))),
+  )
+
+
+  private val inputs = Seq(
+    <.button(^.cls := "btn btn-outline-secondary", "Number", ^.onClick --> addTileCode(new NumberInputTile(tileCanvas))),
+    <.button(^.cls := "btn btn-outline-secondary", "String", ^.onClick --> addTileCode(new StringInputTile(tileCanvas))),
+  )
+
+  private val buttonDrawer = ButtonDrawer(
+    "Arithmetic", mathButtons,
+    "Comparisons", comparisonButtons,
+    "Control", controlButtons,
+    "Functions", FunctionForm,
+    "Game",
+    (for ((label, params, _) <- functions) yield <.button(^.cls := "btn btn-outline-secondary", label, ^.onClick --> addCallTile(label, params))),
+    "Input Fields", inputs,
+    "Variables", VariableForm,
+  )
 
   private val tileView = <.button(^.cls := "btn btn-primary", ^.key := "tileView", "Tiles",
     ^.attr("title") := "Tiles mode", ^.onClick --> { tilesMode = true; rerender() }
@@ -185,8 +221,10 @@ case class JSCodable(codable: Codable, underCodable: Option[JSCodable => VHtmlNo
 
   private def leftWidth = codeCanvasWidth + buttonDrawerWidth
 
+  private def calcHeight:Int = codeDrawHeight + codeControlsHeight + consoleHeight
+
   override protected def render: DiffNode[Element, Node] = {
-    <.div(^.cls := "jscodable", ^.attr("style") := s"display: grid; grid-template-columns: ${leftWidth}px auto;",
+    <.div(^.cls := "jscodable", ^.attr("style") := s"display: grid; grid-template-columns: ${leftWidth}px auto; height: ${calcHeight}px",
       <.div(^.cls := "left-area", ^.attr("style") := s"display: grid; grid-template-rows: ${codeDrawHeight}px 50px auto;",
         <.div(^.cls := "code-editing", ^.attr("style") := s"display: grid; grid-template-columns: ${buttonDrawerWidth}px auto;",
           buttonDrawer,
