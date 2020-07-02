@@ -4,7 +4,7 @@ import com.wbillingsley.scatter.{Tile, TileSpace}
 import com.wbillingsley.scatter.jstiles._
 import com.wbillingsley.veautiful.DiffNode
 import com.wbillingsley.veautiful.html.{<, VHtmlComponent, VHtmlNode, ^}
-import jstiles.{InfixOperatorTile, PostfixOperatorTile, StringInputTile}
+import jstiles.{InfixOperatorTile, PostfixOperatorTile, ReturnTile, StringInputTile}
 import lavasite.templates.AceEditor
 import org.scalajs.dom.{Element, Node}
 
@@ -202,7 +202,7 @@ case class JSCodable(codable: Codable, underCodable: Option[JSCodable => VHtmlNo
     "Arithmetic", mathButtons,
     "Comparisons", comparisonButtons,
     "Control", controlButtons,
-    "Functions", FunctionForm,
+    "Functions", FunctionForm, Seq(<.button(^.cls := "btn btn-outline-secondary", "return ...", ^.onClick --> addTileCode(new ReturnTile(tileCanvas)))),
     "Game",
     (for ((label, params, _) <- functions) yield <.button(^.cls := "btn btn-outline-secondary", label, ^.onClick --> addCallTile(label, params))),
     "Input Fields", inputs,

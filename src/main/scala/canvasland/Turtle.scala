@@ -15,6 +15,7 @@ case class Turtle(initialX:Int, initialY:Int) extends Robot {
     action = Idle
     penRadius = 3
     pen = Some("rosybrown")
+    penDown = true
     position = Vec2(initialX, initialY)
     facing = 0
   }
