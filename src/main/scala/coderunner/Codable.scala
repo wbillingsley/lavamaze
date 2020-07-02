@@ -41,6 +41,10 @@ object Codable {
       started = true
     }
 
+    def stop():Unit = {
+      started = false
+    }
+
     var lastFrame:Double = 0
     override def afterAttach(): Unit = {
       dom.window.requestAnimationFrame(animationFrameHandler)
@@ -48,7 +52,11 @@ object Codable {
 
     def animationFrameHandler(d:Double):Unit = {
       val ticks = ((d - lastFrame) / tickPeriod).toInt
-      for { tick <- 0 until ticks } if (started) step()
+
+      if (started) for { tick <- 0 until ticks } {
+        step()
+      }
+
       if (ticks > 0) {
         lastFrame = d
         try {

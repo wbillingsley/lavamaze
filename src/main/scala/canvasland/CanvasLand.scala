@@ -17,6 +17,7 @@ case class CanvasLand(name:String = "canvasland")(
 ) extends Codable.CanvasLike with VHtmlComponent {
 
   override def reset(): Unit = {
+    stop()
     val ctx = fieldCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
     ctx.clearRect(0, 0, fieldWidth, fieldHeight)
     setup(this)
@@ -25,7 +26,7 @@ case class CanvasLand(name:String = "canvasland")(
   }
 
   override def functions(): Seq[(String, Seq[String], js.Function)] = {
-    r.functions()
+    r.functions() :+ ("setTickRate", Seq("Int"), (x:Int) => tickRate = x)
   }
 
   override def vnode: VHtmlNode = this

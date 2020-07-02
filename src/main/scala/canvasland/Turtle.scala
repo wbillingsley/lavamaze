@@ -38,11 +38,13 @@ case class Turtle(initialX:Int, initialY:Int) extends Robot {
 
   case class ForwardAction(distance:Double, speed:Int = 1) extends Action {
     private var travelled:Double = 0
-    private var increment = if (distance > 0) 1 else -1
+    private val total = Math.abs(distance)
+    private var sign = if (distance > 0) 1 else -1
 
     override def tick(canvasLand: CanvasLand): Unit = {
       for { _ <- 1 to speed } {
         ink(canvasLand)
+        val increment = if (total - travelled > 1) sign else (total - travelled) * sign
         position += Vec2.fromRTheta(increment, facing)
         travelled += increment
         if (Math.abs(travelled) >= Math.abs(distance) && !promise.isCompleted) promise.success(())
@@ -142,8 +144,8 @@ case class Turtle(initialX:Int, initialY:Int) extends Robot {
     import scala.concurrent.ExecutionContext.Implicits.global
 
     Seq(
-      ("forward", Seq("number"), (x:Int) => ask(Turtle.Forward(x)).toJSPromise),
-      ("back", Seq("number"), (x:Int) => ask(Turtle.Forward(-x)).toJSPromise),
+      ("forward", Seq("number"), (x:Double) => ask(Turtle.Forward(x)).toJSPromise),
+      ("back", Seq("number"), (x:Double) => ask(Turtle.Forward(-x)).toJSPromise),
       ("clockwise", Seq("number"), (x:Double) => ask(Turtle.Clockwise(x)).toJSPromise),
       ("anticlockwise", Seq("number"), (x:Double) => ask(Turtle.Anticlockwise(x)).toJSPromise),
       ("right", Seq("number"), (x:Double) => ask(Turtle.Clockwise(Vec2.toRadians(x))).toJSPromise),
@@ -159,8 +161,8 @@ case class Turtle(initialX:Int, initialY:Int) extends Robot {
 object Turtle {
 
   sealed trait Message
-  case class Forward(x:Int) extends Message
-  case class Backward(x:Int) extends Message
+  case class Forward(x:Double) extends Message
+  case class Backward(x:Double) extends Message
   case class Clockwise(x:Double) extends Message
   case class Anticlockwise(x:Double) extends Message
   case class Colour(s:String) extends Message
