@@ -78,8 +78,8 @@ case class Snobot(maze:Maze) extends GridMob with Askable[Snobot.Message, Unit]{
   var px = 0
   var py = 0
 
-  def tx = px / oneTile
-  def ty = py / oneTile
+  def tx = (px + oneTile / 2) / oneTile
+  def ty = (py + oneTile / 2) / oneTile
 
   private val hitBoxSize = 16
   private val dhb = (oneTile - hitBoxSize) / 2
@@ -220,8 +220,15 @@ case class Snobot(maze:Maze) extends GridMob with Askable[Snobot.Message, Unit]{
   })
 
   override def blockMovement(from: (Direction, Direction), to: (Direction, Direction), by: Mob): Boolean = {
+
+
     by match {
-      case b:Boulder => (tx, ty) == to || action.destination == to
+      case b:Boulder => action match {
+        case this.Move(d) => action.origin.crossedBy(from, to) || action.destination.crossedBy(from, to)
+        case this.Idle() =>
+          (tx, ty).crossedBy(from, to)
+        case _ => false
+      }
       case _ => false
     }
   }

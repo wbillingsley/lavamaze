@@ -66,6 +66,9 @@
     position: absolute;
     bottom: 10px;
     right: 10px;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 5px;
+    border-radius: 5px;
 }
 
 .v-sequencer .v-sequencer-footbox button {
@@ -83,11 +86,19 @@
 .v-slide {
     font-family: 'Lato', sans-serif;
     font-weight: normal;
-    font-size: 20px;
+    font-size: 30px;
+}
+
+.v-slide h1 {
+    font-size: 60px;
+}
+
+.v-slide h2 {
+    font-size: 48px;
 }
 
 .v-slide li {
-    line-height: 200%;
+    margin-bottom: 2rem;
 }
 
 .v-slide li pre {
@@ -108,7 +119,7 @@
 }
 
 .v-slide img {
-    max-height: 75%;
+    max-height: 750px;
     max-width: 100%;
 }
 
@@ -152,6 +163,58 @@
     max-width: 100%;
     max-height: 100%;
 }
+
+.v-slide .image-slide.contain img, .sc img {
+    margin: -50px;
+    object-fit: contain;
+    height: calc(100% + 100px);
+    width: calc(100% + 100px);
+    max-height: initial;
+    max-width: initial;
+}
+
+.v-slide .image-slide {
+    width: calc(100% + 100px);
+    height: calc(100% + 100px);
+    margin: -50px;
+}
+
+.v-slide .image-slide .wrapper {
+    width: 100%;
+    height: 100%;
+}
+
+.v-slide .image-slide img, .sc img {
+    height: 100%;
+    width: 100%;
+    max-height: initial;
+    max-width: initial;
+}
+
+.v-slide .image-slide.cover img, .sc img {
+    object-fit: cover;
+}
+
+.v-slide .image-slide.contain img, .sc img {
+    object-fit: contain;
+}
+
+/* pp - two portrait pictures side-by-side */
+.v-slide .image-slide.pp img, .sc img {
+    width: 50%;
+}
+
+.v-slide .image-slide figcaption {
+    font-size: 3rem;
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 5px;
+    border-radius: 5px;
+}
+
+
 
 .v-slide .h300 {
     height: 300px;

@@ -56,7 +56,7 @@ package object lavamaze {
      * Whether a single-step tile move crosses this (x, y)
      */
     def crossedBy(from:(Int, Int), to:(Int, Int)):Boolean = {
-      v == from || v == to || (v._1 == from._1 && v._2 == to._1) || (v._1 == to._1 && v._2 == from._2)
+      v == from || v == to || (v._1 == from._1 && v._2 == to._2) || (v._1 == to._1 && v._2 == from._2)
     }
 
   }
