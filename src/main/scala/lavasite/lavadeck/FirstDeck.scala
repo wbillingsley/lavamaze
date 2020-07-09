@@ -124,7 +124,7 @@ object FirstDeck {
                 |     *
                 |
                 |""".stripMargin)
-            maze.addOverlay(new Overlay.FloodFill(maze))
+            maze.addOverlay(new Overlay.FloodFill())
 
           }
         )(tilesMode = false)

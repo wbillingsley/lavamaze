@@ -31,9 +31,9 @@ object Overlay {
 
   }
 
-  class FloodFill(m:Maze, ignoreBlobs:Boolean = true) extends Overlay {
+  class FloodFill() extends Overlay {
 
-    private val distanceMap = mutable.Map.empty[(Int, Int), Int]
+    val distanceMap = mutable.Map.empty[(Int, Int), Int]
 
     override def reset(m: Maze): Unit = tick(m)
 
