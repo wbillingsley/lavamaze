@@ -78,6 +78,8 @@ case class Snobot(maze:Maze) extends GridMob with Askable[Snobot.Message, Unit]{
   var px = 0
   var py = 0
 
+  var diamonds = 0
+
   def tx = (px + oneTile / 2) / oneTile
   def ty = (py + oneTile / 2) / oneTile
 
@@ -181,6 +183,7 @@ case class Snobot(maze:Maze) extends GridMob with Askable[Snobot.Message, Unit]{
   def reset():Unit = {
     px = 0
     py = 0
+    diamonds = 0
     action = Idle()
   }
 

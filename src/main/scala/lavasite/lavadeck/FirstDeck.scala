@@ -5,7 +5,7 @@ import canvasland.{CanvasLand, Turtle}
 import coderunner.JSCodable
 import com.wbillingsley.veautiful.html.<
 import com.wbillingsley.veautiful.templates.DeckBuilder
-import lavamaze.Maze
+import lavamaze.{Maze, Overlay}
 import lavasite.Common
 
 object FirstDeck {
@@ -89,7 +89,45 @@ object FirstDeck {
                 |
                 |""".stripMargin)
           }
-        )()
+        )(tilesMode = false)
+      )
+    )
+    .veautifulSlide(
+      <.div(
+        <.h1("Maze"),
+        JSCodable(
+          Maze("Challenge1")((8, 8), (8, 8)) { maze =>
+            maze.loadFromString(
+              """
+                |
+                | Z.S.*...
+                |     *< G
+                |     *
+                |
+                |""".stripMargin)
+            maze.addOverlay(new Overlay.CoordinateOverlay(maze))
+            maze.getOverlays.foreach(_.tick(maze))
+          }
+        )(tilesMode = false)
+      )
+    )
+    .veautifulSlide(
+      <.div(
+        <.h1("Maze"),
+        JSCodable(
+          Maze("Challenge1")((10, 8), (10, 8)) { maze =>
+            maze.loadFromString(
+              """
+                |
+                | Z.S.*...
+                |     *< G
+                |     *
+                |
+                |""".stripMargin)
+            maze.addOverlay(new Overlay.FloodFill(maze))
+
+          }
+        )(tilesMode = false)
       )
     )
     .veautifulSlide(<.div(

@@ -34,6 +34,9 @@ case class Maze(name:String = "maze")(
   mazeSize:(Int, Int),
 )(setup: Maze => _) extends VHtmlNode with Codable {
 
+  /** A function called each tick, that can be altered */
+  var onTick: Maze => Unit = { _ => }
+
   def vnode = this
 
   val (mWidth, mHeight) = mazeSize
@@ -84,6 +87,13 @@ case class Maze(name:String = "maze")(
   private val cells:Seq[Array[Tile]] = for { y <- 0 until mHeight} yield Array.fill[Tile](mWidth)(environment.defaultTile)
   private val fixtures:mutable.Map[(Int, Int), Fixture] = mutable.Map.empty
   private val mobs:mutable.Set[Mob] = mutable.Set(snobot)
+  private val overlays:mutable.Set[Overlay] = mutable.Set.empty
+
+  /** Gets the location of any goal fixtures */
+  def getGoals:Seq[(Int, Int)] = fixtures.toSeq.collect { case ((x, y), Goal(tx, ty)) => (x, y) }
+
+  def getGoalX:Int = getGoals.headOption.map(_._1).getOrElse(-1)
+  def getGoalY:Int = getGoals.headOption.map(_._2).getOrElse(-1)
 
   def getTile(tx:Int, ty:Int):Tile = {
     if (tx >= mWidth || tx < 0 || ty < 0 || ty >= mHeight) Tile.OutOfBounds else cells(ty)(tx)
@@ -127,6 +137,12 @@ case class Maze(name:String = "maze")(
     fixtures.remove((f.tx, f.ty))
   }
 
+  def addOverlay(o:Overlay):Unit = {
+    overlays.add(o)
+  }
+
+  def getOverlays = overlays.toSet
+
   def addMob(m:Mob):Unit = {
     mobs.add(m)
   }
@@ -140,11 +156,13 @@ case class Maze(name:String = "maze")(
 
     started = false
     fixtures.clear()
+    overlays.clear()
     mobs.clear()
     mobs.add(snobot)
     snobot.action = snobot.Idle()
     setup(this)
     snobot.putAtTile(snobotStart)
+    overlays.foreach(_.reset(this))
   }
 
   reset()
@@ -160,7 +178,14 @@ case class Maze(name:String = "maze")(
       for {
         (row, y) <- cells.iterator.zipWithIndex
         (cell, x) <- row.iterator.zipWithIndex
-      } cell.paint(layer, x * oneTile, y * oneTile, ctx)
+      } {
+        cell.paint(layer, x * oneTile, y * oneTile, ctx)
+
+        ctx.save()
+        ctx.translate(x * oneTile, y * oneTile)
+        for { o <- overlays } o.paintTile(layer, x, y, ctx)
+        ctx.restore()
+      }
 
       for {
         fixture <- fixtures.values
@@ -181,13 +206,19 @@ case class Maze(name:String = "maze")(
     environment.tick()
     fixtures.values.foreach(_.tick(this))
     mobs.foreach(_.tick(this))
+    overlays.foreach(_.tick(this))
+    onTick(this)
   }
 
+  /** User-defined additional functions */
+  var additionalFunctions:Seq[Codable.Triple] = Seq.empty
+
+  /** The functions that should be exposed to the coding environment */
   def functions():Seq[Codable.Triple] = {
     import scala.scalajs.js.JSConverters._
     import scala.concurrent.ExecutionContext.Implicits.global
 
-    Seq(
+    Seq[Codable.Triple](
       ("left", Seq.empty, () => snobot.ask(Snobot.MoveMessage(lavamaze.WEST)).toJSPromise),
       ("right", Seq.empty, () => snobot.ask(Snobot.MoveMessage(lavamaze.EAST)).toJSPromise),
       ("up", Seq.empty, () => snobot.ask(Snobot.MoveMessage(lavamaze.NORTH)).toJSPromise),
@@ -196,7 +227,7 @@ case class Maze(name:String = "maze")(
       ("canGoUp", Seq.empty, () => snobot.canMove(lavamaze.NORTH)),
       ("canGoDown", Seq.empty, () => snobot.canMove(lavamaze.SOUTH)),
       ("canGoLeft", Seq.empty, () => snobot.canMove(lavamaze.WEST)),
-    )
+    ) concat additionalFunctions
   }
 
 }
