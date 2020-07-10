@@ -1,8 +1,11 @@
 package lavamaze
 
+import com.wbillingsley.veautiful.logging.Logger
+
 import scala.collection.mutable
 
 object QuickMaze {
+  private val logger = Logger.getLogger(this.getClass)
 
   private val actions:mutable.Map[Char, (Maze, Int, Int) => Unit] = mutable.Map(
     ' ' -> { case (m, x, y) => m.setTile(x, y, m.environment.defaultTile) },
@@ -94,9 +97,14 @@ object QuickMaze {
   def process(m:Maze, s:String):Unit = {
     for {
       (line, y) <- s.linesIterator.zipWithIndex
-      (char, x) <- line.zipWithIndex if actions.contains(char)
+      (char, x) <- line.zipWithIndex
     } {
-      actions(char)(m, x, y)
+      if (actions.contains(char)) {
+        actions(char)(m, x, y)
+      } else {
+        logger.error(s"Unknown quickmaze character: $char")
+      }
+
     }
   }
 

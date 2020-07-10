@@ -119,13 +119,12 @@ object FirstDeck {
             maze.loadFromString(
               """
                 |
-                | Z.S.*...
+                | Z.S.*.1.
                 |     *< G
                 |     *
                 |
                 |""".stripMargin)
             maze.addOverlay(new Overlay.FloodFill())
-            maze.addFixture(new Gate(7, 2, 1))
 
           }
         )(tilesMode = false)
