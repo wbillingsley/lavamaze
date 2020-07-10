@@ -41,7 +41,9 @@ case class Diamond(tx:Int, ty:Int) extends Fixture {
 
     for {mob <- maze.mobsIntersecting(bounds)} {
       mob match {
-        case _: Snobot => maze.removeFixture(this)
+        case s: Snobot =>
+          s.diamonds += 1
+          maze.removeFixture(this)
         case _ => //
       }
     }

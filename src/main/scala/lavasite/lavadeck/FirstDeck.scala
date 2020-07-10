@@ -5,7 +5,7 @@ import canvasland.{CanvasLand, Turtle}
 import coderunner.JSCodable
 import com.wbillingsley.veautiful.html.<
 import com.wbillingsley.veautiful.templates.DeckBuilder
-import lavamaze.{Maze, Overlay}
+import lavamaze.{Gate, Maze, Overlay}
 import lavasite.Common
 
 object FirstDeck {
@@ -125,6 +125,7 @@ object FirstDeck {
                 |
                 |""".stripMargin)
             maze.addOverlay(new Overlay.FloodFill())
+            maze.addFixture(new Gate(7, 2, 1))
 
           }
         )(tilesMode = false)

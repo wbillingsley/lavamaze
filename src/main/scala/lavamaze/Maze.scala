@@ -160,6 +160,7 @@ case class Maze(name:String = "maze")(
     mobs.clear()
     mobs.add(snobot)
     snobot.action = snobot.Idle()
+    snobot.diamonds = 0
     setup(this)
     snobot.putAtTile(snobotStart)
     overlays.foreach(_.reset(this))
