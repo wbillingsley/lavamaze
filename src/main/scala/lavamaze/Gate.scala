@@ -62,6 +62,7 @@ case class Gate(tx:Int, ty:Int, diamonds:Int) extends Fixture {
   /** Whether this mob will block another mob's movement into a space */
   override def blockMovement(from: (Int, Int), to: (Int, Int), by: Mob): Boolean = by match {
     case s:Snobot => s.diamonds < diamonds && (tx, ty).crossedBy(from, to)
+    case b:Boulder => remaining > 0 && (tx, ty).crossedBy(from, to)
     case _ => (tx, ty) == to
   }
 }
