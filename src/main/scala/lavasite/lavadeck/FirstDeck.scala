@@ -121,7 +121,7 @@ object FirstDeck {
                 |
                 | Z.S.*.1.
                 |     *< G
-                |     *
+                |     *.
                 |
                 |""".stripMargin)
             maze.addOverlay(new Overlay.FloodFill())

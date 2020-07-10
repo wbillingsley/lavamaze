@@ -12,6 +12,13 @@ package object lavamaze {
   val EAST:Direction = 0
   val WEST:Direction = 2
 
+  def oppositeDirection(d:Direction):Direction = d match {
+    case NORTH => SOUTH
+    case SOUTH => NORTH
+    case EAST => WEST
+    case WEST => EAST
+  }
+
   type Layer = Int
   val ENVIRONMENT:Layer = 1
   val ENV_EFFECT:Layer = 2

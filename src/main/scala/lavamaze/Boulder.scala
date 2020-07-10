@@ -132,9 +132,11 @@ class Boulder(maze:Maze, initTx:Int, initTy:Int, var direction:Option[Direction]
     val a = Move(d)
     if (maze.blockMovement((tx, ty), a.destination, this)) {
       false
-    } else {
-      action = a
-      true
+    } else action match {
+      case Move(m) if oppositeDirection(m) == d => false
+      case _ =>
+        action = a
+        true
     }
   }
 }

@@ -223,14 +223,16 @@ case class Snobot(maze:Maze) extends GridMob with Askable[Snobot.Message, Unit]{
   })
 
   override def blockMovement(from: (Direction, Direction), to: (Direction, Direction), by: Mob): Boolean = {
-
-
     by match {
-      case b:Boulder => action match {
-        case this.Move(d) => action.origin.crossedBy(from, to) || action.destination.crossedBy(from, to)
-        case this.Idle() =>
-          (tx, ty).crossedBy(from, to)
-        case _ => false
+      case b:Boulder => b.action match {
+        case m:b.Move => false
+        case _ =>
+          action match {
+            case this.Move(d) => action.origin.crossedBy(from, to) || action.destination.crossedBy(from, to)
+            case this.Idle() =>
+              (tx, ty).crossedBy(from, to)
+            case _ => false
+          }
       }
       case _ => false
     }
