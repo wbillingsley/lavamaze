@@ -52,6 +52,43 @@ object QuickMaze {
       m.setTile(x, y, FloorTile)
       m.addMob(new Dogbot(m, x, y))
     },
+    '1' -> { case (m, x, y) =>
+      m.setTile(x, y, FloorTile)
+      m.addFixture(new Gate(x, y, 1))
+    },
+    '2' -> { case (m, x, y) =>
+      m.setTile(x, y, FloorTile)
+      m.addFixture(new Gate(x, y, 2))
+    },
+    '3' -> { case (m, x, y) =>
+      m.setTile(x, y, FloorTile)
+      m.addFixture(new Gate(x, y, 3))
+    },
+    '4' -> { case (m, x, y) =>
+      m.setTile(x, y, FloorTile)
+      m.addFixture(new Gate(x, y, 4))
+    },
+    '5' -> { case (m, x, y) =>
+      m.setTile(x, y, FloorTile)
+      m.addFixture(new Gate(x, y, 5))
+    },
+    '6' -> { case (m, x, y) =>
+      m.setTile(x, y, FloorTile)
+      m.addFixture(new Gate(x, y, 6))
+    },
+    '7' -> { case (m, x, y) =>
+      m.setTile(x, y, FloorTile)
+      m.addFixture(new Gate(x, y, 7))
+    },
+    '8' -> { case (m, x, y) =>
+      m.setTile(x, y, FloorTile)
+      m.addFixture(new Gate(x, y, 8))
+    },
+    '9' -> { case (m, x, y) =>
+      m.setTile(x, y, FloorTile)
+      m.addFixture(new Gate(x, y, 9))
+    },
+
   )
 
   def process(m:Maze, s:String):Unit = {
