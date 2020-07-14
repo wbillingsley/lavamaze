@@ -86,7 +86,7 @@ case class Maze(name:String = "maze")(
 
   private val cells:Seq[Array[Tile]] = for { y <- 0 until mHeight} yield Array.fill[Tile](mWidth)(environment.defaultTile)
   private val fixtures:mutable.Map[(Int, Int), Fixture] = mutable.Map.empty
-  private val mobs:mutable.Set[Mob] = mutable.Set(snobot)
+  private val mobs:mutable.Buffer[Mob] = mutable.Buffer(snobot)
   private val overlays:mutable.Set[Overlay] = mutable.Set.empty
 
   /** Gets the location of any goal fixtures */
@@ -144,7 +144,7 @@ case class Maze(name:String = "maze")(
   def getOverlays = overlays.toSet
 
   def addMob(m:Mob):Unit = {
-    mobs.add(m)
+    mobs.append(m)
   }
 
 
@@ -158,7 +158,7 @@ case class Maze(name:String = "maze")(
     fixtures.clear()
     overlays.clear()
     mobs.clear()
-    mobs.add(snobot)
+    mobs.append(snobot)
     snobot.action = snobot.Idle()
     snobot.diamonds = 0
     setup(this)
