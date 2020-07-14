@@ -100,23 +100,23 @@ class Boulder(maze:Maze, initTx:Int, initTy:Int, var direction:Option[Direction]
     direction match {
       case Some(WEST) =>
         if (!maze.blockMovement((tx, ty), (tx - 1, ty), this)) Move(WEST)
-        else if (!maze.blockMovement((tx, ty), (tx - 1, ty + 1), this)) Move(SOUTH)
-        else if (!maze.blockMovement((tx, ty), (tx - 1, ty - 1), this)) Move(NORTH)
+        else if (!maze.blockMovement((tx, ty), (tx - 1, ty + 1), this) && !maze.blockMovement((tx, ty), (tx, ty + 1), this)) Move(SOUTH)
+        else if (!maze.blockMovement((tx, ty), (tx - 1, ty - 1), this) && !maze.blockMovement((tx, ty), (tx, ty - 1), this)) Move(NORTH)
         else idle
       case Some(EAST) =>
         if (!maze.blockMovement((tx, ty), (tx + 1, ty), this)) Move(EAST)
-        else if (!maze.blockMovement((tx, ty), (tx + 1, ty + 1), this)) Move(SOUTH)
-        else if (!maze.blockMovement((tx, ty), (tx + 1, ty - 1), this)) Move(NORTH)
+        else if (!maze.blockMovement((tx, ty), (tx + 1, ty + 1), this) && !maze.blockMovement((tx, ty), (tx, ty + 1), this)) Move(SOUTH)
+        else if (!maze.blockMovement((tx, ty), (tx + 1, ty - 1), this) && !maze.blockMovement((tx, ty), (tx, ty - 1), this)) Move(NORTH)
         else idle
       case Some(NORTH) =>
         if (!maze.blockMovement((tx, ty), (tx, ty - 1), this)) Move(NORTH)
-        else if (!maze.blockMovement((tx, ty), (tx + 1, ty - 1), this)) Move(EAST)
-        else if (!maze.blockMovement((tx, ty), (tx - 1, ty - 1), this)) Move(WEST)
+        else if (!maze.blockMovement((tx, ty), (tx + 1, ty - 1), this) && !maze.blockMovement((tx, ty), (tx + 1, ty), this)) Move(EAST)
+        else if (!maze.blockMovement((tx, ty), (tx - 1, ty - 1), this) && !maze.blockMovement((tx, ty), (tx - 1, ty), this)) Move(WEST)
         else idle
       case Some(SOUTH) =>
         if (!maze.blockMovement((tx, ty), (tx, ty + 1), this)) Move(SOUTH)
-        else if (!maze.blockMovement((tx, ty), (tx + 1, ty + 1), this)) Move(EAST)
-        else if (!maze.blockMovement((tx, ty), (tx - 1, ty + 1), this)) Move(WEST)
+        else if (!maze.blockMovement((tx, ty), (tx + 1, ty + 1), this) && !maze.blockMovement((tx, ty), (tx + 1, ty), this)) Move(EAST)
+        else if (!maze.blockMovement((tx, ty), (tx - 1, ty + 1), this)  && !maze.blockMovement((tx, ty), (tx - 1, ty), this)) Move(WEST)
         else idle
       case _ => idle
     }
