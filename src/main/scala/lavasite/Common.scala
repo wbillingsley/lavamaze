@@ -2,7 +2,7 @@ package lavasite
 
 import com.wbillingsley.veautiful.html.{<, Markup, VHtmlNode, ^}
 import com.wbillingsley.veautiful.templates.VSlides
-import lavasite.lavadeck.FirstDeck
+import lavasite.lavadeck.{FirstDeck, LineBotDeck}
 
 import scala.collection.mutable
 import scala.scalajs.js
@@ -90,7 +90,8 @@ object Common {
    */
 
   val decks:Map[String, VSlides] = Map(
-    "impossibleThings" -> FirstDeck.deck
+    "impossibleThings" -> FirstDeck.deck,
+    "lineBot" -> LineBotDeck.deck
   )
 
   def showDeck(s:String, page:Int = 0):VHtmlNode = {

@@ -23,7 +23,10 @@ object Intro {
           |
           |""".stripMargin
       ),
-      <.a(^.href := DeckRoute("impossibleThings", 0).path, "impossible")
+      <.ul(
+        <.li(<.a(^.href := DeckRoute("impossibleThings", 0).path, "LavaMaze Test Deck")),
+        <.li(<.a(^.href := DeckRoute("lineBot", 0).path, "LineBot Test Deck")),
+      )
     ),
     Seq(
     )

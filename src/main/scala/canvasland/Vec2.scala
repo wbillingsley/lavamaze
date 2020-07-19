@@ -1,7 +1,5 @@
 package canvasland
 
-package willtap.imperativeTopic
-
 import scala.util.Random
 
 /**
@@ -84,6 +82,13 @@ case class Vec2(x:Double, y:Double) {
       Math.max(p1.x, Math.min(x, p2.x)),
       Math.max(p1.y, Math.min(y, p2.y))
     )
+  }
+
+  def rotate(angle:Double, around:Vec2 = Vec2(0, 0)):Vec2 = {
+    val p = this - around
+    val mag = p.magnitude
+    val theta = p.theta + angle
+    Vec2.fromRTheta(mag, theta) + around
   }
 
 }

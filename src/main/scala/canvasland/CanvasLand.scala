@@ -1,6 +1,5 @@
 package canvasland
 
-import canvasland.willtap.imperativeTopic.Vec2
 import coderunner.Codable
 import com.wbillingsley.veautiful.DiffNode
 import com.wbillingsley.veautiful.html.{<, VHtmlComponent, VHtmlNode, ^}
@@ -94,6 +93,13 @@ case class CanvasLand(name:String = "canvasland")(
 
     ctx.stroke()
     ctx.restore()
+  }
+
+  def fillCanvas(color:String):Unit = {
+    val ctx = fieldCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
+    ctx.save()
+    ctx.fillStyle = color
+    ctx.fillRect(0, 0, fieldSize._1, fieldSize._2)
   }
 
   /** Runs arbitraty code against the field canvas's rendering context */

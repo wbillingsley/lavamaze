@@ -1,12 +1,12 @@
 package lavasite.lavadeck
 
-import canvasland.willtap.imperativeTopic.Vec2
 import canvasland.{CanvasLand, Turtle}
 import coderunner.JSCodable
 import com.wbillingsley.veautiful.html.<
 import com.wbillingsley.veautiful.templates.DeckBuilder
 import lavamaze.{Gate, Maze, Overlay}
 import lavasite.Common
+import structures.ObjectInspector
 
 object FirstDeck {
 
@@ -134,6 +134,14 @@ object FirstDeck {
       <.h2("Turtle graphics"),
       logo
     ))
+    .veautifulSlide(
+      <.div(
+        <.h1("Type inspector"),
+        JSCodable(
+          ObjectInspector()
+        )(tilesMode = false)
+      )
+    )
     .markdownSlide(
       """
         |## To-do:
