@@ -21,6 +21,18 @@ case class LineBot(initialPos:(Double, Double))(config: LineBot => Unit) extends
   override def y:Double = position.y
   def theta:Double = facing
 
+  var forwardWobble = 0
+  var turnWobble = 0
+
+  private var compositeMode:Option[String] = None
+
+  trait Sensor {
+    def value:Double
+
+    def paint(ctx:CanvasRenderingContext2D):Unit
+
+    def tick(p:Vec2, c:CanvasLand):Unit
+  }
 
   /**
    * A line sensor looks at the canvas underneath the robot and attempts to read pixel data from it
@@ -28,7 +40,7 @@ case class LineBot(initialPos:(Double, Double))(config: LineBot => Unit) extends
    * @param radius - the sensor reads a square of pixel data, (2 * radius + 1) by (2 * radius + 1) in size.
    *                 This rectangle is always aligned with the underlying canvas (it does not rotate)
    */
-  class LineSensor(dp:Vec2, radius:Int = 3, val r:Int = 255, g:Int = 255, b:Int = 255) {
+  class LineSensor(dp:Vec2, radius:Int = 3, val r:Int = 255, g:Int = 255, b:Int = 0) extends Sensor {
 
     val totalSensitivity:Int = r + g + b
     val strokeStyle = s"rgb($r,$g,$b)"
@@ -85,7 +97,7 @@ case class LineBot(initialPos:(Double, Double))(config: LineBot => Unit) extends
 
   }
 
-  val lineSensors:mutable.Buffer[LineSensor] = mutable.Buffer.empty
+  val sensors:mutable.Buffer[Sensor] = mutable.Buffer.empty
 
   override def reset():Unit = {
     action = Idle
@@ -94,6 +106,7 @@ case class LineBot(initialPos:(Double, Double))(config: LineBot => Unit) extends
     penDown = true
     position = Vec2(initialPos._1, initialPos._2)
     facing = 0
+    sensors.clear()
     config(this)
   }
 
@@ -173,7 +186,7 @@ case class LineBot(initialPos:(Double, Double))(config: LineBot => Unit) extends
         ctx.fill()
     }
 
-    for { ls <- lineSensors } ls.paint(ctx)
+    for { ls <- sensors } ls.paint(ctx)
     ctx.restore()
 
   }
@@ -182,7 +195,7 @@ case class LineBot(initialPos:(Double, Double))(config: LineBot => Unit) extends
     action.tick(c)
     if (action.done) action = Idle
 
-    for { ls <- lineSensors } ls.tick(position, c)
+    for { ls <- sensors.iterator } ls.tick(position, c)
   }
 
   def setAction(a:Action): Future[Unit] = {
@@ -198,7 +211,7 @@ case class LineBot(initialPos:(Double, Double))(config: LineBot => Unit) extends
     if (penDown) for {
       p <- pen
     } {
-      c.fillCircle(position, penRadius, p)
+      c.fillCircle(position, penRadius, p, compositeMode)
     }
   }
 
@@ -231,9 +244,22 @@ case class LineBot(initialPos:(Double, Double))(config: LineBot => Unit) extends
       ("penUp", Seq.empty, () => { penDown = false; Future.successful().toJSPromise }),
       ("penDown", Seq.empty, () => { penDown = true; Future.successful().toJSPromise }),
 
-      ("readLineSensor", Seq("number"), (i:Int) => {
+      ("addLineSensor", Seq("number", "number", "number", "number", "number"), (x:Double, y:Double, r:Int, g:Int, b:Int) => {
         Future.fromTry(Try {
-          lineSensors(i).value
+          sensors.append(new LineSensor(Vec2(x, y), r=r, g=g, b=b));
+          ()
+        }).toJSPromise
+      }),
+
+      ("readSensor", Seq("number"), (i:Int) => {
+        Future.fromTry(Try {
+          sensors(i).value
+        }).toJSPromise
+      }),
+
+      ("setCompositeMode", Seq("string"), (x:String) => {
+        Future.fromTry(Try {
+          compositeMode = Option.apply(x)
         }).toJSPromise
       })
     )

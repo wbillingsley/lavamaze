@@ -7,18 +7,9 @@ import org.scalajs.dom.CanvasRenderingContext2D
 import scala.concurrent.{Future, Promise}
 
 /** A robot travels the canvas land */
-trait Robot {
-
-  def step(c:CanvasLand):Unit
-
-  def x:Double
-  def y:Double
-
-  def draw(ctx:dom.CanvasRenderingContext2D):Unit
+trait Robot extends Mob {
 
   def functions(): Seq[Codable.Triple]
-
-  def reset():Unit
 
 }
 

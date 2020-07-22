@@ -38,8 +38,6 @@ case class CanvasLand(name:String = "canvasland")(
   private val (viewWidth, viewHeight) = viewSize
   private val renderCanvas = <.canvas(^.attr("width") := viewWidth, ^.attr("height") := viewHeight)
 
-  var x = 0
-  var y = 0
 
   /** Repaints the canvas */
   override def repaint():Unit = {
@@ -51,18 +49,39 @@ case class CanvasLand(name:String = "canvasland")(
       val h = canvas.height
       ctx.clearRect(0, 0, w, h)
 
-      ctx.drawImage(fieldCanvas, x, y, w, h, 0, 0, w, h)
+      ctx.drawImage(fieldCanvas, viewOffset._1, viewOffset._2, w, h, 0, 0, w, h)
 
       ctx.save()
-      ctx.translate(r.x - x, r.y - y)
+      ctx.translate(r.x - viewOffset._1, r.y- viewOffset._2)
       r.draw(ctx)
       ctx.restore()
+    }
+  }
+
+  private var viewOffset = (0d, 0d)
+  private var dragStart:Option[((Double, Double), (Double, Double))] = None
+
+  def onMouseDown(evt:dom.Event):Unit = evt match { case e:dom.MouseEvent =>
+    println("woohoo")
+    dragStart = Some((viewOffset, (e.clientX, e.clientY)))
+  }
+
+  def onMouseMove(evt:dom.Event):Unit = evt match { case e:dom.MouseEvent =>
+    dragStart match {
+      case Some(((x0, y0), (mx0, my0))) if (e.buttons & 1) != 0 =>
+        val dx = e.clientX - mx0
+        val dy = e.clientY - my0
+
+        viewOffset = (x0 - dx) -> (y0 - dy)
+        repaint()
+      case _ => // do nothing
     }
   }
 
   /** Render the component into the page */
   override protected def render: DiffNode[Element, Node] = {
     <.div(^.cls := "canvasland", ^.attr("width") := s"${viewWidth}px", ^.attr("height") := s"${viewHeight}px",
+      ^.on("mousedown") ==> onMouseDown, ^.on("mousemove") ==> onMouseMove,
       renderCanvas,
     )
   }
@@ -95,6 +114,17 @@ case class CanvasLand(name:String = "canvasland")(
     ctx.restore()
   }
 
+  /** Draws an image to the field canvas. This is a little more complex because we must be sure the image has loaded first. */
+  def drawImage(image:html.Image, offsetX:Int=0, offsetY:Int=0, width:Double, height:Double, canvasOffsetX:Int=0, canvasOffsetY:Int=0, canvasImageWidth:Double, canvasImageHeight:Double):Unit = {
+    def _drawImage():Unit = withCanvasContext(_.drawImage(image, offsetX, offsetY, width, height, canvasOffsetX, canvasOffsetY, canvasImageWidth, canvasImageHeight))
+
+    if (image.complete) {
+      _drawImage()
+    } else {
+      image.addEventListener("load", { _:Any => _drawImage() })
+    }
+  }
+
   def fillCanvas(color:String):Unit = {
     val ctx = fieldCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
     ctx.save()
@@ -111,7 +141,8 @@ case class CanvasLand(name:String = "canvasland")(
   }
 
   /** Marks a filled circle on the canvas, such as that left by the pen of the turtle */
-  def fillCircle(p:Vec2, r:Double, fillStyle:String):Unit = withCanvasContext { ctx =>
+  def fillCircle(p:Vec2, r:Double, fillStyle:String, compositeOp:Option[String] = None):Unit = withCanvasContext { ctx =>
+    compositeOp.foreach(op => { ctx.globalCompositeOperation = op })
     ctx.fillStyle = fillStyle
     ctx.beginPath()
     ctx.arc(p.x, p.y, r, 0, 2 * Math.PI)

@@ -21,14 +21,14 @@ object LineBotDeck {
     .veautifulSlide(<.div(
       <.h1("LineBot"),
       JSCodable(CanvasLand()(
-        r = LineBot(100, 100) { r =>
-          r.lineSensors.append(new r.LineSensor(Vec2(50, 0)))
-        },
+        fieldSize=(1000 -> 1000),
+        r = LineBot(150, 100) { r => },
         setup = c => {
-          c.fillCanvas("white")
+          c.fillCanvas("rgb(200,180,0)")
+          c.drawGrid("rgb(200,240,240)", 25, 1)
           c.withCanvasContext { ctx =>
-            ctx.fillStyle = "rgb(255,127,60)"
-            ctx.fillRect(100, 100, 300, 100)
+            ctx.fillStyle = "rgb(60,60,60)"
+            ctx.fillRect(50, 100, 900, 100)
           }
         }
       ))()
