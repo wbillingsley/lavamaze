@@ -6,21 +6,32 @@ import com.wbillingsley.veautiful.html.{<, VHtmlComponent, VHtmlNode, ^}
 import org.scalajs.dom
 import org.scalajs.dom.{Element, Node, html}
 
+import scala.collection.mutable
 import scala.scalajs.js
 
 case class CanvasLand(name:String = "canvasland")(
   viewSize:(Int, Int) = 640 -> 640,
   fieldSize:(Int, Int) = 640 -> 640,
-  val r:Robot,
+  r:Robot,
   setup: CanvasLand => Unit
 ) extends Codable.CanvasLike with VHtmlComponent {
+
+  private val robot = r
+
+  /** Additional items that should be stepped in a tick. For instance, if some items are driven off an external physics
+   *  simulation, we'd want to step the simulation but draw the items. */
+  private val steppables = mutable.Buffer[Steppable](r)
 
   override def reset(): Unit = {
     stop()
     val ctx = fieldCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
     ctx.clearRect(0, 0, fieldWidth, fieldHeight)
+
+    steppables.clear()
+    steppables.append(r)
+    robot.reset()
+
     setup(this)
-    r.reset()
     repaint()
   }
 
@@ -51,10 +62,16 @@ case class CanvasLand(name:String = "canvasland")(
 
       ctx.drawImage(fieldCanvas, viewOffset._1, viewOffset._2, w, h, 0, 0, w, h)
 
-      ctx.save()
-      ctx.translate(r.x - viewOffset._1, r.y- viewOffset._2)
-      r.draw(ctx)
-      ctx.restore()
+      // Some of the Steppable items are drawable. Draw them.
+      steppables.foreach {
+        case m:Mob =>
+          ctx.save()
+          ctx.translate(m.x - viewOffset._1, m.y- viewOffset._2)
+          m.draw(ctx)
+          ctx.restore()
+
+        case _ => // skip
+      }
     }
   }
 
@@ -90,9 +107,15 @@ case class CanvasLand(name:String = "canvasland")(
   override def tickPeriod:Double = 1000.0 / tickRate
 
   override def step(): Unit = {
-    r.step(this)
+    steppables.foreach(_.step(this))
   }
 
+  /** Adds an item on which step should be called at each tick. */
+  def addSteppable(s:Steppable):Unit = {
+    steppables.append(s)
+  }
+
+  /** Draws a graph-paper like grid on the field canvas */
   def drawGrid(style:String, spacing:Int, thickness:Int = 1):Unit = {
     val ctx = fieldCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
     ctx.save()
@@ -125,6 +148,7 @@ case class CanvasLand(name:String = "canvasland")(
     }
   }
 
+  /** Fills the background of the canvas in a specified CSS colour. Important, because the canvas starts transparent. */
   def fillCanvas(color:String):Unit = {
     val ctx = fieldCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
     ctx.save()

@@ -12,17 +12,22 @@ import scala.util.Try
 /**
  * LineBot has two wheels, driven by DC motors, and configurable line and obstacle sensors in front of it
  */
-case class LineBot(initialPos:(Double, Double))(config: LineBot => Unit) extends Robot {
+case class LineTurtle(initialPos:(Double, Double))(config: LineTurtle => Unit) extends Robot {
 
   private var position:Vec2 = Vec2(initialPos._1, initialPos._2)
   private var facing:Double = 0
 
   override def x:Double = position.x
   override def y:Double = position.y
-  def theta:Double = facing
+  def angle:Double = facing
 
-  var forwardWobble = 0
-  var turnWobble = 0
+  def setAngle(a:Double):Unit = {
+    facing = a
+  }
+
+  def setPosition(x:Double, y:Double):Unit = {
+    position = Vec2(x, y)
+  }
 
   private var compositeMode:Option[String] = None
 
@@ -52,7 +57,7 @@ case class LineBot(initialPos:(Double, Double))(config: LineBot => Unit) extends
       (a / 255).toDouble * ((r & rr) + (g & gg) + (b & bb)).toDouble / totalSensitivity
     }
 
-    def canvasPoint:Vec2 = position + dp.rotate(theta)
+    def canvasPoint:Vec2 = position + dp.rotate(angle)
 
     /** On each tick, the sensor reads from the canvas */
     def tick(p:Vec2, c:CanvasLand) = {
@@ -266,7 +271,7 @@ case class LineBot(initialPos:(Double, Double))(config: LineBot => Unit) extends
   }
 }
 
-object LineBot {
+object LineTurtle {
 
   sealed trait Message
   case class Forward(x:Double) extends Message
