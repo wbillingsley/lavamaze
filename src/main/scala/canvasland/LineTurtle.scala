@@ -95,8 +95,8 @@ case class LineTurtle(initialPos:(Double, Double))(config: LineTurtle => Unit) e
         ctx.fillStyle = s"rgb($shade, $shade, $shade)"
         ctx.fill()
       }
-      val tp = dp + Vec2(20, 0)
-      ctx.fillText(lastReading.toString, tp.x, tp.y, 100)
+      //val tp = dp + Vec2(20, 0)
+      //ctx.fillText(lastReading.toString, tp.x, tp.y, 100)
       ctx.restore()
     }
 

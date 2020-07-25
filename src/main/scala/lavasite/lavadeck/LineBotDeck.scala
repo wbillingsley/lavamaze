@@ -1,6 +1,6 @@
 package lavasite.lavadeck
 
-import canvasland.{CanvasLand, LineTurtle, LunarLanderSim, Turtle, Vec2}
+import canvasland.{CanvasLand, LineTurtle, LunarLanderSim, RescueLine, Turtle, Vec2}
 import coderunner.JSCodable
 import com.wbillingsley.veautiful.html.<
 import com.wbillingsley.veautiful.templates.DeckBuilder
@@ -47,6 +47,28 @@ object LineBotDeck {
           c.fillCanvas("black")
           landerSim.Lander.setPosition(800, 200)
           c.addSteppable(landerSim)
+        }
+      ))(tilesMode = false)
+    ))
+    .veautifulSlide(<.div(
+      <.h1("LineBot"),
+      JSCodable(CanvasLand()(
+        fieldSize=(1000 -> 1000),
+        r = LineTurtle(RescueLine.halfTile, RescueLine.halfTile) { r => r.penDown = false },
+        setup = c => {
+          c.fillCanvas("white")
+          c.drawGrid("rgb(200,240,240)", RescueLine.tileSize, 1)
+          c.withCanvasContext { ctx =>
+            RescueLine.start(0, 0, RescueLine.FACING_EAST, ctx)
+            RescueLine.dashed(1, 0, RescueLine.FACING_EAST, ctx)
+            RescueLine.straight(2, 0, RescueLine.FACING_EAST, ctx)
+            RescueLine.sharpTurnRight(3, 0, RescueLine.FACING_EAST, ctx)
+            RescueLine.dashedHump(3, 1, RescueLine.FACING_SOUTH, ctx)
+            RescueLine.end(3, 2, RescueLine.FACING_SOUTH, ctx)
+            RescueLine.rescueZone(3, 3, RescueLine.FACING_EAST, ctx)
+            RescueLine.rescueSurvivor(3, 4, RescueLine.FACING_EAST, ctx)
+            RescueLine.teeRight(1, 4, RescueLine.FACING_EAST, ctx)
+          }
         }
       ))(tilesMode = false)
     ))
