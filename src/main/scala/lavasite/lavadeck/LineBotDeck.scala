@@ -8,6 +8,8 @@ import lavamaze.{Gate, Maze, Overlay}
 import lavasite.Common
 import structures.ObjectInspector
 
+import scala.util.Random
+
 object LineBotDeck {
 
   val landerSim = new LunarLanderSim({ sim =>
@@ -54,7 +56,15 @@ object LineBotDeck {
       <.h1("LineBot"),
       JSCodable(CanvasLand()(
         fieldSize=(1000 -> 1000),
-        r = LineTurtle(RescueLine.halfTile, RescueLine.halfTile) { r => r.penDown = false },
+        r = LineTurtle(RescueLine.halfTile, RescueLine.halfTile) { r =>
+          r.penDown = false
+          r.moveWobble = Random.nextDouble * 0.02
+          r.moveWobbleBias = (Random.nextDouble - 0.5) * 0.0001
+          r.turnInaccuracy = Random.nextDouble * 0.1
+          r.turnBias = (Random.nextDouble - 0.5) * 0.1
+          r.moveInaccuracy = Random.nextDouble * 0.1
+          r.moveBias = (Random.nextDouble - 0.5) * 0.1
+        },
         setup = c => {
           c.fillCanvas("white")
           c.drawGrid("rgb(200,240,240)", RescueLine.tileSize, 1)
@@ -67,7 +77,7 @@ object LineBotDeck {
             RescueLine.end(3, 2, RescueLine.FACING_SOUTH, ctx)
             RescueLine.rescueZone(3, 3, RescueLine.FACING_EAST, ctx)
             RescueLine.rescueSurvivor(3, 4, RescueLine.FACING_EAST, ctx)
-            RescueLine.teeRight(1, 4, RescueLine.FACING_EAST, ctx)
+            RescueLine.roundaboutAhead(1, 4, RescueLine.FACING_EAST, ctx)
           }
         }
       ))(tilesMode = false)

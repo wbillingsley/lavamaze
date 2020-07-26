@@ -7,7 +7,7 @@ import org.scalajs.dom.CanvasRenderingContext2D
 import scala.collection.mutable
 import scala.concurrent.Future
 import scala.scalajs.js
-import scala.util.Try
+import scala.util.{Random, Try}
 
 /**
  * LineBot has two wheels, driven by DC motors, and configurable line and obstacle sensors in front of it
@@ -20,6 +20,46 @@ case class LineTurtle(initialPos:(Double, Double))(config: LineTurtle => Unit) e
   override def x:Double = position.x
   override def y:Double = position.y
   def angle:Double = facing
+
+
+  /** On each tick as the robot moves, it's angle will be impacted by +/- up to this many radians of variation */
+  var moveWobble:Double = 0
+
+  /** On each tick as the robot moves, it will tend to veer its angle by this amount */
+  var moveWobbleBias:Double = 0
+
+  /** Requests to move will be inaccurate by +/- up to this fraction */
+  var moveInaccuracy:Double = 0
+
+  /** Requests to move will be biased by this fraction */
+  var moveBias:Double = 0
+
+  /** Requests to move will be inaccurate by +/- up to this fraction */
+  var turnInaccuracy:Double = 0
+
+  /** Requests to turn will be biased by this fraction */
+  var turnBias:Double = 0
+
+  /** Calculates an angle to wobble by on each step */
+  private def tickMoveWobble:Double = {
+    if (moveWobble > 0) {
+      (Random.nextDouble - 0.5) * moveWobble * 2 + moveWobbleBias
+    } else moveWobbleBias
+  }
+
+  /** Muddies a move command */
+  private def innacurateMove(d:Double):Double = {
+    if (moveInaccuracy != 0) {
+      (1 + moveBias + (Random.nextDouble() - 0.5) * moveInaccuracy * 2) * d
+    } else d * (1 + moveBias)
+  }
+
+  /** Muddies a turn command */
+  private def innacurateTurn(d:Double):Double = {
+    if (turnInaccuracy != 0) {
+      (1 + turnBias + (Random.nextDouble() - 0.5) * turnInaccuracy * 2) * d
+    } else d * (1 + turnBias)
+  }
 
   def setAngle(a:Double):Unit = {
     facing = a
@@ -129,7 +169,7 @@ case class LineTurtle(initialPos:(Double, Double))(config: LineTurtle => Unit) e
 
   case class ForwardAction(distance:Double, speed:Int = 1) extends Action {
     private var travelled:Double = 0
-    private val total = Math.abs(distance)
+    private val total = Math.abs(innacurateMove(distance))
     private var sign = if (distance > 0) 1 else -1
 
     override def tick(canvasLand: CanvasLand): Unit = {
@@ -138,20 +178,22 @@ case class LineTurtle(initialPos:(Double, Double))(config: LineTurtle => Unit) e
         val increment = if (total - travelled > 1) sign else (total - travelled) * sign
         position += Vec2.fromRTheta(increment, facing)
         travelled += increment
-        if (Math.abs(travelled) >= Math.abs(distance) && !promise.isCompleted) promise.success(())
+        facing += tickMoveWobble
+        if (Math.abs(travelled) >= total && !promise.isCompleted) promise.success(())
       }
     }
   }
 
   case class TurnAction(angle:Double, speed:Int = 4) extends Action {
-    private val destinationAngle = facing + angle
-    private val tickInc = if (angle > 0) (Math.PI / 72) * speed else (-Math.PI / 25) * speed
+    val muddied = innacurateTurn(angle)
+    private val destinationAngle = facing + muddied
+    private val tickInc = if (muddied > 0) (Math.PI / 72) * speed else (-Math.PI / 25) * speed
     private var turned:Double = 0
 
     override def tick(canvasLand: CanvasLand): Unit = {
       turned = turned + Math.abs(tickInc)
 
-      if (turned < Math.abs(angle)) {
+      if (turned < Math.abs(muddied)) {
         facing += tickInc
       } else {
         facing = destinationAngle

@@ -186,4 +186,42 @@ object RescueLine {
     ctx.stroke()
   }
 
+  val roundaboutLeft:TileFunction = tileFunction { ctx =>
+    ctx.fillStyle = startStyle
+    val eighth = (1.0/8) * tileSize
+    ctx.fillRect(-3 * eighth, -eighth, eighth, eighth)
+    ctx.fillRect(-eighth, -3 * eighth, eighth, eighth)
+
+    ctx.beginPath()
+    ctx.moveTo(-halfTile, 0)
+    ctx.lineTo(-quarterTile, 0)
+    ctx.moveTo(0, -quarterTile)
+    ctx.lineTo(0, -halfTile)
+    ctx.stroke()
+    ctx.beginPath()
+    ctx.arc(0, 0, quarterTile, 0, 2 * Math.PI)
+    ctx.stroke()
+  }
+
+  val roundaboutAhead:TileFunction = tileFunction { ctx =>
+    ctx.fillStyle = startStyle
+    val eighth = (1.0/8) * tileSize
+    ctx.fillRect(-3 * eighth, -eighth, eighth, eighth)
+    ctx.fillRect(quarterTile, -eighth, eighth, eighth)
+
+    ctx.beginPath()
+    ctx.moveTo(-halfTile, 0)
+    ctx.lineTo(-quarterTile, 0)
+    ctx.moveTo(0, -quarterTile)
+    ctx.lineTo(0, -halfTile)
+    ctx.moveTo(0, quarterTile)
+    ctx.lineTo(0, halfTile)
+    ctx.moveTo(halfTile, 0)
+    ctx.lineTo(quarterTile, 0)
+    ctx.stroke()
+    ctx.beginPath()
+    ctx.arc(0, 0, quarterTile, 0, 2 * Math.PI)
+    ctx.stroke()
+  }
+
 }
