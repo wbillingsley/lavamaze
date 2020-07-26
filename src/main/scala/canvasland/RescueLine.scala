@@ -22,7 +22,7 @@ object RescueLine {
 
   val FACING_EAST:Double = 0
   val FACING_SOUTH:Double = Math.PI / 2
-  val FACING_WEST:Double = Math.PI / 2
+  val FACING_WEST:Double = Math.PI
   val FACING_NORTH:Double = - Math.PI / 2
 
   private def tileFunction(f:dom.CanvasRenderingContext2D => Unit) = {
@@ -212,15 +212,11 @@ object RescueLine {
     ctx.beginPath()
     ctx.moveTo(-halfTile, 0)
     ctx.lineTo(-quarterTile, 0)
-    ctx.moveTo(0, -quarterTile)
-    ctx.lineTo(0, -halfTile)
-    ctx.moveTo(0, quarterTile)
-    ctx.lineTo(0, halfTile)
     ctx.moveTo(halfTile, 0)
     ctx.lineTo(quarterTile, 0)
     ctx.stroke()
     ctx.beginPath()
-    ctx.arc(0, 0, quarterTile, 0, 2 * Math.PI)
+    ctx.arc(0, 0, quarterTile, 0.75 * Math.PI, 2.25 * Math.PI)
     ctx.stroke()
   }
 
