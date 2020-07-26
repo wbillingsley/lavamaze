@@ -7,6 +7,7 @@ import org.scalajs.dom.CanvasRenderingContext2D
 import scala.collection.mutable
 import scala.concurrent.Future
 import scala.scalajs.js
+import scala.scalajs.js.JavaScriptException
 import scala.util.{Random, Try}
 
 /**
@@ -39,6 +40,9 @@ case class LineTurtle(initialPos:(Double, Double))(config: LineTurtle => Unit) e
 
   /** Requests to turn will be biased by this fraction */
   var turnBias:Double = 0
+
+  /** If non-negative, limits the number of sensors that can be added to the turtle  */
+  var sensorLimit:Int = 8
 
   /** Calculates an angle to wobble by on each step */
   private def tickMoveWobble:Double = {
@@ -293,7 +297,11 @@ case class LineTurtle(initialPos:(Double, Double))(config: LineTurtle => Unit) e
 
       ("addLineSensor", Seq("number", "number", "number", "number", "number"), (x:Double, y:Double, r:Int, g:Int, b:Int) => {
         Future.fromTry(Try {
-          sensors.append(new LineSensor(Vec2(x, y), r=r, g=g, b=b));
+          if (sensorLimit < 0 || sensors.length < sensorLimit) {
+            sensors.append(new LineSensor(Vec2(x, y), r = r, g = g, b = b));
+          } else {
+            throw new JavaScriptException(s"Sorry, you are limited to $sensorLimit sensors")
+          }
           ()
         }).toJSPromise
       }),
