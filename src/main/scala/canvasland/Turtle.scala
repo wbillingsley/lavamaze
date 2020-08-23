@@ -160,7 +160,7 @@ case class Turtle(initialX:Int, initialY:Int) extends Robot {
 object Turtle {
 
   sealed trait Message
-  case class Forward(x:Double) extends Message
+  case class  Forward(x:Double) extends Message
   case class Backward(x:Double) extends Message
   case class Clockwise(x:Double) extends Message
   case class Anticlockwise(x:Double) extends Message

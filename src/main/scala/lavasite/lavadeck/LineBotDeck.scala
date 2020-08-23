@@ -1,6 +1,6 @@
 package lavasite.lavadeck
 
-import canvasland.{CanvasLand, LineTurtle, LunarLanderSim, RescueLine, Turtle, Vec2}
+import canvasland.{MicroRat, CanvasLand, LineTurtle, LunarLanderSim, RescueLine, Turtle, Vec2}
 import coderunner.JSCodable
 import com.wbillingsley.veautiful.html.<
 import com.wbillingsley.veautiful.templates.DeckBuilder
@@ -13,9 +13,25 @@ import scala.util.Random
 object LineBotDeck {
 
   val landerSim = new LunarLanderSim({ sim =>
-    //sim.world.gravity.y = 0
+    sim.world.gravity.y = 0
 
   })
+
+  val bilbySim = new MicroRat({ sim =>
+    sim.loadMazeFromString(
+      """##########
+        |.........#
+        |#.##.###.#
+        |#.##...#.#
+        |#.######.#
+        |#.##...###
+        |#.####...#
+        |#......###
+        |#.####...#
+        |##########
+        |""".stripMargin)
+
+  }, { sim => })
 
   val builder = new DeckBuilder()
     .markdownSlide(
@@ -49,6 +65,18 @@ object LineBotDeck {
           c.fillCanvas("black")
           landerSim.Lander.setPosition(800, 200)
           c.addSteppable(landerSim)
+        }
+      ))(tilesMode = false)
+    ))
+    .veautifulSlide(<.div(
+      <.h1("Round Mouse"),
+      JSCodable(CanvasLand()(
+        fieldSize=(1000 -> 1000),
+        r = bilbySim.robot,
+        setup = c => {
+          c.fillCanvas("black")
+          bilbySim.paintCanvas(c)
+          c.addSteppable(bilbySim)
         }
       ))(tilesMode = false)
     ))

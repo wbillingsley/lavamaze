@@ -29,6 +29,8 @@ object MatterSim {
 
   val Vector:js.Dynamic = Matter.Vector
 
+  val Events:js.Dynamic = Matter.Events
+
   @js.native
   trait Vector extends js.Object {
     var x:Double = js.native
