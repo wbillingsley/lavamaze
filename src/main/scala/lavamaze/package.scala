@@ -77,7 +77,7 @@ package object lavamaze {
   }
 
   def loadImage(s:String) = {
-    <("img")(^.src := s"${imageBase}images/$s").create()
+    <.img(^.src := s"${imageBase}images/$s").create()
   }
 
 

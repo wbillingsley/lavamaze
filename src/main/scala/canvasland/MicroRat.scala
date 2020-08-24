@@ -1,9 +1,10 @@
 package canvasland
 import canvasland.MicroRat.{ONE_TILE, ONE_TILE_PIXELS}
 import lavamaze.WallTile.image
-import org.scalajs.dom.CanvasRenderingContext2D
+import org.scalajs.dom.{CanvasRenderingContext2D, html}
 
 import scala.collection.mutable
+import scala.concurrent.Promise
 import scala.scalajs.js
 
 /**
@@ -17,21 +18,29 @@ class MicroRat(onFirst: MicroRat => Unit, onReset: MicroRat => Unit) extends Mat
   }
 
   case object WallTile extends Tile {
+    private val imageP = Promise[html.Element]
+    val imageFuture = imageP.future
     private val image = lavamaze.loadImage("wall.png")
+    image.onload = (_) => imageP.success(image)
+
     override def paint(layer: Int, x: Int, y: Int, ctx: CanvasRenderingContext2D): Unit = {
       ctx.drawImage(image, 0, 0, 64, 64, x, y, 64, 64)
     }
   }
 
   case object FloorTile extends Tile {
+    private val imageP = Promise[html.Element]
+    val imageFuture = imageP.future
     private val image = lavamaze.loadImage("floor.png")
+    image.onload = (_) => imageP.success(image)
+
     override def paint(layer: Int, x: Int, y: Int, ctx: CanvasRenderingContext2D): Unit = {
       ctx.drawImage(image, 0, 0, 64, 64, x, y, 64, 64)
     }
   }
 
-  val tilesHigh = 11
-  val tilesWide = 11
+  val tilesHigh = 10
+  val tilesWide = 10
   private val cells:Seq[Array[Tile]] = for {
     y <- 0 until tilesHigh
   } yield Array.fill[Tile](tilesWide)(FloorTile)
@@ -46,17 +55,52 @@ class MicroRat(onFirst: MicroRat => Unit, onReset: MicroRat => Unit) extends Mat
 
   /** Paints the maze onto the canvas */
   def paintCanvas(cl:CanvasLand): Unit = {
-    println("painting!")
-    cl.withCanvasContext { ctx =>
-      for {
-        (row, y) <- cells.iterator.zipWithIndex
-        (cell, x) <- row.iterator.zipWithIndex
-      } {
-        ctx.save()
-        ctx.translate(x * ONE_TILE_PIXELS, y * ONE_TILE_PIXELS)
-        cell.paint(0, 0, 0, ctx)
-        ctx.restore()
+    import scala.concurrent.ExecutionContext.Implicits.global
+
+    for {
+      _ <- WallTile.imageFuture
+      _ <- FloorTile.imageFuture
+    } {
+      println("P")
+      cl.withCanvasContext { ctx =>
+        for {
+          (row, y) <- cells.iterator.zipWithIndex
+          (cell, x) <- row.iterator.zipWithIndex
+        } {
+          ctx.save()
+          ctx.translate(x * ONE_TILE_PIXELS, y * ONE_TILE_PIXELS)
+          cell.paint(0, 0, 0, ctx)
+          ctx.restore()
+        }
       }
+    }
+  }
+
+  object Goal extends Mob {
+    var tx = 5
+    var ty = 5
+
+    private def image = lavamaze.Goal.image
+
+    def px:Double = tx * ONE_TILE + ONE_TILE / 2
+    def py:Double = ty * ONE_TILE + ONE_TILE / 2
+
+    override def x: Double = MicroRat.simToPixels(px)
+    override def y: Double = MicroRat.simToPixels(py)
+
+    var tick = 0
+
+    override def draw(ctx: CanvasRenderingContext2D): Unit = {
+//      ctx.clearRect(-ONE_TILE/2, -ONE_TILE/2, ONE_TILE, ONE_TILE)
+      ctx.drawImage(image, 64 * ((tick / 60) % 4), 0, 64, 64, -ONE_TILE/2, -ONE_TILE/2, ONE_TILE, ONE_TILE)
+    }
+
+    override def reset(): Unit = {
+      tick = 0
+    }
+
+    override def step(c: CanvasLand): Unit = {
+      tick = (tick + 1) % 240
     }
   }
 
@@ -120,17 +164,33 @@ class MicroRat(onFirst: MicroRat => Unit, onReset: MicroRat => Unit) extends Mat
     }
 
     override def functions(): Seq[(String, Seq[String], js.Function)] = Seq(
-      ("setLeftSpeed", Seq("Number"), setLeftSpeed _),
-      ("setRightSpeed", Seq("Number"), setRightSpeed _),
+      ("setLeftPower", Seq("Number"), setLeftSpeed _),
+      ("setRightPower", Seq("Number"), setRightSpeed _),
+      ("setLightColour", Seq("String"), (s:String) => lightFill = s),
       ("isCollisionDetected", Seq(), isCollisionDetected _),
-      ("resetCollisionDetector", Seq(), resetCollisionDetector _),
-      ("getX", Seq.empty, () => x),
-      ("getY", Seq.empty, () => y),
-      ("getAngle", Seq.empty, () => angle),
+      ("clearCollision", Seq(), resetCollisionDetector _),
+      ("getX", Seq.empty, () => px),
+      ("getY", Seq.empty, () => py),
+      ("getVelocityX", Seq.empty, () => vx),
+      ("getVelocityY", Seq.empty, () => vy),
+      ("getHeading", Seq.empty, () => angle),
+      ("getAngularVelocity", Seq.empty, () => angularVelocity),
+      ("getGoalX", Seq.empty, () => Goal.px),
+      ("getGoalY", Seq.empty, () => Goal.py),
+      ("getGoalTileX", Seq.empty, () => Goal.tx),
+      ("getGoalTileY", Seq.empty, () => Goal.ty),
+      ("mazeColumnCount", Seq.empty, () => tilesWide),
+      ("mazeRowCount", Seq.empty, () => tilesHigh),
     )
 
-    override def x: Double = MicroRat.simToPixels(body.position.x.asInstanceOf[Double])
-    override def y: Double = MicroRat.simToPixels(body.position.y.asInstanceOf[Double])
+    override def x: Double = MicroRat.simToPixels(px)
+    override def y: Double = MicroRat.simToPixels(py)
+
+    def px: Double = body.position.x.asInstanceOf[Double]
+    def py: Double = body.position.y.asInstanceOf[Double]
+    def vx: Double = body.velocity.x.asInstanceOf[Double]
+    def vy: Double = body.velocity.y.asInstanceOf[Double]
+    def angularVelocity: Double = body.angularVelocity.asInstanceOf[Double]
 
     def setPosition(x:Double, y:Double):Unit = {
       MatterSim.Body.setPosition(body, MatterSim.Vector.create(x, y))

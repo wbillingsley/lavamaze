@@ -76,6 +76,7 @@ object LineBotDeck {
         setup = c => {
           c.fillCanvas("black")
           bilbySim.paintCanvas(c)
+          c.addSteppable(bilbySim.Goal)
           c.addSteppable(bilbySim)
         }
       ))(tilesMode = false)
