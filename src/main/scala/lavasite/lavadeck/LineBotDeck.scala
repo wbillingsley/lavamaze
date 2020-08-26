@@ -17,18 +17,18 @@ object LineBotDeck {
 
   })
 
-  val bilbySim = new MicroRat({ sim =>
+  val bilbySim = new MicroRat()({ sim =>
     sim.loadMazeFromString(
-      """##########
-        |.........#
-        |#.##.###.#
-        |#.##...#.#
-        |#.######.#
-        |#.##...###
-        |#.####...#
-        |#......###
-        |#.####...#
-        |##########
+      """..........
+        |.###.###..
+        |..#...#..#
+        |#.#.##.#..
+        |....#...#.
+        |##.##.#.#.
+        |....###.#.
+        |.####.....
+        |......####
+        |.###.....#
         |""".stripMargin)
 
   }, { sim => })
@@ -69,7 +69,7 @@ object LineBotDeck {
       ))(tilesMode = false)
     ))
     .veautifulSlide(<.div(
-      <.h1("Round Mouse"),
+      <.h1("Meet Bumper"),
       JSCodable(CanvasLand()(
         fieldSize=(1000 -> 1000),
         r = bilbySim.robot,

@@ -11,7 +11,7 @@ import scala.scalajs.js
  * Part-way between Micromouse and the Bilby competition. It uses a physical maze (like Micromouse) but is
  * tile-based rather than wall-based for simpler mapping (like the Bilby competition)
  */
-class MicroRat(onFirst: MicroRat => Unit, onReset: MicroRat => Unit) extends MatterSim {
+class MicroRat(start:(Int, Int) = (0, 0), dimensions:(Int, Int) = (10, 10))(onFirst: MicroRat => Unit, onReset: MicroRat => Unit) extends MatterSim {
 
   sealed trait Tile {
     def paint(layer: Int, x: Int, y: Int, ctx: CanvasRenderingContext2D): Unit
@@ -39,8 +39,7 @@ class MicroRat(onFirst: MicroRat => Unit, onReset: MicroRat => Unit) extends Mat
     }
   }
 
-  val tilesHigh = 10
-  val tilesWide = 10
+  private val (tilesHigh, tilesWide) = dimensions
   private val cells:Seq[Array[Tile]] = for {
     y <- 0 until tilesHigh
   } yield Array.fill[Tile](tilesWide)(FloorTile)
@@ -107,7 +106,7 @@ class MicroRat(onFirst: MicroRat => Unit, onReset: MicroRat => Unit) extends Mat
   /**
    * A spherical robot that bumps into walls to detect them
    */
-  class Bumper() extends Robot {
+  class Bumper(var startX:Int = start._1, var startY:Int = start._2) extends Robot {
 
     val radius = 0.25 * MicroRat.ONE_TILE
 
@@ -196,7 +195,9 @@ class MicroRat(onFirst: MicroRat => Unit, onReset: MicroRat => Unit) extends Mat
       MatterSim.Body.setPosition(body, MatterSim.Vector.create(x, y))
     }
 
-    def angle: Double = body.angle.asInstanceOf[Double]
+    def angle: Double = {
+      body.angle.asInstanceOf[Double]
+    }
 
     val bodyFill = "rgba(180, 180, 255, 0.7)"
     val wheelFill = "rgba(60, 60, 60, 0.7)"
@@ -247,6 +248,7 @@ class MicroRat(onFirst: MicroRat => Unit, onReset: MicroRat => Unit) extends Mat
 
     /** Put the robot back at the start */
     override def reset(): Unit = {
+      _collisionIndicator = false
       MatterSim.Body.setPosition(body, MatterSim.Vector.create(0, 0))
       MatterSim.Body.setVelocity(body, MatterSim.Vector.create(0, 0))
       MatterSim.Body.rotate(body, -body.angle)
@@ -255,7 +257,7 @@ class MicroRat(onFirst: MicroRat => Unit, onReset: MicroRat => Unit) extends Mat
       _leftSpeed = 0
       _rightSpeed = 0
 
-      setPosition(ONE_TILE + ONE_TILE / 2, ONE_TILE + ONE_TILE / 2)
+      setPosition(startX * ONE_TILE + ONE_TILE / 2, startY * ONE_TILE + ONE_TILE / 2)
       MicroRat.this.onReset(MicroRat.this)
     }
 
