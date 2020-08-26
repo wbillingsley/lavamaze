@@ -39,7 +39,7 @@ class MicroRat(start:(Int, Int) = (0, 0), dimensions:(Int, Int) = (10, 10))(onFi
     }
   }
 
-  private val (tilesHigh, tilesWide) = dimensions
+  private val (tilesWide, tilesHigh) = dimensions
   private val cells:Seq[Array[Tile]] = for {
     y <- 0 until tilesHigh
   } yield Array.fill[Tile](tilesWide)(FloorTile)
@@ -338,8 +338,8 @@ object MicroRat {
 
   def process(m:MicroRat, s:String):Unit = {
     for {
-      (line, y) <- s.linesIterator.zipWithIndex
-      (char, x) <- line.zipWithIndex
+      (line, y) <- s.linesIterator.zipWithIndex if y < m.tilesHigh
+      (char, x) <- line.zipWithIndex if x < m.tilesWide
     } {
       if (actions.contains(char)) {
         actions(char)(m, x, y)
