@@ -118,7 +118,7 @@ case class Dogbot(maze:Maze, initX:Int, initY:Int) extends GridMob with Askable[
     override def destination: (Direction, Direction) = (tx, ty)
   }
 
-  var action:Action = Move(EAST)
+  var action:Action = Idle()
 
   def snobotException(msg:String) = new js.JavaScriptException(msg)
 
@@ -184,8 +184,7 @@ case class Dogbot(maze:Maze, initX:Int, initY:Int) extends GridMob with Askable[
 
   override def blockMovement(from: (Direction, Direction), to: (Direction, Direction), by: Mob): Boolean = {
     by match {
-      case b:Boulder => (tx, ty) == to || action.destination == to
-      case _ => false
+      case _ => (tx, ty) == to || action.destination == to
     }
   }
 

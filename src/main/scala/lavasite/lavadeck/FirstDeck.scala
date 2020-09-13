@@ -21,6 +21,7 @@ object FirstDeck {
         | #..v.v..
         | #.**.**.
         |""".stripMargin)
+    maze.additionalFunctions = maze.dogbotFunctions
   })(tilesMode = false)
 
   val logo = JSCodable(CanvasLand()(
@@ -73,6 +74,24 @@ object FirstDeck {
       <.div(
         <.h1("Maze"),
         jsc
+      )
+    )
+    .veautifulSlide(
+      <.div(
+        <.h1("Dogbot"),
+        JSCodable(
+          Maze("Dogbot is in the maze!")((8, 8), (8, 8)) { maze =>
+            maze.loadFromString(
+              """#####*##
+                |#####.##
+                |Z.S...1G
+                |###.####
+                |Z..d...#
+                |########
+                |""".stripMargin)
+            maze.additionalFunctions = maze.dogbotFunctions
+          }
+        )(tilesMode = false, asyncify = false)
       )
     )
     .veautifulSlide(

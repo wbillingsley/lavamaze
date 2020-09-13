@@ -120,7 +120,16 @@ class BlobGuard(maze:Maze, initTx:Int, initTy:Int)(ai: (Maze, BlobGuard) => _) e
   }
 
   /** BlobGuards don't block movement. */
-  override def blockMovement(from: (Direction, Direction), to: (Direction, Direction), by: Mob): Boolean = false
+  override def blockMovement(from: (Direction, Direction), to: (Direction, Direction), by: Mob): Boolean = by match {
+    case _:Dogbot =>
+      action match {
+        case this.Move(_) => action.origin.crossedBy(from, to) || action.destination.crossedBy(from, to)
+        case this.Idle() =>
+          (tx, ty).crossedBy(from, to)
+        case _ => false
+      }
+    case _ => false
+  }
 
   def die():Unit = action match {
     case Die() => //

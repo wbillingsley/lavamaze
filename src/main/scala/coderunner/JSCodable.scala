@@ -17,7 +17,8 @@ case class JSCodable(codable: Codable, underCodable: Option[JSCodable => VHtmlNo
   codeControlsHeight:Int = 50,
   consoleHeight:Int = 200,
   codableHeight: Option[Int] = None,
-  var tilesMode: Boolean = true
+  var tilesMode: Boolean = true,
+  var asyncify:Boolean = true
 ) extends VHtmlComponent {
 
   private val tileCanvas = new TileSpace(Some("example"), JSLang)((codeCanvasWidth, codeCanvasHeight))
@@ -41,7 +42,7 @@ case class JSCodable(codable: Codable, underCodable: Option[JSCodable => VHtmlNo
 
   private val codeRunner = new WorkerCodeRunner(
     ((for { (n, _, f) <- functions } yield n -> f).toMap),
-    Map.empty, true)
+    Map.empty, asyncify)
 
   val aceCanvas = AceEditor("mycode") { editor =>
     editor.setTheme("ace/theme/dawn")

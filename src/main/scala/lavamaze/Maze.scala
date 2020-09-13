@@ -1,18 +1,23 @@
 package lavamaze
 
+import java.util.NoSuchElementException
+
 import coderunner.Codable
-import com.wbillingsley.veautiful.DiffNode
 import com.wbillingsley.veautiful.html.{<, VHtmlNode, ^}
 import org.scalajs.dom
-import org.scalajs.dom.{Element, Node}
 
+import scala.scalajs.js.JSConverters._
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.collection.mutable
+import scala.concurrent.Future
+import scala.scalajs.js.JavaScriptException
 
 case class CodableMaze(name:String = "maze")(
   viewSize:(Int, Int),
   mazeSize:(Int, Int),
 
-  mazeSetup: Maze => _
+  mazeSetup: Maze => _,
+
 ) {
 
   val maze = Maze(name)(viewSize, mazeSize)(mazeSetup)
@@ -166,7 +171,7 @@ case class Maze(name:String = "maze")(
     overlays.foreach(_.reset(this))
   }
 
-  reset()
+
 
   def loadFromString(s:String) = QuickMaze.process(this, s)
 
@@ -214,22 +219,41 @@ case class Maze(name:String = "maze")(
   /** User-defined additional functions */
   var additionalFunctions:Seq[Codable.Triple] = Seq.empty
 
+  val snobotFunctions:Seq[Codable.Triple] = Seq(
+    ("left", Seq.empty, () => snobot.ask(Snobot.MoveMessage(lavamaze.WEST)).toJSPromise),
+    ("right", Seq.empty, () => snobot.ask(Snobot.MoveMessage(lavamaze.EAST)).toJSPromise),
+    ("up", Seq.empty, () => snobot.ask(Snobot.MoveMessage(lavamaze.NORTH)).toJSPromise),
+    ("down", Seq.empty, () => snobot.ask(Snobot.MoveMessage(lavamaze.SOUTH)).toJSPromise),
+    ("canGoRight", Seq.empty, () => snobot.canMove(lavamaze.EAST)),
+    ("canGoUp", Seq.empty, () => snobot.canMove(lavamaze.NORTH)),
+    ("canGoDown", Seq.empty, () => snobot.canMove(lavamaze.SOUTH)),
+    ("canGoLeft", Seq.empty, () => snobot.canMove(lavamaze.WEST)),
+  )
+
+
+  /**
+   * Finds dogbot if it is in the maze
+   */
+  def dogbot:Option[Dogbot] = mobs.toSeq.collectFirst { case d: Dogbot => d }
+
+  def askDogbot(m: Dogbot.Message):Future[Unit] = dogbot match {
+    case Some(d) => d.ask(m)
+    case _ => Future.failed(JavaScriptException("Dogbot is not in the maze"))
+  }
+
+  val dogbotFunctions:Seq[Codable.Triple] = Seq(
+    ("dogbotLeft", Seq.empty, () => askDogbot(Dogbot.MoveMessage(lavamaze.WEST)).toJSPromise),
+    ("dogbotRight", Seq.empty, () => askDogbot(Dogbot.MoveMessage(lavamaze.EAST)).toJSPromise),
+    ("dogbotUp", Seq.empty, () => askDogbot(Dogbot.MoveMessage(lavamaze.NORTH)).toJSPromise),
+    ("dogbotDown", Seq.empty, () => askDogbot(Dogbot.MoveMessage(lavamaze.SOUTH)).toJSPromise),
+  )
+
   /** The functions that should be exposed to the coding environment */
   def functions():Seq[Codable.Triple] = {
-    import scala.scalajs.js.JSConverters._
-    import scala.concurrent.ExecutionContext.Implicits.global
-
-    Seq[Codable.Triple](
-      ("left", Seq.empty, () => snobot.ask(Snobot.MoveMessage(lavamaze.WEST)).toJSPromise),
-      ("right", Seq.empty, () => snobot.ask(Snobot.MoveMessage(lavamaze.EAST)).toJSPromise),
-      ("up", Seq.empty, () => snobot.ask(Snobot.MoveMessage(lavamaze.NORTH)).toJSPromise),
-      ("down", Seq.empty, () => snobot.ask(Snobot.MoveMessage(lavamaze.SOUTH)).toJSPromise),
-      ("canGoRight", Seq.empty, () => snobot.canMove(lavamaze.EAST)),
-      ("canGoUp", Seq.empty, () => snobot.canMove(lavamaze.NORTH)),
-      ("canGoDown", Seq.empty, () => snobot.canMove(lavamaze.SOUTH)),
-      ("canGoLeft", Seq.empty, () => snobot.canMove(lavamaze.WEST)),
-    ) concat additionalFunctions
+    snobotFunctions concat additionalFunctions
   }
+
+  reset()
 
 }
 
