@@ -206,6 +206,6 @@ case class Dogbot(maze:Maze, initX:Int, initY:Int) extends GridMob with Askable[
         case b:Boulder => b.push(dir)
         case _ => // do nothing
       }
-      if (!isBlocked(dir)) setAction(a) else Future.failed(snobotException("Snobot is blocked in that direction"))
+      if (!isBlocked(dir)) setAction(a) else Future.failed(snobotException("Dogbot is blocked in that direction"))
   }
 }

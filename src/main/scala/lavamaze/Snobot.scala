@@ -234,6 +234,7 @@ case class Snobot(maze:Maze) extends GridMob with Askable[Snobot.Message, Unit]{
             case _ => false
           }
       }
+      case d:Dogbot => (tx, ty) == to || action.destination == to
       case _ => false
     }
   }

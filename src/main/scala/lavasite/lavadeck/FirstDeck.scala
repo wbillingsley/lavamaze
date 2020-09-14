@@ -83,15 +83,15 @@ object FirstDeck {
           Maze("Dogbot is in the maze!")((8, 8), (8, 8)) { maze =>
             maze.loadFromString(
               """#####*##
-                |#####.##
-                |Z.S...1G
-                |###.####
+                |#####.#G
+                |Z..S...1
+                |####.###
                 |Z..d...#
                 |########
                 |""".stripMargin)
             maze.additionalFunctions = maze.dogbotFunctions
           }
-        )(tilesMode = false, asyncify = false)
+        )(tilesMode = false, asyncify = true)
       )
     )
     .veautifulSlide(
