@@ -164,8 +164,7 @@ case class Maze(name:String = "maze")(
     overlays.clear()
     mobs.clear()
     mobs.append(snobot)
-    snobot.action = snobot.Idle()
-    snobot.diamonds = 0
+    snobot.reset()
     setup(this)
     snobot.putAtTile(snobotStart)
     overlays.foreach(_.reset(this))
@@ -228,6 +227,7 @@ case class Maze(name:String = "maze")(
     ("canGoUp", Seq.empty, () => snobot.canMove(lavamaze.NORTH)),
     ("canGoDown", Seq.empty, () => snobot.canMove(lavamaze.SOUTH)),
     ("canGoLeft", Seq.empty, () => snobot.canMove(lavamaze.WEST)),
+    ("uptime", Seq.empty, () => snobot.uptime().toInt)
   )
 
 

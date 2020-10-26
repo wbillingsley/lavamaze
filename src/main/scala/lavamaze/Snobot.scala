@@ -80,6 +80,8 @@ case class Snobot(maze:Maze) extends GridMob with Askable[Snobot.Message, Unit]{
 
   var diamonds = 0
 
+  var startTime:Long = System.currentTimeMillis()
+
   def tx = (px + oneTile / 2) / oneTile
   def ty = (py + oneTile / 2) / oneTile
 
@@ -185,7 +187,12 @@ case class Snobot(maze:Maze) extends GridMob with Askable[Snobot.Message, Unit]{
     py = 0
     diamonds = 0
     action = Idle()
+
+    startTime = System.currentTimeMillis()
   }
+
+  /** How long Snobot has been running for */
+  def uptime():Long = System.currentTimeMillis() - startTime
 
   def tick(maze:Maze) = {
     action.tick(maze)
