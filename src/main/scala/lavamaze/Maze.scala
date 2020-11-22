@@ -94,6 +94,8 @@ case class Maze(name:String = "maze")(
   private val mobs:mutable.Buffer[Mob] = mutable.Buffer(snobot)
   private val overlays:mutable.Set[Overlay] = mutable.Set.empty
 
+  def allMobs = mobs.toSeq
+
   /** Gets the location of any goal fixtures */
   def getGoals:Seq[(Int, Int)] = fixtures.toSeq.collect { case ((x, y), Goal(tx, ty)) => (x, y) }
 

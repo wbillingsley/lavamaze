@@ -125,6 +125,8 @@ case class Snobot(maze:Maze) extends GridMob with Askable[Snobot.Message, Unit]{
     def paintLayer(layer: Int, x1: Int, y1: Int, x2:Int, y2:Int, ctx: CanvasRenderingContext2D): Unit = {
       // Snobot has left the building
     }
+
+    override def stringify = "teleport"
   }
 
   case class Move(d:Direction) extends GridMove(d, tickRate) with Action {
@@ -157,6 +159,8 @@ case class Snobot(maze:Maze) extends GridMob with Askable[Snobot.Message, Unit]{
     }
 
     override def destination: (Direction, Direction) = (tx, ty)
+
+    override def stringify = "die"
   }
 
   var action:Action = Move(EAST)

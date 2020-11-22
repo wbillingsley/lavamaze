@@ -16,6 +16,12 @@ trait GridMob extends Mob {
 
     /** The mob's expected tile coordinate when the action is complete */
     def destination:(Int, Int)
+
+    /** Human-readable explanation */
+    def stringify:String
+
+    /** Human-readable explanation of how complete this task is */
+    def durationStringify:String
   }
 
   abstract class GridIdle() extends GridAction {
@@ -29,6 +35,10 @@ trait GridMob extends Mob {
     override def destination: (Direction, Direction) = (tx, ty)
 
     def tick(m:Maze): Unit = { t = t + 1 }
+
+    def stringify = s"idle"
+
+    override def durationStringify: String = "ready"
   }
 
   abstract class GridMove(d:Direction, moveDuration:Int) extends GridAction {
@@ -60,6 +70,21 @@ trait GridMob extends Mob {
 
       if (t >= moveDuration) promise.success()
     }
+
+
+    def stringify:String = {
+      val dir = d match {
+        case EAST => "east"
+        case WEST => "west"
+        case NORTH => "north"
+        case SOUTH => "south"
+      }
+
+      s"Move $dir to square $destination."
+    }
+
+
+    override def durationStringify: String = s"$t of $moveDuration ticks"
   }
 
 }

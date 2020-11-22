@@ -1,14 +1,120 @@
 package lavasite.lavadeck
 
 import canvasland.{CanvasLand, Turtle}
-import coderunner.JSCodable
-import com.wbillingsley.veautiful.html.<
-import com.wbillingsley.veautiful.templates.DeckBuilder
-import lavamaze.{Gate, Maze, Overlay}
+import coderunner.{JSCodable, LoggingPrefabCodable}
+import com.wbillingsley.veautiful.DiffNode
+import com.wbillingsley.veautiful.html.{<, VHtmlComponent, ^}
+import com.wbillingsley.veautiful.templates.{Challenge, DeckBuilder}
+import lavamaze.{BlobGuard, Boulder, Dogbot, Gate, GridMob, Maze, Mob, Overlay, Snobot}
 import lavasite.Common
+import org.scalajs.dom.{Element, Node}
 import structures.ObjectInspector
 
 object FirstDeck {
+
+
+  /** Components for the slide that shows the state of blobguards as they move through the maze */
+  object ShowingState {
+
+    val maze = Maze()((10, 5), (10, 5)) { maze =>
+      maze.loadFromString(
+        """ #v..vv.#
+          | #S****G#
+          | #.#...##
+          | #Z..*..Z""".stripMargin)
+      maze.additionalFunctions = maze.dogbotFunctions
+    }
+
+    private def stateCard(m:Mob) = m match {
+      case s:Snobot =>
+        <.div(^.cls := "card",
+          <.div(^.cls := "card-header", "Snobot"),
+          <.ul(^.cls := "list-group list-group-flush",
+            <.li(^.cls := "list-group-item", ^.attr("style") := "margin-bottom: 0",
+              s"x: ${s.px.toString}, y: ${s.py.toString}"
+            ),
+            <.li(^.cls := "list-group-item list-group-flush", ^.attr("style") := "margin-bottom: 0",
+              s.action.stringify
+            ),
+            <.li(^.cls := "list-group-item list-group-flush",
+              s.action.durationStringify
+            )
+          )
+        )
+      case s:BlobGuard =>
+        <.div(^.cls := "card",
+          <.div(^.cls := "card-header", "Blob Guard"),
+          <.ul(^.cls := "list-group list-group-flush",
+            <.li(^.cls := "list-group-item", ^.attr("style") := "margin-bottom: 0",
+              s"x: ${s.px.toString}, y: ${s.py.toString}"
+            ),
+            <.li(^.cls := "list-group-item list-group-flush", ^.attr("style") := "margin-bottom: 0",
+              s.action.stringify
+            ),
+            <.li(^.cls := "list-group-item list-group-flush",
+              s.action.durationStringify
+            )
+          )
+        )
+      case s:Dogbot =>
+        <.div(^.cls := "card",
+          <.div(^.cls := "card-header", "Dogbot"),
+          <.ul(^.cls := "list-group list-group-flush",
+            <.li(^.cls := "list-group-item", ^.attr("style") := "margin-bottom: 0",
+              s"x: ${s.px.toString}, y: ${s.py.toString}"
+            ),
+            <.li(^.cls := "list-group-item list-group-flush", ^.attr("style") := "margin-bottom: 0",
+              s.action.stringify
+            ),
+            <.li(^.cls := "list-group-item list-group-flush",
+              s.action.durationStringify
+            )
+          )
+        )
+      case s:Boulder =>
+        <.div(^.cls := "card",
+          <.div(^.cls := "card-header", "Boulder"),
+          <.ul(^.cls := "list-group list-group-flush",
+            <.li(^.cls := "list-group-item", ^.attr("style") := "margin-bottom: 0",
+              s"x: ${s.px.toString}, y: ${s.py.toString}"
+            ),
+            <.li(^.cls := "list-group-item list-group-flush", ^.attr("style") := "margin-bottom: 0",
+              s.action.stringify
+            ),
+            <.li(^.cls := "list-group-item list-group-flush",
+              s.action.durationStringify
+            )
+          )
+        )
+      case _ =>
+        <.span()
+    }
+
+    object StateItems extends VHtmlComponent {
+      override def render: DiffNode[Element, Node] = <.div(
+        for { m <- maze.allMobs } yield stateCard(m)
+      )
+    }
+
+    maze.onTick = (_) => StateItems.rerender()
+
+    val code =
+      """while (canGoRight()) {
+        |  right()
+        |}
+        |""".stripMargin
+
+    val lfc = LoggingPrefabCodable(code, maze)
+
+    def slide = <.div(
+      <.h2("Showing state"),
+      Challenge.textAndEx(
+        <.div(^.cls := "card-columns",
+          StateItems
+        )
+      )(lfc)
+    )
+  }
 
   val jsc = JSCodable(Maze()((10, 10), (10, 10)) { maze =>
     maze.loadFromString(
@@ -23,6 +129,8 @@ object FirstDeck {
         |""".stripMargin)
     maze.additionalFunctions = maze.dogbotFunctions
   })(tilesMode = false)
+
+
 
   val logo = JSCodable(CanvasLand()(
     r = Turtle(320, 320),
@@ -111,6 +219,7 @@ object FirstDeck {
         )(tilesMode = false)
       )
     )
+    .veautifulSlide(ShowingState.slide)
     .veautifulSlide(
       <.div(
         <.h1("Maze"),

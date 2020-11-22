@@ -91,7 +91,7 @@ object Common {
 
   val decks:Map[String, VSlides] = Map(
     "impossibleThings" -> FirstDeck.deck,
-    "lineBot" -> LineBotDeck.deck
+    "lineBot" -> LineBotDeck.deck,
   )
 
   def showDeck(s:String, page:Int = 0):VHtmlNode = {

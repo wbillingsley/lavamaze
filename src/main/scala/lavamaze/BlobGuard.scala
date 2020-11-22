@@ -61,7 +61,7 @@ object BlobGuard {
   }
 }
 
-class BlobGuard(maze:Maze, initTx:Int, initTy:Int)(ai: (Maze, BlobGuard) => _) extends GridMob {
+class BlobGuard(maze:Maze, initTx:Int, initTy:Int)(val ai: (Maze, BlobGuard) => _) extends GridMob {
 
   var px = initTx * oneTile
   var py = initTy * oneTile
@@ -101,6 +101,8 @@ class BlobGuard(maze:Maze, initTx:Int, initTy:Int)(ai: (Maze, BlobGuard) => _) e
     def paintLayer(layer: Int, x1: Int, y1: Int, x2:Int, y2:Int, ctx: CanvasRenderingContext2D): Unit = {
       if (layer == MOB_LOW) BlobGuard.drawDie(t / 4, px - x1, py - y1, ctx)
     }
+
+    override def stringify = "die"
   }
 
   /** Whether BlobGuard can move in a given direction */

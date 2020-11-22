@@ -12,9 +12,10 @@ import scala.util.Random
 
 object LineBotDeck {
 
-  val landerSim = new LunarLanderSim({ sim =>
-    sim.world.gravity.y = 0
+  val landerSim = new LunarLanderSim("lander")(onReset = { sim =>
+    sim.world.gravity.y = 1
 
+    sim.Lander.setPosition(1000, 500)
   })
 
   val bilbySim = new MicroRat()({ sim =>
@@ -58,18 +59,10 @@ object LineBotDeck {
     ))
     .veautifulSlide(<.div(
       <.h1("Lunar Lander"),
-      JSCodable(CanvasLand()(
-        fieldSize=(1000 -> 1000),
-        r = landerSim.Lander,
-        setup = c => {
-          c.fillCanvas("black")
-          landerSim.Lander.setPosition(800, 200)
-          c.addSteppable(landerSim)
-        }
-      ))(tilesMode = false)
+      JSCodable(landerSim.canvasLand)(tilesMode = false)
     ))
     .veautifulSlide(<.div(
-      <.h1("Meet Bumper"),
+      <.h1("Moving Bumper"),
       JSCodable(CanvasLand()(
         fieldSize=(1000 -> 1000),
         r = bilbySim.robot,
@@ -79,7 +72,7 @@ object LineBotDeck {
           c.addSteppable(bilbySim.Goal)
           c.addSteppable(bilbySim)
         }
-      ))(tilesMode = false)
+      ))(codeCanvasWidth= 800,tilesMode = false)
     ))
     .veautifulSlide(<.div(
       <.h1("LineBot"),

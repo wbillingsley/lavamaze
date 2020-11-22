@@ -47,8 +47,10 @@ case class CanvasLand(name:String = "canvasland")(
 
   /** Renders the currently visible section of the field of play, and any additional mark-up  */
   private val (viewWidth, viewHeight) = viewSize
-  private val renderCanvas = <.canvas(^.attr("width") := viewWidth, ^.attr("height") := viewHeight)
+  val renderCanvas = <.canvas(^.attr("width") := viewWidth, ^.attr("height") := viewHeight)
 
+  /** Used for overlaying debug information */
+  //val overlay = <.div(^.attr("width") := viewWidth, ^.attr("height") := viewHeight, ^.attr("position") := "absolute")
 
   /** Repaints the canvas */
   override def repaint():Unit = {
