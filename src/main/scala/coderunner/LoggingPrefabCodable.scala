@@ -1,0 +1,5 @@
+package coderunner
+
+class LoggingPrefabCodable {
+
+}
