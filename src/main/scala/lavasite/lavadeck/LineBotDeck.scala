@@ -13,9 +13,10 @@ import scala.util.Random
 object LineBotDeck {
 
   val landerSim = new LunarLanderSim("lander")(onReset = { sim =>
-    sim.world.gravity.y = 1
+    sim.world.gravity.y = 0.16
 
     sim.Lander.setPosition(1000, 500)
+    sim.Lander.angle = Random.nextDouble() * 2 * Math.PI
   })
 
   val bilbySim = new MicroRat()({ sim =>

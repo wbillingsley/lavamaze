@@ -5,6 +5,7 @@ import org.scalajs.dom
 import org.scalajs.dom.{CanvasRenderingContext2D, Node}
 
 import scala.collection.mutable
+import scala.concurrent.{Future, Promise}
 import scala.scalajs.js
 import scala.scalajs.js.JSON
 import scala.util.Random
@@ -13,7 +14,7 @@ import scala.util.Random
 /**
  * Lunar Lander as a Codable
  */
-class LunarLanderSim(name:String, dimensions:(Int, Int) = (640, 480))(
+class LunarLanderSim(name:String, dimensions:(Int, Int) = (640, 480), lz: (Int, Int, Int) = (480, 512, 420))(
   onFirst: LunarLanderSim => Unit = { _ => }, onReset: LunarLanderSim => Unit = { _ => }) extends MatterSim {
 
   import MatterSim._
@@ -27,10 +28,15 @@ class LunarLanderSim(name:String, dimensions:(Int, Int) = (640, 480))(
   /** The maximum force of the main thruster */
   var maxThrust = 0.05
 
-  var maxRotationThrust = 0.2
+  /** The max strength of the side thrusters */
+  var maxSideThrust = 0.02d
 
-  /** Land heights. Currently, these are held in pixel coordinates. */
-  val landHeights:mutable.Buffer[Int] = mutable.Buffer(landGeneration(height * 4/5, height/5):_*)
+  /** How much fuel there is */
+  var fuel = 100d
+
+    /** Land heights. Currently, these are held in pixel coordinates. */
+  val landHeights:mutable.Buffer[Int] = mutable.Buffer(landGeneration(height * 4/5, height/5, lz=lz):_*)
+
 
   /** (x, y) coordinates in physics coordinates of the land */
   def landVertices:Seq[(Double, Double)] = {
@@ -47,14 +53,49 @@ class LunarLanderSim(name:String, dimensions:(Int, Int) = (640, 480))(
   object Lander extends Robot {
 
     private var _thrust:Double = 0
-    private var _rotationThrust:Double = 0
+
+    private var _tlThrust:Double = 0
+    private var _trThrust:Double = 0
+    private var _blThrust:Double = 0
+    private var _brThrust:Double = 0
+
+    private var tickTimer = TickTimer(0)
 
     def setThrust(t:Double):Unit = {
       _thrust = Math.min(Math.max(0, t), 1) * maxThrust
     }
 
     def setTurn(t:Double):Unit = {
-      _rotationThrust = Math.min(Math.max(-1, t), 1) * maxRotationThrust
+      if (t >= 0) {
+        _blThrust = 0
+        _trThrust = 0
+        _tlThrust = Math.min(t, 1) * maxSideThrust
+        _brThrust = Math.min(t, 1) * maxSideThrust
+      } else {
+        _brThrust = 0
+        _tlThrust = 0
+        _trThrust = Math.min(-t, 1) * maxSideThrust
+        _blThrust = Math.min(-t, 1) * maxSideThrust
+      }
+    }
+
+    def setSidle(t:Double):Unit = {
+      if (t >= 0) {
+        _brThrust = 0
+        _trThrust = 0
+        _blThrust = Math.min(t, 1) * maxSideThrust
+        _tlThrust = Math.min(t, 1) * maxSideThrust
+      } else {
+        _blThrust = 0
+        _tlThrust = 0
+        _brThrust = Math.min(-t, 1) * maxSideThrust
+        _trThrust = Math.min(-t, 1) * maxSideThrust
+      }
+    }
+
+    def waitTicks(ticks:Int):Future[Unit] = {
+      tickTimer = TickTimer(ticks)
+      tickTimer.future
     }
 
     def getAngularVelocity() = body.angularVelocity.asInstanceOf[Double]
@@ -63,18 +104,31 @@ class LunarLanderSim(name:String, dimensions:(Int, Int) = (640, 480))(
     val body = MatterSim.bodyFromVertices(Seq(
       -100d -> 100d, -50d -> -100d, 50d -> -100d, 100d -> 100d
     ))
+    body.frictionAir = 0d
 
-    override def functions(): Seq[(String, Seq[String], js.Function)] = Seq(
-      ("setThrust", Seq("number"), setThrust _),
-      ("setTurnThrust", Seq("number"), setTurn _),
-      ("getX", Seq.empty, () => body.position.x),
-      ("getY", Seq.empty, () => body.position.y),
-      ("getVx", Seq.empty, () => body.velocity.x),
-      ("getVy", Seq.empty, () => body.velocity.y),
-      ("getAngle", Seq.empty, () => angle), 
-      ("getAngularVelocity", Seq.empty, getAngularVelocity _),
-      ("showState", Seq.empty, () => { showState = true })
-    )
+    override def functions(): Seq[(String, Seq[String], js.Function)] = {
+      import scala.scalajs.js.JSConverters._
+      import scala.concurrent.ExecutionContext.Implicits.global
+
+
+      Seq(
+        ("setThrust", Seq("number"), setThrust _),
+        ("setTurnThrust", Seq("number"), setTurn _),
+        ("setSideThrust", Seq("number"), setSidle _),
+        ("getX", Seq.empty, () => body.position.x),
+        ("getY", Seq.empty, () => body.position.y),
+        ("getVx", Seq.empty, () => body.velocity.x),
+        ("getVy", Seq.empty, () => body.velocity.y),
+        ("getAngle", Seq.empty, () => angle),
+        ("getAngularVelocity", Seq.empty, getAngularVelocity _),
+        ("showState", Seq.empty, () => { showState = true }),
+        ("wait", Seq.empty, (t:Double) => waitTicks(t.toInt).toJSPromise),
+      )
+    }
+
+    def angle_=(a:Double):Unit = {
+      Matter.Body.setAngle(body, a)
+    }
 
     /** Graphics position */
     override def x: Double = body.position.x.asInstanceOf[Double] / scale
@@ -85,15 +139,7 @@ class LunarLanderSim(name:String, dimensions:(Int, Int) = (640, 480))(
     /** Angle of the ship */
     def angle: Double = body.angle.asInstanceOf[Double]
 
-    private def vertices = body.vertices.asInstanceOf[js.Array[MatterSim.Vector]]
-
     var showState:Boolean = false
-
-    private def localVertices = {
-      for { v <- vertices } yield {
-        Vector.sub(v, body.position).asInstanceOf[Vector]
-      }
-    }
 
     val shipFill = "lightGray"
     val thrustFill = "orange"
@@ -101,16 +147,6 @@ class LunarLanderSim(name:String, dimensions:(Int, Int) = (640, 480))(
     override def draw(ctx: CanvasRenderingContext2D): Unit = {
       ctx.fillStyle = shipFill
       ctx.strokeStyle = shipFill
-
-      /* debug - draw bounding box
-      ctx.beginPath()
-      for {
-        v <- localVertices
-      } {
-        ctx.lineTo(v.x / scale, v.y / scale)
-      }
-      ctx.stroke()
-      */
 
       val x = body.position.x.asInstanceOf[Double]
       val y = body.position.y.asInstanceOf[Double]
@@ -141,6 +177,23 @@ class LunarLanderSim(name:String, dimensions:(Int, Int) = (640, 480))(
         ctx.fill()
       }
 
+      def drawSideThruster(x:Double, y:Double, disp:Double): Unit = {
+        if (disp != 0) {
+          ctx.fillStyle = thrustFill
+          ctx.beginPath()
+          ctx.moveTo(x, y - 1)
+          ctx.lineTo(x + disp, y)
+          ctx.lineTo(x, y + 1)
+          ctx.lineTo(x, y - 1)
+          ctx.fill()
+        }
+      }
+
+      drawSideThruster(-10, -10, -8 * _tlThrust / maxSideThrust)
+      drawSideThruster(10, -10, 8 * _trThrust / maxSideThrust)
+      drawSideThruster(-10, 10, -8 * _blThrust / maxSideThrust)
+      drawSideThruster(10, 10, 8 * _brThrust / maxSideThrust)
+
       if (showState) {
         ctx.rotate(-angle)
         ctx.fillStyle = "cyan"
@@ -159,6 +212,14 @@ class LunarLanderSim(name:String, dimensions:(Int, Int) = (640, 480))(
       Body.rotate(body, -body.angle)
       Body.setAngularVelocity(body, 0)
 
+      _tlThrust = 0
+      _trThrust = 0
+      _blThrust = 0
+      _brThrust = 0
+      _thrust = 0
+
+      tickTimer.interrupt()
+
       onReset(LunarLanderSim.this)
     }
 
@@ -167,11 +228,30 @@ class LunarLanderSim(name:String, dimensions:(Int, Int) = (640, 480))(
     }
 
     override def step(c: CanvasLand): Unit = {
-      body.torque = _rotationThrust
+
+      def matterForce(v:Vec2):js.Dynamic = {
+        val Vec2(x, y) = v
+        Vector.create(x, y)
+      }
+
+      def bodyOffset(v:Vec2):js.Dynamic = {
+        val Vec2(x, y) = v
+        Vector.add(body.position, Vector.create(x, y))
+      }
+
 
       // apply thrust forces
       val Vec2(thrustX, thrustY) = Vec2(0, -_thrust).rotate(angle)
       MatterSim.Body.applyForce(body, body.position, Vector.create(thrustX, thrustY))
+
+      MatterSim.Body.applyForce(body, bodyOffset(Vec2(0, -100).rotate(angle)), matterForce(Vec2(_tlThrust, 0).rotate(angle)))
+      MatterSim.Body.applyForce(body, bodyOffset(Vec2(0, -100).rotate(angle)), matterForce(Vec2(- _trThrust, 0).rotate(angle)))
+      MatterSim.Body.applyForce(body, bodyOffset(Vec2(0, 100).rotate(angle)), matterForce(Vec2(_blThrust, 0).rotate(angle)))
+      MatterSim.Body.applyForce(body, bodyOffset(Vec2(0, 100).rotate(angle)), matterForce(Vec2(- _brThrust, 0).rotate(angle)))
+
+      if (!tickTimer.complete) {
+        tickTimer.tick()
+      }
     }
   }
 
@@ -204,10 +284,12 @@ class LunarLanderSim(name:String, dimensions:(Int, Int) = (640, 480))(
   // Call the first-time initialisation function, if any
   onFirst(this)
 
-  /** A function that generates land heights */
-  def landGeneration(mid:Int, range:Int):Seq[Int] = {
-    for { _ <- 0 to width by width/20 } yield {
-      mid + Random.nextInt(range) - range / 2
+  /** A function that generates land heights. LZ is the landing zome */
+  def landGeneration(mid:Int, range:Int, steps:Int = 20, lz:(Int, Int, Int)):Seq[Int] = {
+    val (x1, x2, h) = lz
+
+    for { x <- 0 to width by width/steps } yield {
+      if (x1 <= x && x <= x2) h else mid + Random.nextInt(range) - range / 2
     }
   }
 
@@ -235,6 +317,13 @@ class LunarLanderSim(name:String, dimensions:(Int, Int) = (640, 480))(
         MatterSim.renderBody(groundBody, ctx, scale)
       }
 
+      ctx.strokeStyle = "green"
+      ctx.lineWidth = 3
+      ctx.beginPath()
+      val (x1, x2, h) = lz
+      ctx.moveTo(x1, h)
+      ctx.lineTo(x2, h)
+      ctx.stroke()
     })
 
 
