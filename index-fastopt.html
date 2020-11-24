@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lava Maze</title>
+
+    <link rel="icon" type="image/png" href="images/snoboticon.png" />
+
+    <link href="https://fonts.googleapis.com/css?family=Fira+Mono|Fira+Sans|Michroma" rel="stylesheet">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="veautiful-docs.css" />
+    <link rel="stylesheet" href="scatter.css" />
+    <link rel="stylesheet" href="vdeck.css" />
+</head>
+<body>
+    <div id="render-here">
+        <p>Loading. This site has been tested with Chrome, Safari, and Firefox.</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.11/ace.js"></script>
+
+    <!-- Asyncify, for turning student synchronous code Async -->
+    <script src="https://www.wbillingsley.com/asyncify/dist/main.js"></script>
+
+    <!-- Matter.js, for physics simulation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.14.2/matter.js"></script>
+
+    <!-- Include Scala.js compiled code -->
+    <script type="text/javascript" src="./target/scala-2.13/lavamaze-fastopt.js"></script>
+    <script>
+        document.documentElement.style.zoom = 1
+        LavaMazeSite.load()
+    </script>
+
+
+</body>
+</html>
