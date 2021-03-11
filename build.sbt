@@ -2,7 +2,7 @@ enablePlugins(ScalaJSPlugin)
 
 name := "lavamaze"
 organization := "com.wbillingsley"
-scalaVersion := "2.13.1"
+scalaVersion := "3.0.0-RC1"
 
 // Don't automatically call main
 scalaJSUseMainModuleInitializer := false
@@ -12,10 +12,10 @@ resolvers += "jitpack" at "https://jitpack.io"
 updateOptions := updateOptions.value.withLatestSnapshots(false)
 
 libraryDependencies ++= Seq(
-  "org.scala-js" %%% "scalajs-dom" % "1.1.0",
-  "com.github.wbillingsley.veautiful" %%% "veautiful" % "master-SNAPSHOT",
-  "com.github.wbillingsley.veautiful" %%% "veautiful-templates" % "master-SNAPSHOT",
-	"com.github.wbillingsley.veautiful" %%% "scatter" % "master-SNAPSHOT"
+//  "org.scala-js" %%% "scalajs-dom" % "1.1.0",
+  "com.github.wbillingsley.veautiful" %%% "veautiful" % "v0.2-SNAPSHOT",
+  "com.github.wbillingsley.veautiful" %%% "veautiful-templates" % "v0.2-SNAPSHOT",
+	"com.github.wbillingsley.veautiful" %%% "scatter" % "v0.2-SNAPSHOT"
 )
 
 val deployScript = taskKey[Unit]("Copies the fullOptJS script to deployscripts/")

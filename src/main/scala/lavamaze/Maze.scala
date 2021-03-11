@@ -3,7 +3,7 @@ package lavamaze
 import java.util.NoSuchElementException
 
 import coderunner.Codable
-import com.wbillingsley.veautiful.html.{<, VHtmlNode, ^}
+import com.wbillingsley.veautiful.html.{<, VHtmlNode, ^, DElement}
 import org.scalajs.dom
 
 import scala.scalajs.js.JSConverters._
@@ -53,7 +53,7 @@ case class Maze(name:String = "maze")(
 
   private val canvas = <.canvas(^.attr("width") := drawWidth, ^.attr("height") := drawHeight)
 
-  def domNode = canvas.domNode
+  def domNode:Option[dom.html.Canvas] = canvas.domNode
   def attach() = canvas.attach()
   override def detach(): Unit = canvas.detach()
 

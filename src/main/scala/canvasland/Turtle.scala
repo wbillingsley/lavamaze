@@ -31,7 +31,7 @@ case class Turtle(initialX:Int, initialY:Int) extends Robot {
 
   case object Idle extends Action {
     override def tick(canvasLand: CanvasLand): Unit = {
-      if (!promise.isCompleted) promise.success()
+      if (!promise.isCompleted) promise.success(())
     }
   }
 
@@ -43,7 +43,7 @@ case class Turtle(initialX:Int, initialY:Int) extends Robot {
     override def tick(canvasLand: CanvasLand): Unit = {
       for { _ <- 1 to speed } {
         ink(canvasLand)
-        val increment = if (total - travelled > 1) sign else (total - travelled) * sign
+        val increment:Double = if (total - travelled > 1) sign else (total - travelled) * sign
         position += Vec2.fromRTheta(increment, facing)
         travelled += increment
         if (Math.abs(travelled) >= Math.abs(distance) && !promise.isCompleted) promise.success(())
@@ -149,10 +149,10 @@ case class Turtle(initialX:Int, initialY:Int) extends Robot {
       ("anticlockwise", Seq("number"), (x:Double) => ask(Turtle.Anticlockwise(x)).toJSPromise),
       ("right", Seq("number"), (x:Double) => ask(Turtle.Clockwise(Vec2.toRadians(x))).toJSPromise),
       ("left", Seq("number"), (x:Double) => ask(Turtle.Anticlockwise(Vec2.toRadians(x))).toJSPromise),
-      ("setColour", Seq("string"), (x:String) => { pen = Some(x); Future.successful().toJSPromise }),
-      ("setThickness", Seq("number"), (x:Double) => { penRadius = x; Future.successful().toJSPromise }),
-      ("penUp", Seq.empty, () => { penDown = false; Future.successful().toJSPromise }),
-      ("penDown", Seq.empty, () => { penDown = true; Future.successful().toJSPromise }),
+      ("setColour", Seq("string"), (x:String) => { pen = Some(x); Future.successful(()).toJSPromise }),
+      ("setThickness", Seq("number"), (x:Double) => { penRadius = x; Future.successful(()).toJSPromise }),
+      ("penUp", Seq.empty, () => { penDown = false; Future.successful(()).toJSPromise }),
+      ("penDown", Seq.empty, () => { penDown = true; Future.successful(()).toJSPromise }),
     )
   }
 }

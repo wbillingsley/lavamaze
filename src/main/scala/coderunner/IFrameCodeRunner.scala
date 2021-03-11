@@ -37,7 +37,7 @@ object IFrameCodeRunner {
    * remove)
    */
   val listeners:mutable.Map[String, (MessageEvent) => _] = mutable.Map.empty
-  dom.window.addEventListener("message", { m:MessageEvent =>
+  dom.window.addEventListener("message", { (m:MessageEvent) =>
     dom.console.debug("Window received", m)
     listeners.values.foreach { l =>
       l(m)

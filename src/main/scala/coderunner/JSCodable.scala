@@ -24,11 +24,7 @@ case class JSCodable(codable: Codable, underCodable: Option[JSCodable => VHtmlNo
   private val tileCanvas = new TileSpace(Some("example"), JSLang)((codeCanvasWidth, codeCanvasHeight))
   private val pt = new ProgramTile(tileCanvas, <.div(""))
   private val dt = new DeleteTile(tileCanvas)
-  pt.x = 2
-  pt.y = 2
-  dt.x = codeCanvasWidth - 100
-  dt.y = 2
-  tileCanvas.tiles.appendAll(Seq(pt, dt))
+  tileCanvas.addTiles((2d, 2d) -> pt, (codeCanvasWidth - 100d , 2d) -> dt)
 
   private val canvasContainer = <.div(^.cls := "canvas-container", ^.attr("style") := "max-height: 100%; overflow: scroll;", tileCanvas)
 
@@ -63,14 +59,8 @@ case class JSCodable(codable: Codable, underCodable: Option[JSCodable => VHtmlNo
   )
 
   private def addTileToCanvas(t:Tile[JSExpr]) = {
-    t.x = 250 + Random.nextInt(10)
-    t.y = 100 + Random.nextInt(10)
-    tileCanvas.tiles.append(t)
-    tileCanvas.update()
-    tileCanvas.layout()
+    tileCanvas.addTiles((250d + Random.nextInt(10), 100d + Random.nextInt(10)) -> t)
   }
-
-
 
   private def addTileCode(t:Tile[JSExpr]):Unit = {
     if (tilesMode) {

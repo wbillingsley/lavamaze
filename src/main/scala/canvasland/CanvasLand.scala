@@ -146,7 +146,7 @@ case class CanvasLand(name:String = "canvasland")(
     if (image.complete) {
       _drawImage()
     } else {
-      image.addEventListener("load", { _:Any => _drawImage() })
+      image.addEventListener("load", { (_:Any) => _drawImage() })
     }
   }
 

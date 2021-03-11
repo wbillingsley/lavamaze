@@ -167,7 +167,7 @@ case class LineTurtle(initialPos:(Double, Double))(config: LineTurtle => Unit) e
 
   case object Idle extends Action {
     override def tick(canvasLand: CanvasLand): Unit = {
-      if (!promise.isCompleted) promise.success()
+      if (!promise.isCompleted) promise.success(())
     }
   }
 
@@ -179,7 +179,7 @@ case class LineTurtle(initialPos:(Double, Double))(config: LineTurtle => Unit) e
     override def tick(canvasLand: CanvasLand): Unit = {
       for { _ <- 1 to speed } {
         ink(canvasLand)
-        val increment = if (total - travelled > 1) sign else (total - travelled) * sign
+        val increment:Double = if (total - travelled > 1) sign else (total - travelled) * sign
         position += Vec2.fromRTheta(increment, facing)
         travelled += increment
         facing += tickMoveWobble
@@ -290,10 +290,10 @@ case class LineTurtle(initialPos:(Double, Double))(config: LineTurtle => Unit) e
       ("anticlockwise", Seq("number"), (x:Double) => ask(Turtle.Anticlockwise(x)).toJSPromise),
       ("right", Seq("number"), (x:Double) => ask(Turtle.Clockwise(Vec2.toRadians(x))).toJSPromise),
       ("left", Seq("number"), (x:Double) => ask(Turtle.Anticlockwise(Vec2.toRadians(x))).toJSPromise),
-      ("setColour", Seq("string"), (x:String) => { pen = Some(x); Future.successful().toJSPromise }),
-      ("setThickness", Seq("number"), (x:Double) => { penRadius = x; Future.successful().toJSPromise }),
-      ("penUp", Seq.empty, () => { penDown = false; Future.successful().toJSPromise }),
-      ("penDown", Seq.empty, () => { penDown = true; Future.successful().toJSPromise }),
+      ("setColour", Seq("string"), (x:String) => { pen = Some(x); Future.successful(()).toJSPromise }),
+      ("setThickness", Seq("number"), (x:Double) => { penRadius = x; Future.successful(()).toJSPromise }),
+      ("penUp", Seq.empty, () => { penDown = false; Future.successful(()).toJSPromise }),
+      ("penDown", Seq.empty, () => { penDown = true; Future.successful(()).toJSPromise }),
 
       ("addLineSensor", Seq("number", "number", "number", "number", "number"), (x:Double, y:Double, r:Int, g:Int, b:Int) => {
         Future.fromTry(Try {
