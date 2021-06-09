@@ -2,7 +2,7 @@ enablePlugins(ScalaJSPlugin)
 
 name := "lavamaze"
 organization := "com.wbillingsley"
-scalaVersion := "3.0.0-RC1"
+scalaVersion := "3.0.0"
 
 // Don't automatically call main
 scalaJSUseMainModuleInitializer := false
