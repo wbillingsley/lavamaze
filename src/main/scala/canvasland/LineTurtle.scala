@@ -89,16 +89,17 @@ case class LineTurtle(initialPos:(Double, Double))(config: LineTurtle => Unit) e
    * @param radius - the sensor reads a square of pixel data, (2 * radius + 1) by (2 * radius + 1) in size.
    *                 This rectangle is always aligned with the underlying canvas (it does not rotate)
    */
-  class LineSensor(dp:Vec2, radius:Int = 3, val r:Int = 255, g:Int = 255, b:Int = 0) extends Sensor {
+  class LineSensor(dp:Vec2, radius:Int = 3, val r:Double = 1, g:Double = 1, b:Double = 0) extends Sensor {
 
-    val totalSensitivity:Int = r + g + b
+    val totalSensitivity:Double = r + g + b
     val strokeStyle = s"rgb($r,$g,$b)"
 
     private var lastReading:Double = Double.NaN
     def value = lastReading
 
+    // Measures the pixel, weighted by the sensitivities
     private def measurePixel(rr:Int, gg:Int, bb:Int, a:Int):Double = {
-      (a / 255).toDouble * ((r & rr) + (g & gg) + (b & bb)).toDouble / totalSensitivity
+      (a / 255).toDouble * ((r * rr / 255) + (g * gg / 255) + (b * bb / 255)).toDouble / totalSensitivity
     }
 
     def canvasPoint:Vec2 = position + dp.rotate(angle)

@@ -68,7 +68,7 @@ case class Maze(name:String = "maze")(
     dom.window.requestAnimationFrame(animationFrameHandler)
   }
 
-  def animationFrameHandler(d:Double):Unit = {
+  val animationFrameHandler: Double => Unit = (d:Double) => {
     val ticks = ((d - lastFrame) / tickPeriod).toInt
     for { tick <- 0 until ticks } if (started) step()
     if (ticks > 0) {
