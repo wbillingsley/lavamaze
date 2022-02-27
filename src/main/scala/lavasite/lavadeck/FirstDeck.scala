@@ -139,7 +139,7 @@ object FirstDeck {
     }
   ))()
 
-  val builder = new DeckBuilder()
+  val builder = new DeckBuilder()(using lavasite.markdown)
     .markdownSlide(
       """
         |# The Lava Maze Test Deck

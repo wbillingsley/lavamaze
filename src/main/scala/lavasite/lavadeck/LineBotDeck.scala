@@ -35,7 +35,7 @@ object LineBotDeck {
 
   }, { sim => })
 
-  val builder = new DeckBuilder()
+  val builder = new DeckBuilder()(using lavasite.markdown)
     .markdownSlide(
       """
         |# LineBot Test Deck
