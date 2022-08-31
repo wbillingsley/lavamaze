@@ -296,6 +296,14 @@ class MicroRat(start:(Int, Int) = (0, 0), dimensions:(Int, Int) = (10, 10))(onFi
     MatterSim.World.add(world, b)
   }
 
+  def addStaticGridBlock(x:Int, y:Int)(w:Int, h:Int):Unit = {
+    val xStart = x * ONE_TILE
+    val width = w.toDouble * ONE_TILE
+    val yStart = y * ONE_TILE
+    val height = h.toDouble * ONE_TILE
+    addStaticBlock(xStart + width / 2, yStart + height / 2, width, height)
+  }
+
   // Add objects for any wall tiles
   for {
     (row, y) <- cells.iterator.zipWithIndex
@@ -303,16 +311,16 @@ class MicroRat(start:(Int, Int) = (0, 0), dimensions:(Int, Int) = (10, 10))(onFi
   } {
     cell match {
       case WallTile =>
-        addStaticBlock(x * ONE_TILE + ONE_TILE/2, y * ONE_TILE + ONE_TILE/2, ONE_TILE, ONE_TILE)
+        addStaticGridBlock(x, y)(1, 1)
       case _ => //skip
     }
   }
 
   // Add sides
-  addStaticBlock(-tilesWide * ONE_TILE / 2, 0, tilesWide * ONE_TILE, tilesHigh * ONE_TILE)
-  addStaticBlock(3 * tilesWide * ONE_TILE / 2, 0, tilesWide * ONE_TILE, tilesHigh * ONE_TILE)
-  addStaticBlock(0, -tilesHigh * ONE_TILE / 2 , tilesWide * ONE_TILE, tilesHigh * ONE_TILE)
-  addStaticBlock(0, 3 * tilesHigh * ONE_TILE / 2, tilesWide * ONE_TILE, tilesHigh * ONE_TILE)
+  addStaticGridBlock(-1, 0)(1, tilesHigh)
+  addStaticGridBlock(tilesWide, 0)(1, tilesHigh)
+  addStaticGridBlock(0, -1)(tilesWide, 1)
+  addStaticGridBlock(0, tilesHigh)(tilesWide, 1)
 
 }
 
