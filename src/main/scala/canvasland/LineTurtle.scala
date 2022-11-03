@@ -5,10 +5,10 @@ import org.scalajs.dom
 import org.scalajs.dom.CanvasRenderingContext2D
 
 import scala.collection.mutable
-import scala.concurrent.Future
+import scala.concurrent.{Future, Promise}
 import scala.scalajs.js
 import scala.scalajs.js.JavaScriptException
-import scala.util.{Random, Try}
+import scala.util.{Random, Try, Success}
 
 /**
  * LineBot has two wheels, driven by DC motors, and configurable line and obstacle sensors in front of it
@@ -75,8 +75,9 @@ case class LineTurtle(initialPos:(Double, Double))(config: LineTurtle => Unit) e
 
   private var compositeMode:Option[String] = None
 
-  trait Sensor {
-    def value:Double
+  trait Sensor[T] {
+    /** Reads a value from the sensor. A Future because it may take a tick for the sensor to receive a value. */
+    def readValue():Future[T]
 
     def paint(ctx:CanvasRenderingContext2D):Unit
 
@@ -89,16 +90,19 @@ case class LineTurtle(initialPos:(Double, Double))(config: LineTurtle => Unit) e
    * @param radius - the sensor reads a square of pixel data, (2 * radius + 1) by (2 * radius + 1) in size.
    *                 This rectangle is always aligned with the underlying canvas (it does not rotate)
    */
-  class LineSensor(dp:Vec2, radius:Int = 3, val r:Int = 255, g:Int = 255, b:Int = 0) extends Sensor {
+  class LineSensor(dp:Vec2, radius:Int = 3, val r:Double = 1, g:Double = 1, b:Double = 0) extends Sensor[Double] {
 
-    val totalSensitivity:Int = r + g + b
+    val totalSensitivity:Double = r + g + b
     val strokeStyle = s"rgb($r,$g,$b)"
 
-    private var lastReading:Double = Double.NaN
-    def value = lastReading
+    // The last reading is a Future, to avoid having to produce NaN if a tick has not occurred
+    private var lastReading:Promise[Double] = Promise()
+    
+    def readValue() = lastReading.future
 
+    // Measures the pixel, weighted by the sensitivities
     private def measurePixel(rr:Int, gg:Int, bb:Int, a:Int):Double = {
-      (a / 255).toDouble * ((r & rr) + (g & gg) + (b & bb)).toDouble / totalSensitivity
+      (a / 255).toDouble * ((r * rr / 255) + (g * gg / 255) + (b * bb / 255)).toDouble / totalSensitivity
     }
 
     def canvasPoint:Vec2 = position + dp.rotate(angle)
@@ -122,7 +126,12 @@ case class LineTurtle(initialPos:(Double, Double))(config: LineTurtle => Unit) e
             val a = imageData(i + 3)
             measurePixel(r, g, b, a)
           }
-          lastReading = measurements.sum / measurements.length
+
+          val value = measurements.sum / measurements.length
+          if (lastReading.isCompleted) then
+            lastReading = Promise.successful(value)
+          else
+            lastReading.success(value)
       }
     }
 
@@ -134,19 +143,27 @@ case class LineTurtle(initialPos:(Double, Double))(config: LineTurtle => Unit) e
       ctx.beginPath()
       ctx.arc(dp.x, dp.y, drawRadius, 0, 2 * Math.PI)
       ctx.stroke()
-      if (lastReading >= 0 && lastReading <= 1) {
-        val shade = (255 * lastReading).toInt
-        ctx.fillStyle = s"rgb($shade, $shade, $shade)"
-        ctx.fill()
+      lastReading.future.value match {
+        case Some(Success(v)) if v >= 0 && v <= 1 =>
+          val shade = (255 * v).toInt
+          ctx.fillStyle = s"rgb($shade, $shade, $shade)"
+          ctx.fill()
+        case _ =>
+          ctx.beginPath()
+          ctx.moveTo(dp.x - drawRadius, dp.y)
+          ctx.lineTo(dp.x + drawRadius, dp.y)
+          ctx.moveTo(dp.x, dp.y - drawRadius)
+          ctx.lineTo(dp.x, dp.y + drawRadius)
+          ctx.stroke()
       }
-      //val tp = dp + Vec2(20, 0)
-      //ctx.fillText(lastReading.toString, tp.x, tp.y, 100)
+
       ctx.restore()
     }
 
   }
 
-  val sensors:mutable.Buffer[Sensor] = mutable.Buffer.empty
+  /** At the moment, we only support sensors returning Double values */
+  val sensors:mutable.Buffer[Sensor[Double]] = mutable.Buffer.empty
 
   override def reset():Unit = {
     action = Idle
@@ -167,7 +184,7 @@ case class LineTurtle(initialPos:(Double, Double))(config: LineTurtle => Unit) e
 
   case object Idle extends Action {
     override def tick(canvasLand: CanvasLand): Unit = {
-      if (!promise.isCompleted) promise.success()
+      if (!promise.isCompleted) promise.success(())
     }
   }
 
@@ -179,7 +196,7 @@ case class LineTurtle(initialPos:(Double, Double))(config: LineTurtle => Unit) e
     override def tick(canvasLand: CanvasLand): Unit = {
       for { _ <- 1 to speed } {
         ink(canvasLand)
-        val increment = if (total - travelled > 1) sign else (total - travelled) * sign
+        val increment:Double = if (total - travelled > 1) sign else (total - travelled) * sign
         position += Vec2.fromRTheta(increment, facing)
         travelled += increment
         facing += tickMoveWobble
@@ -290,10 +307,10 @@ case class LineTurtle(initialPos:(Double, Double))(config: LineTurtle => Unit) e
       ("anticlockwise", Seq("number"), (x:Double) => ask(Turtle.Anticlockwise(x)).toJSPromise),
       ("right", Seq("number"), (x:Double) => ask(Turtle.Clockwise(Vec2.toRadians(x))).toJSPromise),
       ("left", Seq("number"), (x:Double) => ask(Turtle.Anticlockwise(Vec2.toRadians(x))).toJSPromise),
-      ("setColour", Seq("string"), (x:String) => { pen = Some(x); Future.successful().toJSPromise }),
-      ("setThickness", Seq("number"), (x:Double) => { penRadius = x; Future.successful().toJSPromise }),
-      ("penUp", Seq.empty, () => { penDown = false; Future.successful().toJSPromise }),
-      ("penDown", Seq.empty, () => { penDown = true; Future.successful().toJSPromise }),
+      ("setColour", Seq("string"), (x:String) => { pen = Some(x); Future.successful(()).toJSPromise }),
+      ("setThickness", Seq("number"), (x:Double) => { penRadius = x; Future.successful(()).toJSPromise }),
+      ("penUp", Seq.empty, () => { penDown = false; Future.successful(()).toJSPromise }),
+      ("penDown", Seq.empty, () => { penDown = true; Future.successful(()).toJSPromise }),
 
       ("addLineSensor", Seq("number", "number", "number", "number", "number"), (x:Double, y:Double, r:Int, g:Int, b:Int) => {
         Future.fromTry(Try {
@@ -307,9 +324,10 @@ case class LineTurtle(initialPos:(Double, Double))(config: LineTurtle => Unit) e
       }),
 
       ("readSensor", Seq("number"), (i:Int) => {
-        Future.fromTry(Try {
-          sensors(i).value
-        }).toJSPromise
+        try
+          sensors(i).readValue().toJSPromise
+        catch 
+          case x => Future.failed(x).toJSPromise
       }),
 
       ("setCompositeMode", Seq("string"), (x:String) => {

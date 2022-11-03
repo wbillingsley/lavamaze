@@ -11,7 +11,7 @@ trait Overlay {
 
   def tick(m:Maze):Unit = {  }
 
-  def paintTile(layer:Int, tx:Int, ty:Int, ctx:dom.CanvasRenderingContext2D)
+  def paintTile(layer:Int, tx:Int, ty:Int, ctx:dom.CanvasRenderingContext2D):Unit
 
 }
 

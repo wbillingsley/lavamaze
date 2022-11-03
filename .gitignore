@@ -4,3 +4,21 @@ target/
 .project
 .settings/
 .idea/
+
+# VS Code, Metals, Bloop
+.metals/
+.bloop/
+.vscode/
+.scala/
+.bsp/
+project/metals.sbt
+project/project
+
+# Node
+node_modules/
+
+# For the moment, don't commit package-lock
+pacakge-lock.json
+
+# In the gh-pages version, we include the packed directory
+!deployScripts/

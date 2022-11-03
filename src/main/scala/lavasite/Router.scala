@@ -29,9 +29,9 @@ object Router extends HistoryRouter[Route] {
 
   var route:Route = IntroRoute
 
-  def rerender() = renderElements(render())
+  def rerender() = renderElements(render)
 
-  def render() = route.render
+  def render = route.render
 
   override def path(route: Route): String = route.path
 

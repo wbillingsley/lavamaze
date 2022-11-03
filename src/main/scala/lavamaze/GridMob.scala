@@ -29,7 +29,7 @@ trait GridMob extends Mob {
     val origX:Int = tx
     val origY:Int = ty
 
-    promise.success()
+    promise.success(())
 
     override def origin = (origX, origY)
     override def destination: (Direction, Direction) = (tx, ty)
@@ -68,7 +68,7 @@ trait GridMob extends Mob {
         case SOUTH => py += moveDistance
       }
 
-      if (t >= moveDuration) promise.success()
+      if (t >= moveDuration) promise.success(())
     }
 
 

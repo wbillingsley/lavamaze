@@ -10,8 +10,8 @@ case class LoggingPrefabCodable(code:String, codable:Codable, codeStyle:Option[S
 
   val console = new OnScreenHtmlConsole(100)
 
-  private val println:(String, js.Function) = "println" -> { x:Any => console.println(x.toString) }
-  private val functions = (for { (n, _, f) <- codable.functions } yield n -> f).toMap + println
+  private val println:(String, js.Function) = "println" -> { (x:Any) => console.println(x.toString) }
+  private val functions = (for { (n, _, f) <- codable.functions() } yield n -> f).toMap + println
 
   private val codeRunner = new WorkerCodeRunner(
     functions,

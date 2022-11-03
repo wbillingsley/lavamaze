@@ -11,7 +11,7 @@ trait Tile {
 
   def blockMovement(p:(Int, Int))(from:(Int, Int), to:(Int, Int), by:Mob):Boolean
 
-  def paint(layer:Int, x:Int, y:Int, ctx:dom.CanvasRenderingContext2D)
+  def paint(layer:Int, x:Int, y:Int, ctx:dom.CanvasRenderingContext2D):Unit
 
   def actUpon(mob:Mob):Unit = {}
 

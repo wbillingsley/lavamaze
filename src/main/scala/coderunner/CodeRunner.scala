@@ -158,13 +158,13 @@ abstract class CodeRunner(rpcs:Map[String, js.Function], bindings:Map[String, js
         val func = CodeRunner.asyncBind(args = localBindings.toSeq, code = code)
         val result = func()
 
-        result.`then`({ r: js.Any =>
+        result.`then`({ (r: js.Any) =>
           destination.postMessage(js.Dictionary(
             "key" -> message.key,
             "kind" -> "return",
             "payload" -> r
           ))
-        }, { err: js.Any =>
+        }, { (err: js.Any) =>
           destination.postMessage(js.Dictionary(
             "key" -> message.key,
             "kind" -> "error",

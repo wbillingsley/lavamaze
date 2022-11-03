@@ -1,0 +1,13 @@
+{
+    "name": "Doctacular codespace config",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "updateContentCommand": "sbt fastOptJS fullOptJS",
+    "postCreateCommand": "nohup npx http-server -p 8080 &",
+    "extensions": [
+        "scalameta.metals",
+        "scala-lang.scala",
+    ]
+  
+  }

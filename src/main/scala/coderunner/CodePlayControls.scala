@@ -16,10 +16,10 @@ case class CodePlayControls(codeRunner:CodeRunner)(
   private val emptyMessage = <.span(^.key := "empty")
   private def error(s:String) = <.span(^.cls := "code-message text-danger", s)
 
-  private val playBtn = <.button(^.key := "play", ^.cls := "btn btn-primary", ^.onClick --> play,
+  private val playBtn = <.button(^.key := "play", ^.cls := "btn btn-primary", ^.onClick --> play(),
     ^.attr("title") := "Run code", <("i")(^.cls := "material-icons", "play_arrow")
   )
-  private val stopBtn = <.button(^.key := "stop", ^.cls := "btn btn-primary", ^.onClick --> stop,
+  private val stopBtn = <.button(^.key := "stop", ^.cls := "btn btn-primary", ^.onClick --> stop(),
     ^.attr("title") := "Reset", <("i")(^.cls := "material-icons", "replay")
   )
 

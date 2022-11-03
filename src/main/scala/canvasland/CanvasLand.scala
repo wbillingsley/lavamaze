@@ -62,7 +62,17 @@ case class CanvasLand(name:String = "canvasland")(
       val h = canvas.height
       ctx.clearRect(0, 0, w, h)
 
-      ctx.drawImage(fieldCanvas, viewOffset._1, viewOffset._2, w, h, 0, 0, w, h)
+      // Safari (as at 2021/11/18) won't let drawImage copy from outside the bounds of a source image (it produces a blank result).
+      // So, we need to work out the bounds we are copying.
+      val (offsetX, offsetY) = viewOffset
+      val sx = Math.max(0, offsetX) // leftmost pixel of the source to copy
+      val sy = Math.max(0, offsetY) // topmost pixel of the source to copy
+      val sw = Math.min(w, fieldCanvas.width - sx) // width of image to copy
+      val sh = Math.min(h, fieldCanvas.height - sy) // height of image to copy
+      val dx = Math.max(0, -offsetX) // if we had to "crop" sx to 0, we need to adjust dx so the cropped image appears in the right place
+      val dy = Math.max(0, -offsetY) // if we had to "crop" sy to 0, we need to adjust dx so the cropped image appears in the right place
+
+      ctx.drawImage(fieldCanvas, sx, sy, sw, sh, dx, dy, sw, sh) // copy the cropped image
 
       // Some of the Steppable items are drawable. Draw them.
       steppables.foreach {
@@ -146,7 +156,7 @@ case class CanvasLand(name:String = "canvasland")(
     if (image.complete) {
       _drawImage()
     } else {
-      image.addEventListener("load", { _:Any => _drawImage() })
+      image.addEventListener("load", { (_:Any) => _drawImage() })
     }
   }
 
