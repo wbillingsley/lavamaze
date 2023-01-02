@@ -23,7 +23,7 @@ case class LoggingPrefabCodable(code:String, codable:Codable, codeStyle:Option[S
     reset = () => { console.clear(); codable.reset() },
   )
 
-  override protected def render: DiffNode[Element, Node] = <.div(^.cls := "jscodable",
+  override protected def render = <.div(^.cls := "jscodable",
     codable.vnode,
     console,
     <.pre(^.attr("style") ?= codeStyle, code),

@@ -1,9 +1,9 @@
 package lavasite.templates
 
-import com.wbillingsley.veautiful.html.{<, VHtmlNode, ^}
+import com.wbillingsley.veautiful.html.{<, VHtmlContent, ^}
 import lavasite.{Common, Route, Router}
 
-case class FrontPage(banner:VHtmlNode, topMessage:VHtmlNode, topics:Seq[(Route, Topic)]) {
+case class FrontPage(banner:VHtmlContent, topMessage:VHtmlContent, topics:Seq[(Route, Topic)]) {
 
   def layout = {
     Common.shell(

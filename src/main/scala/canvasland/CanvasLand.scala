@@ -2,7 +2,7 @@ package canvasland
 
 import coderunner.Codable
 import com.wbillingsley.veautiful.DiffNode
-import com.wbillingsley.veautiful.html.{<, VHtmlComponent, VHtmlNode, ^}
+import com.wbillingsley.veautiful.html.{<, DHtmlComponent, VHtmlElement, ^}
 import org.scalajs.dom
 import org.scalajs.dom.{Element, Node, html}
 
@@ -14,7 +14,7 @@ case class CanvasLand(name:String = "canvasland")(
   fieldSize:(Int, Int) = 640 -> 640,
   r:Robot,
   setup: CanvasLand => Unit
-) extends Codable.CanvasLike with VHtmlComponent {
+) extends Codable.CanvasLike with DHtmlComponent {
 
   private val robot = r
 
@@ -39,15 +39,15 @@ case class CanvasLand(name:String = "canvasland")(
     r.functions() :+ ("setTickRate", Seq("Int"), (x:Int) => tickRate = x)
   }
 
-  override def vnode: VHtmlNode = this
+  override def vnode: VHtmlElement = this
 
   /** The field of play, which can be drawn to by the set-up */
   private val (fieldWidth, fieldHeight) = fieldSize
-  private val fieldCanvas = <.canvas(^.attr("width") := fieldWidth, ^.attr("height") := fieldHeight).create()
+  private val fieldCanvas = <.canvas(^.attr("width") := fieldWidth, ^.attr("height") := fieldHeight).build().create()
 
   /** Renders the currently visible section of the field of play, and any additional mark-up  */
   private val (viewWidth, viewHeight) = viewSize
-  val renderCanvas = <.canvas(^.attr("width") := viewWidth, ^.attr("height") := viewHeight)
+  val renderCanvas = <.canvas(^.attr("width") := viewWidth, ^.attr("height") := viewHeight).build()
 
   /** Used for overlaying debug information */
   //val overlay = <.div(^.attr("width") := viewWidth, ^.attr("height") := viewHeight, ^.attr("position") := "absolute")
@@ -108,7 +108,7 @@ case class CanvasLand(name:String = "canvasland")(
   }
 
   /** Render the component into the page */
-  override protected def render: DiffNode[Element, Node] = {
+  override protected def render = {
     <.div(^.cls := "canvasland", ^.attr("width") := s"${viewWidth}px", ^.attr("height") := s"${viewHeight}px",
       ^.on("mousedown") ==> onMouseDown, ^.on("mousemove") ==> onMouseMove,
       renderCanvas,

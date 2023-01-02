@@ -3,7 +3,7 @@ package structures
 import coderunner.Codable
 import coderunner.Codable.Triple
 import com.wbillingsley.veautiful.DiffNode
-import com.wbillingsley.veautiful.html.{<, VHtmlComponent, VHtmlNode}
+import com.wbillingsley.veautiful.html.{<, DHtmlComponent, VHtmlElement}
 import org.scalajs.dom.{Element, Node}
 
 import scala.collection.mutable
@@ -17,10 +17,8 @@ case class ObjectInspector() extends Codable {
 
   private val underInspection = mutable.Buffer.empty[js.Dynamic]
 
-  private object renderComponent extends VHtmlComponent {
-
-    override protected def render: DiffNode[Element, Node] = <.div(
-    )
+  private object renderComponent extends DHtmlComponent {
+    override protected def render = <.div()
   }
 
   def addItem(item:js.Dynamic): Unit = {
@@ -40,5 +38,5 @@ case class ObjectInspector() extends Codable {
     ("addItem", Seq("Any"), (x:js.Dynamic) => addItem(x) )
   )
 
-  override def vnode: VHtmlNode = renderComponent
+  override def vnode = renderComponent
 }

@@ -91,7 +91,7 @@ object FirstDeck {
     }
 
     object StateItems extends VHtmlComponent {
-      override def render: DiffNode[Element, Node] = <.div(
+      override def render = <.div(
         for { m <- maze.allMobs } yield stateCard(m)
       )
     }

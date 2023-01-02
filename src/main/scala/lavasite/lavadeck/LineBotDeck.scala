@@ -9,6 +9,7 @@ import lavasite.Common
 import structures.ObjectInspector
 
 import scala.util.Random
+import coderunner.StructureVis
 
 object LineBotDeck {
 

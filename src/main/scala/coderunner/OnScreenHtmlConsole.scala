@@ -2,7 +2,7 @@ package coderunner
 
 
 import com.wbillingsley.veautiful.DiffNode
-import com.wbillingsley.veautiful.html.{<, VHtmlComponent, VHtmlNode, ^}
+import com.wbillingsley.veautiful.html.{<, VHtmlComponent, VHtmlElement, ^}
 import org.scalajs.dom.{Element, Node, html}
 
 import scala.collection.mutable
@@ -39,7 +39,7 @@ class OnScreenHtmlConsole(height: Int) extends VHtmlComponent {
 
   private val heightStyle = s"height: ${height}px;"
 
-  override protected def render: DiffNode[Element, Node] = {
+  override protected def render = {
     <.div(^.cls := "onscreen-html-console", ^.attr("style") := heightStyle,
       for { e <- logEntries.toIterable } yield e match {
         case OnScreenHtmlConsole.StringEntry(s) => <.pre(s)

@@ -2,30 +2,24 @@ package coderunner
 
 import coderunner.ButtonDrawer.BDContent
 import com.wbillingsley.veautiful.DiffNode
-import com.wbillingsley.veautiful.html.{<, VHtmlComponent, VHtmlNode, ^}
+import com.wbillingsley.veautiful.html.{<, VHtmlComponent, VHtmlElement, VHtmlContent, ^}
 import org.scalajs.dom.{Element, Node}
 
 case class ButtonDrawer(contents:BDContent*) extends VHtmlComponent {
-  override protected def render: DiffNode[Element, Node] = {
+  override protected def render = {
     <.div(^.cls := "button-drawer",
       contents map {
-        case s:ButtonDrawer.StringWrapper => <.div(s.s)
-        case n:ButtonDrawer.NodeWrapper => n.d
-        case i:ButtonDrawer.IterableWrapper => <.div(^.cls := "btn-group-vertical", i.d)
+        case s:String => <.div(s)
+        case n:VHtmlContent @unchecked => n
+        case i:Iterable[VHtmlContent] @unchecked => <.div(^.cls := "btn-group-vertical", i)
       }
     )
-
   }
 }
 
 
 object ButtonDrawer {
 
-  sealed trait BDContent
-  implicit class StringWrapper(val s:String) extends BDContent
-  implicit class NodeWrapper(val d:VHtmlNode) extends BDContent
-  implicit class IterableWrapper(val d:Iterable[VHtmlNode]) extends BDContent
-
-
+  type BDContent = String | VHtmlContent | Iterable[VHtmlContent]
 
 }

@@ -3,18 +3,19 @@ package jstiles
 
 import com.wbillingsley.scatter.jstiles.{JSExpr, JSNumber, JSString}
 import com.wbillingsley.scatter.{HBox, Tile, TileComponent, TileForeignObject, TileSpace, TileText}
-import com.wbillingsley.veautiful.html.{<, VHtmlComponent, ^}
+import com.wbillingsley.veautiful.html.{HTML, ^}
+import com.wbillingsley.veautiful.svg.DSvgComponent
 import com.wbillingsley.veautiful.logging.Logger
 import org.scalajs.dom
 import org.scalajs.dom.raw.HTMLInputElement
 
-class StringInputTile (tileSpace:TileSpace[JSExpr], width:Int = 10, initial:Option[String] = None) extends Tile(tileSpace) with VHtmlComponent {
+class StringInputTile (tileSpace:TileSpace[JSExpr], width:Int = 10, initial:Option[String] = None) extends Tile(tileSpace) with DSvgComponent {
 
   import NumberInputTile._
 
   var string:Option[String] = initial
 
-  val input = <.input(^.attr("type") := "text", ^.cls := "scatter-text-input", ^.on("input") ==> onInput)
+  val input = HTML.mutable.input(^.attr("type") := "text", ^.cls := "scatter-text-input", ^.on("input") ==> onInput)
 
   override def afterAttach(): Unit = {
     super.afterAttach()
@@ -23,7 +24,7 @@ class StringInputTile (tileSpace:TileSpace[JSExpr], width:Int = 10, initial:Opti
   def onInput(e:dom.Event):Unit = {
     import com.wbillingsley.veautiful.html.EventMethods
     string = e.inputValue
-    input.makeItSo(<.input(^.attr("type") := "text", ^.cls := "scatter-text-input", ^.on("input") ==> onInput, ^.prop("value") ?= string))
+    input.makeItSo(HTML.input(^.attr("type") := "text", ^.cls := "scatter-text-input", ^.on("input") ==> onInput, ^.prop.value := string.getOrElse("")))
     rerender()
   }
 

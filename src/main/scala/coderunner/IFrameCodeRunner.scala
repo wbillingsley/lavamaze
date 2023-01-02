@@ -2,7 +2,7 @@ package coderunner
 
 import coderunner.CodeRunner.RemoteParty
 import com.wbillingsley.veautiful.DiffNode
-import com.wbillingsley.veautiful.html.{<, VHtmlComponent, VHtmlNode, ^}
+import com.wbillingsley.veautiful.html.{<, VHtmlComponent, VHtmlElement, ^}
 import org.scalajs.dom
 import org.scalajs.dom.{Element, MessageEvent, Node, html}
 
@@ -72,17 +72,17 @@ class IFrameCodeRunner(
   rpcs:Map[String, js.Function], bindings:Map[String, js.Any],
   awaitifyRpcs:Boolean = false
 )(
-  runningGraphic: => VHtmlNode, terminatedGraphic: => VHtmlNode,
+  runningGraphic: => VHtmlElement, terminatedGraphic: => VHtmlElement,
 ) extends CodeRunner(rpcs, bindings, awaitifyRpcs) with VHtmlComponent {
 
-  case class CodeRunnerFrame() extends VHtmlNode {
+  case class CodeRunnerFrame() extends VHtmlElement {
     var domNode: Option[html.IFrame] = None
 
     private val p = Promise[CodeRunner.RemoteParty]()
     def future = p.future
 
-    override def attach(): Node = {
-      val n = <.iframe(^.attr("srcdoc") := IFrameCodeRunner.iframeSrc).create()
+    override def attach() = {
+      val n = <.iframe(^.attr("srcdoc") := IFrameCodeRunner.iframeSrc).build().create()
       domNode = Some(n)
       n
     }
@@ -124,7 +124,7 @@ class IFrameCodeRunner(
     rerender()
   }
 
-  override protected def render: DiffNode[Element, Node] = {
+  override protected def render = {
     <.div(
       codeRunnerFrame match {
         case Some(c) => Seq(runningGraphic, c)

@@ -1,6 +1,6 @@
 package lavasite.templates
 
-import com.wbillingsley.veautiful.html.{<, VHtmlNode, ^}
+import com.wbillingsley.veautiful.html.{<, VHtmlElement, ^}
 import org.scalajs.dom
 import org.scalajs.dom.{Event, Node, html}
 
@@ -16,14 +16,14 @@ import scala.util.Random
  * @param fontSize the font size of the editor
  * @param onStart code to run on the editor when it is first loaded
  */
-case class DescaledAceEditor(name:String, fontSize:Int)(onStart: js.Dynamic => Unit) extends VHtmlNode {
+case class DescaledAceEditor(name:String, fontSize:Int)(onStart: js.Dynamic => Unit) extends VHtmlElement {
 
   val id = Random.nextString(10)
 
   private var _domNode:Option[html.Div] = None
   private var _editor:Option[js.Dynamic] = None
 
-  override def domNode: Option[Node] = _domNode
+  override def domNode = _domNode
 
   def editor = _editor
 
@@ -52,10 +52,10 @@ case class DescaledAceEditor(name:String, fontSize:Int)(onStart: js.Dynamic => U
     }
   }
 
-  override def attach(): Node = {
-    val n = <.div(^.attr("id") := id + "-wrapper", ^.cls := "ace-editor-wrapper").create()
-    val u = <.div(^.cls := "ace-editor-unscaler").create()
-    u.appendChild(<.div(^.attr("id") := id, ^.cls := "ace-editor").create())
+  override def attach() = {
+    val n = <.div(^.attr("id") := id + "-wrapper", ^.cls := "ace-editor-wrapper").build().create()
+    val u = <.div(^.cls := "ace-editor-unscaler").build().create()
+    u.appendChild(<.div(^.attr("id") := id, ^.cls := "ace-editor").build().create())
     n.appendChild(u)
     _domNode = Some(n)
     n

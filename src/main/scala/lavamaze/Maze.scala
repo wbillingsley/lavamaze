@@ -3,7 +3,7 @@ package lavamaze
 import java.util.NoSuchElementException
 
 import coderunner.Codable
-import com.wbillingsley.veautiful.html.{<, VHtmlNode, ^, DElement}
+import com.wbillingsley.veautiful.html.{<, VHtmlElement, ^, DElement}
 import org.scalajs.dom
 
 import scala.scalajs.js.JSConverters._
@@ -37,7 +37,7 @@ case class CodableMaze(name:String = "maze")(
 case class Maze(name:String = "maze")(
   viewSize:(Int, Int),
   mazeSize:(Int, Int),
-)(setup: Maze => _) extends VHtmlNode with Codable {
+)(setup: Maze => _) extends VHtmlElement with Codable {
 
   /** A function called each tick, that can be altered */
   var onTick: Maze => Unit = { _ => }
@@ -51,7 +51,7 @@ case class Maze(name:String = "maze")(
 
   val environment = LavaEnvironment(mWidth, mHeight)
 
-  private val canvas = <.canvas(^.attr("width") := drawWidth, ^.attr("height") := drawHeight)
+  private val canvas = <.mutable.canvas(^.attr("width") := drawWidth, ^.attr("height") := drawHeight)
 
   def domNode:Option[dom.html.Canvas] = canvas.domNode
   def attach() = canvas.attach()

@@ -3,14 +3,14 @@ package coderunner
 import com.wbillingsley.scatter.{Tile, TileSpace}
 import com.wbillingsley.scatter.jstiles._
 import com.wbillingsley.veautiful.DiffNode
-import com.wbillingsley.veautiful.html.{<, VHtmlComponent, VHtmlNode, ^}
+import com.wbillingsley.veautiful.html.{<, DHtmlComponent, VHtmlElement, ^}
 import jstiles.{InfixOperatorTile, PostfixOperatorTile, ReturnTile, StringInputTile}
 import lavasite.templates.AceEditor
 import org.scalajs.dom.{Element, Node}
 
 import scala.util.{Failure, Random, Success}
 
-case class JSCodable(codable: Codable, underCodable: Option[JSCodable => VHtmlNode] = None)(
+case class JSCodable(codable: Codable, underCodable: Option[JSCodable => VHtmlElement] = None)(
   fontSize:Int = 14,
   codeCanvasWidth:Int = 640, codeCanvasHeight:Int = 480, codeDrawHeight:Int = 400,
   buttonDrawerWidth:Int = 250,
@@ -19,7 +19,7 @@ case class JSCodable(codable: Codable, underCodable: Option[JSCodable => VHtmlNo
   codableHeight: Option[Int] = None,
   var tilesMode: Boolean = true,
   var asyncify:Boolean = true
-) extends VHtmlComponent {
+) extends DHtmlComponent {
 
   private val tileCanvas = new TileSpace(Some("example"), JSLang)((codeCanvasWidth, codeCanvasHeight))
   private val pt = new ProgramTile(tileCanvas, <.div(""))
@@ -79,7 +79,7 @@ case class JSCodable(codable: Codable, underCodable: Option[JSCodable => VHtmlNo
   }
 
 
-  object FunctionForm extends VHtmlComponent {
+  object FunctionForm extends DHtmlComponent {
     var name = ""
     var params = ""
 
@@ -91,7 +91,7 @@ case class JSCodable(codable: Codable, underCodable: Option[JSCodable => VHtmlNo
       addCallTile(name, params.split(",").map(_.trim).filter(_.nonEmpty))
     }
 
-    override protected def render: DiffNode[Element, Node] = {
+    override protected def render = {
       import com.wbillingsley.veautiful.html.EventMethods
 
       <.div(
@@ -119,7 +119,7 @@ case class JSCodable(codable: Codable, underCodable: Option[JSCodable => VHtmlNo
     }
   }
 
-  object VariableForm extends VHtmlComponent {
+  object VariableForm extends DHtmlComponent {
     var name = ""
 
     def assign() = {
@@ -134,7 +134,7 @@ case class JSCodable(codable: Codable, underCodable: Option[JSCodable => VHtmlNo
       addTileCode(new VariableTile(tileCanvas, name))
     }
 
-    override protected def render: DiffNode[Element, Node] = {
+    override protected def render = {
       import com.wbillingsley.veautiful.html.EventMethods
 
       <.div(
@@ -214,7 +214,7 @@ case class JSCodable(codable: Codable, underCodable: Option[JSCodable => VHtmlNo
 
   private def calcHeight:Int = codeDrawHeight + codeControlsHeight + consoleHeight
 
-  override protected def render: DiffNode[Element, Node] = {
+  override protected def render = {
     <.div(^.cls := "jscodable", ^.attr("style") := s"display: grid; grid-template-columns: ${leftWidth}px auto; height: ${calcHeight}px",
       <.div(^.cls := "left-area", ^.attr("style") := s"display: grid; grid-template-rows: ${codeDrawHeight}px 50px auto;",
         <.div(^.cls := "code-editing", ^.attr("style") := s"display: grid; grid-template-columns: ${buttonDrawerWidth}px auto;",
