@@ -24,7 +24,7 @@ case class NinePad(name:String = "pad")(
     case _ => <.span()
   }
 
-  override protected def render: DiffNode[Element, Node] = {
+  override protected def render = {
     <.div(^.cls := "ninepad",
       button(tl), button(tm), button(tr),
       button(ml), button(mm), button(mr),

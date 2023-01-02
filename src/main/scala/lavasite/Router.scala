@@ -1,15 +1,14 @@
 package lavasite
 
-import com.wbillingsley.veautiful.PathDSL
+import com.wbillingsley.veautiful.html.{<, VHtmlContent, ^, HistoryRouter, PathDSL}
 import PathDSL.Extract._
-import com.wbillingsley.veautiful.html.{<, VHtmlNode, ^}
-import com.wbillingsley.veautiful.templates.{HistoryRouter, VSlides}
+import com.wbillingsley.veautiful.templates.{VSlides}
 
 import scala.collection.mutable
 
 sealed trait Route {
   def path:String
-  def render: VHtmlNode
+  def render: VHtmlContent
 }
 object Route {
   val introPath = /# / "home"
@@ -28,8 +27,6 @@ case class DeckRoute(name:String, page:Int) extends Route {
 object Router extends HistoryRouter[Route] {
 
   var route:Route = IntroRoute
-
-  def rerender() = renderElements(render)
 
   def render = route.render
 

@@ -1,6 +1,6 @@
 package canvasland
 import coderunner.Codable
-import com.wbillingsley.veautiful.html.{VHtmlComponent, VHtmlNode}
+import com.wbillingsley.veautiful.html.{VHtmlComponent, VHtmlElement}
 import org.scalajs.dom
 import org.scalajs.dom.{CanvasRenderingContext2D, Node}
 

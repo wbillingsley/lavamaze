@@ -1,7 +1,7 @@
 package coderunner
 
 import com.wbillingsley.veautiful.DiffNode
-import com.wbillingsley.veautiful.html.{<, VHtmlComponent, VHtmlNode, ^}
+import com.wbillingsley.veautiful.html.{<, VHtmlComponent, VHtmlElement, ^}
 import org.scalajs.dom.{Element, Node, html}
 
 import scala.scalajs.js
@@ -28,7 +28,7 @@ class OnScreenConsole extends VHtmlComponent {
     rerender()
   }
 
-  override protected def render: DiffNode[Element, Node] = {
+  override protected def render = {
     <.textarea(^.cls := "onscreen-console", ^.attr("readonly") := "readonly", ^.prop("value") := _text)
   }
 }

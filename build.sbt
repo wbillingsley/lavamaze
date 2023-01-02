@@ -7,15 +7,13 @@ scalaVersion := "3.1.1"
 // Don't automatically call main
 scalaJSUseMainModuleInitializer := false
 
-resolvers += "jitpack" at "https://jitpack.io"
-
 updateOptions := updateOptions.value.withLatestSnapshots(false)
 
+val veautifulVersion = "0.3-M5"
+
 libraryDependencies ++= Seq(
-//  "org.scala-js" %%% "scalajs-dom" % "1.1.0",
-  "com.github.wbillingsley.veautiful" %%% "veautiful" % "v0.2-SNAPSHOT",
-  "com.github.wbillingsley.veautiful" %%% "veautiful-templates" % "v0.2-SNAPSHOT",
-	"com.github.wbillingsley.veautiful" %%% "scatter" % "v0.2-SNAPSHOT"
+  "com.wbillingsley" %%% "doctacular" % veautifulVersion,
+	"com.wbillingsley" %%% "scatter" % veautifulVersion
 )
 
 val deployScript = taskKey[Unit]("Copies the fullOptJS script to deployscripts/")

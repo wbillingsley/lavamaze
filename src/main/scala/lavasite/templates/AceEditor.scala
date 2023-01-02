@@ -1,6 +1,6 @@
 package lavasite.templates
 
-import com.wbillingsley.veautiful.html.{<, VHtmlNode, ^}
+import com.wbillingsley.veautiful.html.{<, VHtmlElement, ^}
 import org.scalajs.dom
 import org.scalajs.dom.raw.HTMLElement
 import org.scalajs.dom.{Event, Node, html}
@@ -13,14 +13,14 @@ object AceEditor {
   def ace = js.Dynamic.global.ace
 }
 
-case class AceEditor(name:String)(onStart: js.Dynamic => Unit) extends VHtmlNode {
+case class AceEditor(name:String)(onStart: js.Dynamic => Unit) extends VHtmlElement {
 
   val id = Random.nextString(10)
 
   private var _domNode:Option[html.Div] = None
   private var _editor:Option[js.Dynamic] = None
 
-  override def domNode: Option[Node] = _domNode
+  override def domNode = _domNode
 
   def editor = _editor
 
@@ -32,8 +32,8 @@ case class AceEditor(name:String)(onStart: js.Dynamic => Unit) extends VHtmlNode
     }
   }
 
-  override def attach(): Node = {
-    val n = <.div(^.attr("id") := id, ^.cls := "ace-editor").create()
+  override def attach() = {
+    val n = <.div(^.attr("id") := id, ^.cls := "ace-editor").build().create()
     _domNode = Some(n)
     n
   }
