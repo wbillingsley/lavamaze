@@ -1,35 +1,25 @@
 package lavasite
 
 import com.wbillingsley.veautiful.html.{<, ^}
-import lavasite.templates.FrontPage
 
-object Intro {
-
-  val frontPage = new FrontPage(
-    <.div(),
-    <.div(^.cls := "lead",
-      Common.markdown(
-        """
-          | # Lava Maze
-          |
-          | Lava Maze is a programmable game environment by [Will Billingsley](https://www.wbillingsley.com),
-          | used for outreach in learn-to-code activities.
-          |
-          | It's designed to work with JavaScript, programmed either via raw JavaScript or via my blocks
-          | programming language.
-          |
-          | This site contains the code of the game environment, and also works as a little test site for trying out
-          | some of the functionality.
-          |
-          |""".stripMargin
-      ),
-      <.ul(
-        <.li(<.a(^.href := DeckRoute("impossibleThings", 0).path, "LavaMaze Test Deck")),
-        <.li(<.a(^.href := DeckRoute("lineBot", 0).path, "LineBot Test Deck")),
-      )
-    ),
-    Seq(
-    )
-  )
-
-}
+def intro = <.div(
+  markdown.Fixed(
+    """
+    |# Welcome to the Lava Maze
+    |
+    |This is a suite of programmable game environments, built using [Veautiful](http://www.wbillingsley.com/veautiful) and Scala.js
+    |
+    |At the moment, this website holds some test decks to test the libraries are working o.k. The libraries are designed to be imported into Veautiful (and Doctacular) websites
+    |
+    |They can be imported using jitpack:
+    |
+    |```
+    |resolvers += "jitpack" at "https://jitpack.io"
+    |
+    |libraryDependencies += "com.github.wbillingsley" % "lavamaze" % "master-SNAPSHOT"
+    |```
+    |
+    |Publishing to Maven Central will come soon.
+    |
+    |""".stripMargin)
+)
