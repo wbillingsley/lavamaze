@@ -16,44 +16,6 @@ object Common {
 
   def markdown(s:String) = markdownGenerator.Fixed(s)
 
-  val routes:Seq[(Route, String)] = Seq(
-    IntroRoute -> "Home",
-  )
-
-  def linkToRoute(r:Route, s:String) = <.a(
-    ^.href := Router.path(r),
-    ^.cls := (if (Router.route == r) "nav-link active" else "nav-link"),
-    s
-  )
-
-  def leftMenu = <("nav")(^.cls := "d-none d-md-block bg-light sidebar",
-    <.div(^.cls := "sidebar-sticky",
-      <.ul(^.cls := "nav nav-pills flex-column",
-        for { (r, t) <- routes } yield <.li(
-          ^.cls := "nav-item",
-          linkToRoute(r, t)
-        )
-      )
-    )
-  )
-
-  def layout(ch:VHtmlContent) = shell(<.div(^.cls := "move-content-down",
-    <.div(^.cls := "row",
-      <.div(^.cls := "col-sm-3", leftMenu),
-      <.div(^.cls := "col-sm-9", ch)
-    )
-  ))
-
-  def shell(ch:VHtmlContent) = <.div(
-    <("nav")(^.cls := "navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow",
-      <.div(^.cls := "container",
-        <.a(^.cls := "navbar-brand col-sm-3 col-md-2 mr-0", ^.href := "#", "")
-      )
-    ),
-
-    <.div(^.cls := "container", ch)
-  )
-
   /** Circuits Up! Logo */
   def symbol = {
     <.span()
@@ -84,27 +46,5 @@ object Common {
       |  <img alt="Creative Commons Licence" style="border-width:0" src="https://i.creativecommons.org/l/by/3.0/au/88x31.png" /></a><br />
       |  This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/3.0/au/">Creative Commons Attribution 3.0 Australia License</a>.
       |""".stripMargin
-
-  /*
-   * Slide decks
-   */
-
-  val decks:Map[String, VSlides] = Map(
-    "impossibleThings" -> FirstDeck.deck,
-    "lineBot" -> LineBotDeck.deck,
-  )
-
-  def showDeck(s:String, page:Int = 0) = {
-    <.div(
-      <("nav")(^.cls := "navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow",
-        <.div(^.cls := "container",
-          <.a(^.cls := "navbar-brand col-sm-3 col-md-2 mr-0", ^.href := "#", "")
-        )
-      ),
-      <.div(DefaultVSlidesPlayer(decks(s))(page))
-    )
-  }
-
-
 
 }
