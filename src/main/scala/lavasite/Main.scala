@@ -5,8 +5,8 @@ import org.scalajs.dom
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation._
-import com.wbillingsley.veautiful.html.{Markup, <}
-import lavasite.lavadeck.{FirstDeck, LineBotDeck}
+import com.wbillingsley.veautiful.html.{Markup, <, Styling, StyleSuite}
+import lavasite.lavadeck.*
 
 // This site loads Marked as its markdown parser directly from a script included in the page.
 @js.native
@@ -15,13 +15,14 @@ object Marked extends js.Object:
   def parse(s:String):String = js.native
 
 given markdown:Markup = new Markup({ (s:String) => Marked.parse(s).asInstanceOf[String] })
+given styleSuite:StyleSuite = StyleSuite()
+val site = Site()
 
 @JSExportTopLevel("LavaMazeSite")
 object Main {
 
   @JSExport
   def load(): Unit = {
-    val site = Site()
     import site.given
 
     site.home = () => site.renderPage(intro)
@@ -29,39 +30,13 @@ object Main {
     site.toc = site.Toc(
       "Home" -> site.HomeRoute,
 
-      "Codables" -> site.Toc(
-        
+      "Challenges" -> site.Toc(
+        "Jan 2023" -> site.addChallenge("snobot-lava-maze", SnobotChallenge.levels ++ LanderChallenge.levels)
       ),
-
-      "Turtle" -> site.Toc(
-        
-      ),
-
-      "Snobot" -> site.Toc(
-        "Intro" -> site.addPage("snobot-intro", snobot)
-        
-      ),
-
-      "LineBot" -> site.Toc(
-        
-      ),
-
-      "Bumper" -> site.Toc(
-        
-      ),
-
-      "Lander" -> site.Toc(
-        
-      ),
-
-      "Test decks" -> site.Toc(
-        "fd" -> site.addDeck("first-test-deck", FirstDeck.deck),
-        "lbtd" -> site.addDeck("linebot-test-deck", LineBotDeck.deck),
-      ),
-
 
     )
 
+    styleSuite.install()
     site.attachToBody()
   }
 
