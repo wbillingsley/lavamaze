@@ -9,7 +9,7 @@ def intro = <.div(
     |
     |This is a suite of programmable game environments, built using [Veautiful](http://www.wbillingsley.com/veautiful) and Scala.js. 
     |
-    |If you're here to play, you might want to jump right into [the challenges](${site.router.path(site.ChallengeRoute("snobot-lava-maze", 0, 0))})
+    |If you're here to play, you might want to jump right into [the challenges](${site.router.path(site.ListPathRoute("challenges", "snobot-lava-maze", Nil))})
     |
     |
     |

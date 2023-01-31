@@ -1,7 +1,7 @@
 package lavasite
 
 import com.wbillingsley.veautiful.html.{<, Markup, VHtmlContent, ^}
-import com.wbillingsley.veautiful.templates.{VSlides, DefaultVSlidesPlayer}
+import com.wbillingsley.veautiful.doctacular.{VSlides, DefaultVSlidesPlayer}
 import lavasite.lavadeck.{FirstDeck, LineBotDeck}
 
 import scala.collection.mutable

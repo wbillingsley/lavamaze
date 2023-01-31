@@ -1,7 +1,7 @@
 package lavasite.lavadeck
 
 import com.wbillingsley.veautiful.html.*
-import com.wbillingsley.veautiful.templates.*
+import com.wbillingsley.veautiful.doctacular.*
 
 case class VNodeStage(n: () => VHtmlContent) extends Challenge.Stage {
 
