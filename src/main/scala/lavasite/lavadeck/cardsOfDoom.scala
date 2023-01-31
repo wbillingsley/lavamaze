@@ -8,7 +8,8 @@ import scala.scalajs.js
 import scala.util.Random
 
 import lavasite.{markdown, styleSuite}
-import com.wbillingsley.veautiful.templates.Challenge.Completion
+import com.wbillingsley.veautiful.doctacular.Challenge
+import Challenge.Completion
 
 
 val cardsOfDoomStyling = Styling(

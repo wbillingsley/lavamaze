@@ -4,7 +4,7 @@ import canvasland.{CanvasLand, Turtle}
 import coderunner.{JSCodable, LoggingPrefabCodable}
 import com.wbillingsley.veautiful.DiffNode
 import com.wbillingsley.veautiful.html.{<, VHtmlComponent, ^}
-import com.wbillingsley.veautiful.templates.{Challenge, DeckBuilder}
+import com.wbillingsley.veautiful.doctacular.{Challenge, DeckBuilder}
 import lavamaze.{BlobGuard, Boulder, Dogbot, Gate, GridMob, Maze, Mob, Overlay, Snobot}
 import lavasite.Common
 import org.scalajs.dom.{Element, Node}

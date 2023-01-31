@@ -1,7 +1,7 @@
 package lavasite.lavadeck
 
 import com.wbillingsley.veautiful.html.*
-import com.wbillingsley.veautiful.templates.Challenge
+import com.wbillingsley.veautiful.doctacular.Challenge
 import Challenge.{Completion, Level}
 
 import canvasland.{CanvasLand, Turtle}

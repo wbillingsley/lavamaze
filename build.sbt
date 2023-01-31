@@ -9,7 +9,7 @@ scalaJSUseMainModuleInitializer := false
 
 updateOptions := updateOptions.value.withLatestSnapshots(false)
 
-val veautifulVersion = "0.3-M5"
+val veautifulVersion = "0.3-M6"
 
 libraryDependencies ++= Seq(
   "com.wbillingsley" %%% "doctacular" % veautifulVersion,

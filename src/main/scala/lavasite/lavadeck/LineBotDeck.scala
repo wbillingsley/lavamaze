@@ -3,7 +3,7 @@ package lavasite.lavadeck
 import canvasland.{MicroRat, CanvasLand, LineTurtle, LunarLanderSim, RescueLine, Turtle, Vec2}
 import coderunner.JSCodable
 import com.wbillingsley.veautiful.html.<
-import com.wbillingsley.veautiful.templates.DeckBuilder
+import com.wbillingsley.veautiful.doctacular.DeckBuilder
 import lavamaze.{Gate, Maze, Overlay}
 import lavasite.Common
 import structures.ObjectInspector
