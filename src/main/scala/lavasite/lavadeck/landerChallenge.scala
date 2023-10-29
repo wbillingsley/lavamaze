@@ -28,6 +28,20 @@ object LanderChallenge {
     
   }
 
+  class TextBelowLanderStage(top:VHtmlContent, lls: LunarLanderSim) extends Challenge.Stage {
+
+    lls.Lander.showState = true
+
+    override def completion: Completion = Challenge.Open
+    override def kind = "exercise"
+
+    private val codable = JSCodable(lls.canvasLand)(tilesMode = false)
+    override protected def render = textColumn(
+      codable, <.div(^.cls := "lead", ^.attr("style") := "height: 200px", top), 
+    )
+    
+  }
+
   val levels = Seq(
     Level("Lunar lander", Seq(
       LanderStage(
