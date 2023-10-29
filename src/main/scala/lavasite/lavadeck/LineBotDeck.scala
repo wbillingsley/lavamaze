@@ -13,6 +13,45 @@ import coderunner.StructureVis
 
 object LineBotDeck {
 
+  def applyStandardInaccuracy(r:LineTurtle):Unit = {
+    r.moveWobble = Random.nextDouble * 0.02
+    r.moveWobbleBias = (Random.nextDouble - 0.5) * 0.0001
+    r.turnInaccuracy = Random.nextDouble * 0.05
+    r.turnBias = (Random.nextDouble - 0.5) * 0.05
+    r.moveInaccuracy = Random.nextDouble * 0.05
+    r.moveBias = (Random.nextDouble - 0.5) * 0.05
+  }
+
+  def applyLargeInaccuracy(r:LineTurtle):Unit = {
+    r.moveWobble = Random.nextDouble * 0.02
+    r.moveWobbleBias = (Random.nextDouble - 0.5) * 0.0001
+    r.turnInaccuracy = Random.nextDouble * 0.1
+    r.turnBias = (Random.nextDouble - 0.5) * 0.1
+    r.moveInaccuracy = Random.nextDouble * 0.1
+    r.moveBias = (Random.nextDouble - 0.5) * 0.1
+  }
+
+  def smallMaze(s:String, tw:Int = 5, th:Int = 2, start:(Int, Int) = (0, 0), inaccurate:Boolean = true, largeInaccurate:Boolean=false)(f: org.scalajs.dom.CanvasRenderingContext2D => Unit) = {
+    CanvasLand(s)(
+      viewSize = (tw * RescueLine.tileSize) -> (th * RescueLine.tileSize),
+      fieldSize= (tw * RescueLine.tileSize) -> (th * RescueLine.tileSize),
+      r = LineTurtle(start._1 * RescueLine.tileSize + RescueLine.halfTile, start._2 * RescueLine.tileSize + RescueLine.halfTile) { r =>
+        r.penDown = false
+        r.sensorLimit = 16
+
+        if (inaccurate) then applyStandardInaccuracy(r)
+        if (largeInaccurate) then applyLargeInaccuracy(r)
+      },
+      setup = c => {
+        c.fillCanvas("white")
+        c.drawGrid("rgb(200,240,240)", RescueLine.tileSize, 1)
+        c.withCanvasContext { ctx =>
+          f(ctx)
+        }
+      }
+    )
+  }
+
   val landerSim = new LunarLanderSim("lander")(onReset = { sim =>
     sim.world.gravity.y = 0.16
 

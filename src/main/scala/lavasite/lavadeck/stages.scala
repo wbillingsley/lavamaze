@@ -17,6 +17,12 @@ case class VNodeStage(n: () => VHtmlContent) extends Challenge.Stage {
 
 object VNodeStage {
 
+  def hero(content: => VHtmlContent) = VNodeStage(() => 
+    <.div(
+      <.div(^.style := "font-size: 150%; line-spacing: 150%;", content)
+    )
+  )
+
   def twoColumn(title:String)(left: () => VHtmlContent, right: () => VHtmlContent):VNodeStage = {
     VNodeStage(
       () => <.div(
