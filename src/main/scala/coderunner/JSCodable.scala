@@ -207,7 +207,7 @@ case class JSCodable(codable: Codable, underCodable: Option[JSCodable => VHtmlEl
     ^.attr("title") := "Text mode", ^.onClick --> { tilesMode = false; rerender() }
   )
   private val clear = <.button(^.cls := "btn btn-primary", ^.key := "clear",
-    ^.attr("title") := "Clear console", <("i")(^.cls := "material-icons", "clear"), ^.onClick --> { console.clear() }
+    ^.attr("title") := "Clear console", <("i")(^.cls := "material-symbols-outlined", "clear"), ^.onClick --> { console.clear() }
   )
 
   private def leftWidth = codeCanvasWidth + buttonDrawerWidth
