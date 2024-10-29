@@ -2,7 +2,7 @@ enablePlugins(ScalaJSPlugin)
 
 name := "lavamaze"
 organization := "com.wbillingsley"
-scalaVersion := "3.1.1"
+scalaVersion := "3.3.4"
 
 // Don't automatically call main
 scalaJSUseMainModuleInitializer := false
@@ -11,9 +11,13 @@ updateOptions := updateOptions.value.withLatestSnapshots(false)
 
 val veautifulVersion = "0.3-M6"
 
+// For Circuits Up!
+resolvers += "jitpack" at "https://jitpack.io"
+
 libraryDependencies ++= Seq(
   "com.wbillingsley" %%% "doctacular" % veautifulVersion,
-	"com.wbillingsley" %%% "scatter" % veautifulVersion
+	"com.wbillingsley" %%% "scatter" % veautifulVersion,
+  "com.github.theintelligentbook" % "circuitsup" % "master-SNAPSHOT"
 )
 
 val deployScript = taskKey[Unit]("Copies the fullOptJS script to deployscripts/")

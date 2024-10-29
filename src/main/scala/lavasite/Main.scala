@@ -33,6 +33,7 @@ object Main {
       "Challenges" -> site.Toc(
         "Jul 2024 hands-on workshop" -> site.addChallenge("snobot-lava-maze", SnobotChallenge.levels ++ LanderChallenge.levels),
         "Oct 2023 interactive lecture" -> site.addChallenge("oct-2023", trythisathome.levels),
+        "Oct 2024 interactive demo" -> site.addChallenge("oct-2024", trythisathome.levels2024),
       ),
 
     )
