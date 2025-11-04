@@ -34,6 +34,7 @@ object Main {
         "Jul 2024 hands-on workshop" -> site.addChallenge("snobot-lava-maze", SnobotChallenge.levels ++ LanderChallenge.levels),
         "Oct 2023 interactive lecture" -> site.addChallenge("oct-2023", trythisathome.levels),
         "Oct 2024 interactive demo" -> site.addChallenge("oct-2024", trythisathome.levels2024),
+        "Nov 2025 interactive demo" -> site.addChallenge("nov-2025", trythisathome.levels2025),
       ),
 
     )
